@@ -1,6 +1,6 @@
 from django import template
 
-from journal.entries.models import JournalEntry
+from entries.models import JournalEntry
 
 register = template.Library()
 

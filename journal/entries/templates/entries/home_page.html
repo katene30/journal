@@ -1,0 +1,13 @@
+{% extends "entries/base.html" %}
+
+{% load wagtailcore_tags entries_tags wagtailimages_tags %}
+
+{% block body_class %}template-homepage{% endblock %}
+
+{% block content %}
+    {{ page.header_text }}
+    {% image page.hero_image fill-800x400 alt=page.hero_alt_text %}
+    {{ page.body|richtext }}
+    {% entries %}
+{% endblock %}
+

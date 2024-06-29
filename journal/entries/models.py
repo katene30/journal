@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from wagtail.fields import RichTextField
 from wagtail.snippets.models import register_snippet
+from wagtail.models import Page
+from wagtail.admin.panels import FieldPanel
 
 @register_snippet
 class JournalEntry(models.Model):
@@ -12,7 +14,7 @@ class JournalEntry(models.Model):
     depression_level = models.IntegerField()
     anxiety_level = models.IntegerField()
     stress_level = models.IntegerField()
-    sleep_hours = models.DecimalField(max_digits=4, blank=True)
+    sleep_hours = models.IntegerField(blank=True)
     sleep_quality = models.IntegerField(blank=True)
     energy_level = models.IntegerField()
     social_interactions_quality = models.IntegerField(blank=True)
@@ -28,3 +30,16 @@ class JournalEntry(models.Model):
     
     class Meta:
         verbose_name_plural = "journal entries"
+
+class HomePage(Page):
+    header_text = models.CharField(max_length=255, blank=True)
+    hero_image = models.ImageField(blank=True)
+    hero_alt_text = models.CharField(max_length=255, blank=True, help_text="Alt text for the hero image")
+    body = RichTextField(blank=True)
+
+    content_panels = Page.content_panels + [
+        FieldPanel('header_text'),
+        FieldPanel('hero_image'),
+        FieldPanel('hero_alt_text'),
+        FieldPanel('body'),
+    ]
