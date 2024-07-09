@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.forms import ModelForm
+from django.shortcuts import redirect, render
 from wagtail.fields import RichTextField
 from wagtail.snippets.models import register_snippet
 from wagtail.models import Page
@@ -43,3 +45,23 @@ class HomePage(Page):
         FieldPanel('hero_alt_text'),
         FieldPanel('body'),
     ]
+
+
+class JournalEntryFormPage(Page):
+    intro_text = models.CharField(max_length=255, blank=True)
+    
+    content_panels = Page.content_panels + [
+        FieldPanel('intro_text'),
+    ]
+
+    def serve(self, request, *args, **kwargs):
+        from entries.forms import EntryForm
+        if request.method == 'POST':
+            form = EntryForm(request.POST)
+            if form.is_valid():
+                form.save()
+                return redirect(self.url)
+        else:
+            form = EntryForm()
+        
+        return render(request, 'entries/journal_entry_form_page.html', {'form': form})

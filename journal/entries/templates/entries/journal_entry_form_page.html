@@ -1,0 +1,15 @@
+{% extends "entries/base.html" %}
+
+{% load wagtailcore_tags entries_tags wagtailimages_tags %}
+
+{% block body_class %}template-homepage{% endblock %}
+
+{% block content %}
+    {{ page.intro_text }}
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
+{% endblock %}
+
