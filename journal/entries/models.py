@@ -57,7 +57,7 @@ class JournalEntryFormPage(Page):
     def serve(self, request, *args, **kwargs):
         from entries.forms import EntryForm
         if request.method == 'POST':
-            form = EntryForm(request.POST)
+            form = EntryForm(request.POST, user=request.user)
             if form.is_valid():
                 form.save()
                 return redirect(self.url)
