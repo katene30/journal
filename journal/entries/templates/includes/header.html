@@ -1,0 +1,25 @@
+{% load wagtailcore_tags navigation_tags %}
+
+{% get_site_root as site_root %}
+
+<nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="{% pageurl site_root %}">Journal</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarColor01">
+        <ul class="navbar-nav me-auto">
+        {% for menuitem in site_root.get_children.live.in_menu %}
+          <li class="nav-item">
+            <a class="nav-link active" href="{% pageurl menuitem %}">{{ menuitem.title }}
+            {% if menuitem.url == request.path %}
+              <span class="visually-hidden">(current)</span>
+            {% endif %}
+            </a>
+          </li>
+        {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </nav>
