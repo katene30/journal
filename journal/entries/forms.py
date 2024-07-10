@@ -1,5 +1,6 @@
 from entries.models import JournalEntry
 from django.forms import ModelForm
+from django.forms.widgets import Textarea
 from datetime import date
 
 
@@ -7,6 +8,15 @@ class EntryForm(ModelForm):
     class Meta:
         model = JournalEntry
         exclude = ['user','date']
+        widgets = {
+            'log': Textarea(attrs={
+                'class': "form-control",
+                'placeholder': "Write about your day, thoughts, feelings, and significant events here..."
+                }),
+            'significant_events': Textarea(attrs={
+                'class': "form-control",
+                }),
+        }
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)

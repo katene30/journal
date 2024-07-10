@@ -55,6 +55,12 @@ class JournalEntryFormPage(Page):
 
     def serve(self, request, *args, **kwargs):
         from entries.forms import EntryForm
+        slider_fields = [
+            'mood', 'depression_level', 'anxiety_level', 'stress_level', 
+            'sleep_hours', 'sleep_quality', 'energy_level', 
+            'social_interactions_quality', 'productivity_level', 
+            'diet_quality', 'self_care_effectiveness', 'overall_day_rating'
+        ]
         if request.method == 'POST':
             form = EntryForm(request.POST, user=request.user)
             if form.is_valid():
@@ -63,4 +69,4 @@ class JournalEntryFormPage(Page):
         else:
             form = EntryForm()
         
-        return render(request, 'entries/journal_entry_form_page.html', {'form': form})
+        return render(request, 'entries/journal_entry_form_page.html', {'form': form, 'slider_fields': slider_fields})
