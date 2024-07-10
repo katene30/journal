@@ -26,6 +26,7 @@ class JournalEntry(models.Model):
     self_care_effectiveness = models.IntegerField()
     significant_events = models.TextField(blank=True, null=True)
     overall_day_rating = models.IntegerField()
+    entry_url = models.URLField(blank=True, null=True)
 
     def __str__(self):
         return f"Entry for {self.user} on {self.date}"
@@ -57,6 +58,17 @@ class HomePage(Page):
         FieldPanel('body'),
     ]
 
+class JournalEntryPage(Page):
+    journal_entry = models.ForeignKey('JournalEntry', on_delete=models.SET_NULL, null=True, blank=True, related_name='+')
+
+    content_panels = Page.content_panels + [
+        FieldPanel('journal_entry'),
+    ]
+
+    def serve(self, request):
+        context = self.get_context(request)
+        context['entry'] = self.journal_entry
+        return render(request, 'entries/journal_entry_page.html', context)
 
 class JournalEntryFormPage(Page):
     intro_text = models.CharField(max_length=255, blank=True)

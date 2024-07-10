@@ -1,4 +1,4 @@
-{% load custom_filters %}
+{% load wagtailcore_tags custom_filters %}
     {% for entry in entries %}
         {% if forloop.counter0|divisibleby:4 %}
             <div class="d-flex flex-row mb-3">
@@ -6,7 +6,11 @@
         
         <div class="col-md-3">
             <div class="card text-white bg-secondary mb-3 mx-3" style="max-width: 20rem;">
-                <div class="card-header">{% if entry.generated_header %}{{ entry.generated_header }}{% else %}Fun Header{% endif %}</div>
+                <div class="card-header">
+                    <a href="{{ entry.entry_url }}" class="text-light">
+                    {% if entry.generated_header %}{{ entry.generated_header }}{% else %}Fun Header{% endif %}
+                    </a>
+                </div>
                 <div class="card-body">
                     <h4 class="card-title">{{ entry.date }}</h4>
                     <p class="card-text">{{ entry.log|safe|truncate_log }}</p>
