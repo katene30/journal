@@ -11,6 +11,7 @@ class JournalEntry(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     date = models.DateField()
     log = models.TextField()
+    generated_header = models.CharField(max_length=255, blank=True, null=True)
     mood = models.IntegerField()
     depression_level = models.IntegerField()
     anxiety_level = models.IntegerField()
@@ -31,6 +32,17 @@ class JournalEntry(models.Model):
     
     class Meta:
         verbose_name_plural = "journal entries"
+    
+    def generate_header(self):
+        import cohere
+        co = cohere.Client('nuhcjvBs89VZvSq4bA4MV45iYogTc0Lc5uJE86Cb')
+
+        response = co.chat(
+            message=f'Generate a fun and creative header for the following journal entry log in five words or less. Make sure to only include the heading with no other text:\n\n{self.log}',
+        )
+
+        self.generated_header = response.text
+        self.save()
 
 class HomePage(Page):
     header_text = models.CharField(max_length=255, blank=True)

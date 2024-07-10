@@ -7,7 +7,7 @@ from datetime import date
 class EntryForm(ModelForm):
     class Meta:
         model = JournalEntry
-        exclude = ['user','date']
+        exclude = ['user','date','generated_header']
         widgets = {
             'log': Textarea(attrs={
                 'class': "form-control",
@@ -28,5 +28,6 @@ class EntryForm(ModelForm):
             instance.user = self.user
         instance.date = date.today()
         if commit:
+            instance.generate_header()
             instance.save()
         return instance
