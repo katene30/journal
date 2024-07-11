@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
 from wagtail.fields import RichTextField
@@ -43,7 +44,7 @@ class JournalEntry(models.Model):
     
     def generate_header(self):
         import cohere
-        co = cohere.Client('nuhcjvBs89VZvSq4bA4MV45iYogTc0Lc5uJE86Cb')
+        co = cohere.Client(settings.COHERE_API_KEY)
 
         response = co.chat(
             message=f'Generate a fun and creative header for the following journal entry log in five words or less. Make sure to only include the heading with no other text:\n\n{self.log}',

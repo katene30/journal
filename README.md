@@ -30,38 +30,44 @@ Journal Entry Tracker is a Django-powered web application designed to help users
     cd journal-entry-tracker
     ```
 
-2. **Set Up Virtual Environment**:
+2. **Update Env File**:
+
+    ```sh
+    cp example.env .env
+    ```
+
+3. **Set Up Virtual Environment**:
 
     ```sh
     python3 -m venv venv
     source venv/bin/activate
     ```
 
-3. **Install Dependencies**:
+4. **Install Dependencies**:
 
     ```sh
     pip install -r requirements.txt
     ```
 
-4. **Apply Migrations**:
+5. **Apply Migrations**:
 
     ```sh
     python manage.py migrate
     ```
 
-5. **Create a Superuser** (for accessing the admin panel):
+6. **Create a Superuser** (for accessing the admin panel):
 
     ```sh
     python manage.py createsuperuser
     ```
 
-6. **Run the Development Server**:
+7. **Run the Development Server**:
 
     ```sh
     python manage.py runserver
     ```
 
-7. **Access the Application**:
+8. **Access the Application**:
 
     Open your browser and navigate to `http://127.0.0.1:8000/`
 
