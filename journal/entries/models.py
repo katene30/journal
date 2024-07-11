@@ -9,7 +9,7 @@ from wagtail.admin.panels import FieldPanel
 
 SLIDER_FIELDS = [
             'mood', 'depression_level', 'anxiety_level', 'stress_level', 
-            'sleep_hours', 'sleep_quality', 'energy_level', 
+            'sleep_quality', 'energy_level', 
             'social_interactions_quality', 'productivity_level', 
             'diet_quality', 'self_care_effectiveness', 'overall_day_rating'
         ]

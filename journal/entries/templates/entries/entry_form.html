@@ -7,9 +7,14 @@
         {% for field in form %}
             {% with field.html_name|slugify as html_name %}
                 <div class="form-group mb-3">
-                    <label for="{{ html_name }}" class="form-label">{{ field.label }}</label>
+                    <label for="{{ html_name }}" class="form-label">{{ field.label }}:</label>
                     {% if field.name in slider_fields %}
-                        <input type="range" aria-describedby="{{ html_name }}-help" class="form-range form-control" id="{{ html_name }}" name="{{ field.name }}" min="1" max="10" value="{{ field.value|default_if_none:5 }}">
+                        <output for="{{ html_name }}" id="{{ html_name }}-output">{{ field.value|default_if_none:0 }}</output>
+                        <input type="range" aria-describedby="{{ html_name }}-help" class="form-range form-control" id="{{ html_name }}" name="{{ field.name }}" min="1" max="10" value="{{ field.value|default_if_none:0 }}">
+                        <small id="{{ html_name }}-help" class="form-text text-muted">{{ field.help_text }}</small>
+
+                    {% elif field.name == 'alcohol_caffeine_consumption' or field.name == 'sleep_hours' %}
+                        <input type="text" class="form-control form-control-lg" id="{{ html_name }}" name="{{ field.name }}" value="{{ field.value|default_if_none:'' }}">
                         <small id="{{ html_name }}-help" class="form-text text-muted">{{ field.help_text }}</small>
                     {% else %}
                         {{ field }}
@@ -22,3 +27,21 @@
     </div>
     <button type="submit" class="btn btn-primary">Save</button>
 </form>
+<script>
+    // Add event listeners to update the output element when the range input changes
+    document.addEventListener("DOMContentLoaded", function() {
+        var rangeInputs = document.querySelectorAll("input[type='range']");
+        
+        rangeInputs.forEach(function(input) {
+            var output = document.getElementById(input.id + "-output");
+
+            // Update the output element with the current value of the range input
+            output.textContent = input.value;
+
+            // Add event listener to update the output when input value changes
+            input.addEventListener("input", function() {
+                output.textContent = this.value;
+            });
+        });
+    });
+</script>
