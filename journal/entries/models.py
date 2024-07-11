@@ -6,6 +6,13 @@ from wagtail.snippets.models import register_snippet
 from wagtail.models import Page
 from wagtail.admin.panels import FieldPanel
 
+SLIDER_FIELDS = [
+            'mood', 'depression_level', 'anxiety_level', 'stress_level', 
+            'sleep_hours', 'sleep_quality', 'energy_level', 
+            'social_interactions_quality', 'productivity_level', 
+            'diet_quality', 'self_care_effectiveness', 'overall_day_rating'
+        ]
+
 @register_snippet
 class JournalEntry(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -78,6 +85,7 @@ class JournalEntryPage(Page):
         context = self.get_context(request)
         context['entry'] = self.journal_entry
         context['form'] = form
+        context['slider_fields'] = SLIDER_FIELDS
         return render(request, 'entries/journal_entry_page.html', context)
 
 class JournalEntryFormPage(Page):
@@ -89,12 +97,6 @@ class JournalEntryFormPage(Page):
 
     def serve(self, request, *args, **kwargs):
         from entries.forms import EntryForm
-        slider_fields = [
-            'mood', 'depression_level', 'anxiety_level', 'stress_level', 
-            'sleep_hours', 'sleep_quality', 'energy_level', 
-            'social_interactions_quality', 'productivity_level', 
-            'diet_quality', 'self_care_effectiveness', 'overall_day_rating'
-        ]
         if request.method == 'POST':
             form = EntryForm(request.POST, user=request.user)
             if form.is_valid():
@@ -103,4 +105,4 @@ class JournalEntryFormPage(Page):
         else:
             form = EntryForm()
         
-        return render(request, 'entries/journal_entry_form_page.html', {'form': form, 'slider_fields': slider_fields})
+        return render(request, 'entries/journal_entry_form_page.html', {'form': form, 'slider_fields': SLIDER_FIELDS})

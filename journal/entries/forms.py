@@ -48,7 +48,6 @@ class EntryForm(ModelForm):
         instance = super().save(commit=False)
         if self.user:
             instance.user = self.user
-        instance.date = date.today()
         if commit:
             instance.generate_header()
             instance.save()

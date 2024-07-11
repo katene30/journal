@@ -6,26 +6,5 @@
 
 {% block content %}
     <h2 class="mb-4">{{ page.intro_text }}</h2>
-    <form method="post">
-        {% csrf_token %}
-        <div class="mb-3">
-            {{ form.non_field_errors }}
-            {% for field in form %}
-                {% with field.html_name|slugify as html_name %}
-                    <div class="form-group mb-3">
-                        <label for="{{ html_name }}" class="form-label">{{ field.label }}</label>
-                        {% if field.name in slider_fields %}
-                            <input type="range" aria-describedby="{{ html_name }}-help" class="form-range form-control" id="{{ html_name }}" name="{{ html_name }}" min="1" max="10" value="{{ field.value|default_if_none:5 }}">
-                            <small id="{{ html_name }}-help" class="form-text text-muted">{{ field.help_text }}</small>
-                        {% else %}
-                            {{ field }}
-                            <small id="{{ html_name }}-help" class="form-text text-muted">{{ field.help_text }}</small>
-                        {% endif %}
-                        {{ field.errors }}
-                    </div>
-                {% endwith %}
-            {% endfor %}
-        </div>
-        <button type="submit" class="btn btn-primary">Save</button>
-    </form>
+    {% include "entries/entry_form.html" %}
 {% endblock %}
