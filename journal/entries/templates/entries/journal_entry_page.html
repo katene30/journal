@@ -2,7 +2,7 @@
 {% block content %}
     <div class="journal-entry">
         <h2>Entry for {{ entry.user.username }} on {{ entry.date }}</h2>
-        <p><strong>Log:</strong> {{ entry.log|safe }}</p>
+        <p>{{ entry.log|safe }}</p>
         <p><strong>Mood:</strong> {{ entry.mood }}</p>
         <p><strong>Depression Level:</strong> {{ entry.depression_level }}</p>
         <p><strong>Anxiety Level:</strong> {{ entry.anxiety_level }}</p>
@@ -18,4 +18,6 @@
         <p><strong>Significant Events:</strong> {{ entry.significant_events }}</p>
         <p><strong>Overall Day Rating:</strong> {{ entry.overall_day_rating }}</p>
     </div>
+    <button type="button" class="btn btn-primary">Edit</button>
+    <button type="button" class="btn btn-danger">Delete</button>
 {% endblock %}
