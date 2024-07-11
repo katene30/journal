@@ -11,15 +11,14 @@
         <div class="mb-3">
             {{ form.non_field_errors }}
             {% for field in form %}
-            <div class="mb-3">
+            <div class="form-group mb-3">
                     <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
                     {% if field.name in slider_fields %}
-                        <input type="range" class="form-range" id="{{ field.id_for_label }}" name="{{ field.html_name }}" min="1" max="10" value="{{ field.value|default_if_none:5 }}">
+                        <input type="range" aria-describedby="{{ field.id_for_label }}-help" class="form-range form-control" id="{{ field.id_for_label }}" name="{{ field.html_name }}" min="1" max="10" value="{{ field.value|default_if_none:5 }}">
+                        <small id="{{ field.id_for_label }}-help" class="form-text text-muted">{{ field.help_text }}</small>
                     {% else %}
                         {{ field }}
-                    {% endif %}
-                    {% if field.help_text %}
-                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                        <small id="{{ field.id_for_label }}-help" class="form-text text-muted">{{ field.help_text }}</small>
                     {% endif %}
                     {{ field.errors }}
                 </div>
