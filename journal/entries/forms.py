@@ -1,5 +1,6 @@
 from entries.models import JournalEntry
 from django.forms import ModelForm
+from django import forms
 from django.forms.widgets import Textarea
 from datetime import date
 from django.db.models import CharField
@@ -36,6 +37,7 @@ class EntryForm(ModelForm):
             'significant_events': Textarea(attrs={
                 'class': "form-control",
                 }),
+            'date': forms.SelectDateWidget(),
         }
 
     def __init__(self, *args, **kwargs):
