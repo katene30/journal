@@ -1,6 +1,6 @@
 {% extends "entries/base.html" %}
 {% block content %}
-    <div class="journal-entry">
+    <div id="journal-entry">
         <h2>Entry for {{ entry.user.username }} on {{ entry.date }}</h2>
         <p>{{ entry.log|safe }}</p>
         <p><strong>Mood:</strong> {{ entry.mood }}</p>
@@ -17,9 +17,9 @@
         <p><strong>Self-care Effectiveness:</strong> {{ entry.self_care_effectiveness }}</p>
         <p><strong>Significant Events:</strong> {{ entry.significant_events }}</p>
         <p><strong>Overall Day Rating:</strong> {{ entry.overall_day_rating }}</p>
+        <button type="button" class="btn btn-primary" onclick="toggleEditForm()">Edit</button>
+        <button type="button" class="btn btn-danger">Delete</button>
     </div>
-    <button type="button" class="btn btn-primary" onclick="toggleEditForm()">Edit</button>
-    <button type="button" class="btn btn-danger">Delete</button>
 
     <div id="edit-form" style="display: none;">
         {% include "entries/entry_form.html" %}
@@ -27,11 +27,14 @@
 
     <script>
         function toggleEditForm() {
+            var journalEntry = document.getElementById('journal-entry');
             var editForm = document.getElementById('edit-form');
             if (editForm.style.display === 'none') {
                 editForm.style.display = 'block';
+                journalEntry.style.display = 'none';
             } else {
                 editForm.style.display = 'none';
+                journalEntry.style.display = 'block';
             }
         }
     </script>
