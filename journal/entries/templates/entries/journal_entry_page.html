@@ -1,4 +1,5 @@
 {% extends "entries/base.html" %}
+{% load wagtailcore_tags %}
 {% block content %}
     <div id="journal-entry">
         <h2>Entry for {{ entry.user.username }} on {{ entry.date }}</h2>
@@ -18,7 +19,10 @@
         <p><strong>Significant Events:</strong> {{ entry.significant_events }}</p>
         <p><strong>Overall Day Rating:</strong> {{ entry.overall_day_rating }}</p>
         <button type="button" class="btn btn-primary" onclick="toggleEditForm()">Edit</button>
-        <button type="button" class="btn btn-danger">Delete</button>
+        <form method="post" action="{% pageurl page %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger" name="delete_button">Delete</button>
+        </form>
     </div>
 
     <div id="edit-form" style="display: none;">

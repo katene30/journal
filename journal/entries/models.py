@@ -76,6 +76,12 @@ class JournalEntryPage(Page):
     def serve(self, request):
         from entries.forms import EntryForm
         if request.method == 'POST':
+
+            if 'delete_button' in request.POST:
+                if self.journal_entry:
+                    self.journal_entry.delete()
+                    return redirect(self.get_parent().url) 
+
             form = EntryForm(request.POST, instance=self.journal_entry)
             if form.is_valid():
                 form.save()
