@@ -27,7 +27,7 @@ class EntryForm(ModelForm):
 
     class Meta:
         model = JournalEntry
-        exclude = ['user','date','generated_header']
+        exclude = ['user','entry_url', 'generated_header']
         widgets = {
             'log': Textarea(attrs={
                 'class': "form-control",
@@ -43,7 +43,6 @@ class EntryForm(ModelForm):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
             field.help_text = self.help_texts.get(field_name, '')
-            field.widget.attrs['aria-describedby'] = f'{field_name}-help'
 
     def save(self, commit=True):
         instance = super().save(commit=False)

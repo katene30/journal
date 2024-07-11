@@ -1,6 +1,6 @@
 {% extends "entries/base.html" %}
 
-{% load wagtailcore_tags entries_tags wagtailimages_tags %}
+{% load wagtailcore_tags entries_tags wagtailimages_tags custom_filters %}
 
 {% block body_class %}template-homepage{% endblock %}
 
@@ -11,17 +11,19 @@
         <div class="mb-3">
             {{ form.non_field_errors }}
             {% for field in form %}
-            <div class="form-group mb-3">
-                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                    {% if field.name in slider_fields %}
-                        <input type="range" aria-describedby="{{ field.id_for_label }}-help" class="form-range form-control" id="{{ field.id_for_label }}" name="{{ field.html_name }}" min="1" max="10" value="{{ field.value|default_if_none:5 }}">
-                        <small id="{{ field.id_for_label }}-help" class="form-text text-muted">{{ field.help_text }}</small>
-                    {% else %}
-                        {{ field }}
-                        <small id="{{ field.id_for_label }}-help" class="form-text text-muted">{{ field.help_text }}</small>
-                    {% endif %}
-                    {{ field.errors }}
-                </div>
+                {% with field.html_name|slugify as html_name %}
+                    <div class="form-group mb-3">
+                        <label for="{{ html_name }}" class="form-label">{{ field.label }}</label>
+                        {% if field.name in slider_fields %}
+                            <input type="range" aria-describedby="{{ html_name }}-help" class="form-range form-control" id="{{ html_name }}" name="{{ html_name }}" min="1" max="10" value="{{ field.value|default_if_none:5 }}">
+                            <small id="{{ html_name }}-help" class="form-text text-muted">{{ field.help_text }}</small>
+                        {% else %}
+                            {{ field }}
+                            <small id="{{ html_name }}-help" class="form-text text-muted">{{ field.help_text }}</small>
+                        {% endif %}
+                        {{ field.errors }}
+                    </div>
+                {% endwith %}
             {% endfor %}
         </div>
         <button type="submit" class="btn btn-primary">Save</button>
