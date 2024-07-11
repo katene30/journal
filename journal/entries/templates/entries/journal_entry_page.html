@@ -18,6 +18,25 @@
         <p><strong>Significant Events:</strong> {{ entry.significant_events }}</p>
         <p><strong>Overall Day Rating:</strong> {{ entry.overall_day_rating }}</p>
     </div>
-    <button type="button" class="btn btn-primary">Edit</button>
+    <button type="button" class="btn btn-primary" onclick="toggleEditForm()">Edit</button>
     <button type="button" class="btn btn-danger">Delete</button>
+
+    <div id="edit-form" style="display: none;">
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+    </div>
+
+    <script>
+        function toggleEditForm() {
+            var editForm = document.getElementById('edit-form');
+            if (editForm.style.display === 'none') {
+                editForm.style.display = 'block';
+            } else {
+                editForm.style.display = 'none';
+            }
+        }
+    </script>
 {% endblock %}

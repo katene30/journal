@@ -26,7 +26,7 @@ class JournalEntry(models.Model):
     self_care_effectiveness = models.IntegerField()
     significant_events = models.TextField(blank=True, null=True)
     overall_day_rating = models.IntegerField()
-    entry_url = models.URLField(blank=True, null=True)
+    entry_url = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return f"Entry for {self.user} on {self.date}"
@@ -66,8 +66,18 @@ class JournalEntryPage(Page):
     ]
 
     def serve(self, request):
+        from entries.forms import EntryForm
+        if request.method == 'POST':
+            form = EntryForm(request.POST, instance=self.journal_entry)
+            if form.is_valid():
+                form.save()
+                return redirect(self.url)
+        else:
+            form = EntryForm(instance=self.journal_entry)
+
         context = self.get_context(request)
         context['entry'] = self.journal_entry
+        context['form'] = form
         return render(request, 'entries/journal_entry_page.html', context)
 
 class JournalEntryFormPage(Page):
