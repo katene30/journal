@@ -88,11 +88,42 @@ class JournalEntryPage(Page):
                 return redirect(self.url)
         else:
             form = EntryForm(instance=self.journal_entry)
+        
+        # Prepare data for the bar chart
+        chart_labels = [
+            'Mood', 'Depression Level', 'Anxiety Level', 'Stress Level',
+            'Sleep Quality', 'Energy Level', 'Social Interactions Quality',
+            'Productivity Level', 'Diet Quality', 'Self-care Effectiveness',
+            'Overall Day Rating'
+        ]
+
+        chart_data = [
+            self.journal_entry.mood,
+            self.journal_entry.depression_level,
+            self.journal_entry.anxiety_level,
+            self.journal_entry.stress_level,
+            self.journal_entry.sleep_quality or 0,
+            self.journal_entry.energy_level,
+            self.journal_entry.social_interactions_quality or 0,
+            self.journal_entry.productivity_level or 0,
+            self.journal_entry.diet_quality or 0,
+            self.journal_entry.self_care_effectiveness,
+            self.journal_entry.overall_day_rating
+        ]
+
+        chart_colors = ['#4CAF50', '#2196F3', '#FF9800', '#F44336', '#3F51B5',
+                '#FFC107', '#9C27B0', '#00BCD4', '#8BC34A', '#E91E63', '#FF5722']
+
 
         context = self.get_context(request)
         context['entry'] = self.journal_entry
         context['form'] = form
         context['slider_fields'] = SLIDER_FIELDS
+        context['chart_labels'] = chart_labels
+        context['chart_data'] = chart_data
+        context['chart_colors'] = chart_colors
+        context['chart_id'] = 'journalEntryChart'
+        context['chart_title'] = 'Daily Metrics Overview'
         return render(request, 'entries/journal_entry_page.html', context)
 
 class JournalEntryFormPage(Page):

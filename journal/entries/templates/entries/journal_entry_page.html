@@ -4,20 +4,16 @@
     <div id="journal-entry">
         <h2>Entry for {{ entry.user.username }} on {{ entry.date }}</h2>
         <p>{{ entry.log|safe }}</p>
-        <p><strong>Mood:</strong> {{ entry.mood }}</p>
-        <p><strong>Depression Level:</strong> {{ entry.depression_level }}</p>
-        <p><strong>Anxiety Level:</strong> {{ entry.anxiety_level }}</p>
-        <p><strong>Stress Level:</strong> {{ entry.stress_level }}</p>
         <p><strong>Sleep Hours:</strong> {{ entry.sleep_hours }}</p>
-        <p><strong>Sleep Quality:</strong> {{ entry.sleep_quality }}</p>
-        <p><strong>Energy Level:</strong> {{ entry.energy_level }}</p>
-        <p><strong>Social Interactions Quality:</strong> {{ entry.social_interactions_quality }}</p>
-        <p><strong>Productivity Level:</strong> {{ entry.productivity_level }}</p>
-        <p><strong>Diet Quality:</strong> {{ entry.diet_quality }}</p>
         <p><strong>Alcohol/Caffeine Consumption:</strong> {{ entry.alcohol_caffeine_consumption }}</p>
-        <p><strong>Self-care Effectiveness:</strong> {{ entry.self_care_effectiveness }}</p>
-        <p><strong>Significant Events:</strong> {{ entry.significant_events }}</p>
-        <p><strong>Overall Day Rating:</strong> {{ entry.overall_day_rating }}</p>
+        {% if entry.significant_events %}
+            <p><strong>Significant Events:</strong> {{ entry.significant_events }}</p>
+        {% endif %}
+        <!-- Bar Chart -->
+        <div class="metrics-chart">
+            {% include "includes/bar_chart.html" with chart_id=chart_id chart_labels=chart_labels|safe chart_data=chart_data|safe chart_colors=chart_colors|safe chart_title=chart_title %}
+        </div>
+
         <button type="button" class="btn btn-primary" onclick="toggleEditForm()">Edit</button>
         <form method="post" action="{% pageurl page %}">
             {% csrf_token %}

@@ -1,0 +1,40 @@
+<!-- templates/includes/_bar_chart.html -->
+<canvas id="{{ chart_id }}" width="400" height="200"></canvas>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const ctx = document.getElementById('{{ chart_id }}').getContext('2d');
+
+        // Highlight settings
+        const highlightLabel = 'Overall Day Rating'; // The label to highlight
+        const highlightColor = '#FFFFFF'; // Color for highlighting
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ chart_labels|safe }},
+                datasets: [{
+                    label: '{{ chart_title }}',
+                    data: {{ chart_data|safe }},
+                    backgroundColor: {{ chart_colors|safe }},
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 10
+                    },
+                    x: {
+                        ticks: {
+                            color: (context) => {
+                                const label = context.tick.label;
+                                console.log(label)
+                                return label === 'Overall Day Rating' ? highlightColor : 'rgb(98, 98, 98)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
