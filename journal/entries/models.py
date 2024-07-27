@@ -55,9 +55,17 @@ class JournalEntry(models.Model):
 
 class HomePage(Page):
     header_text = models.CharField(max_length=255, blank=True)
-    hero_image = models.ImageField(blank=True)
     hero_alt_text = models.CharField(max_length=255, blank=True, help_text="Alt text for the hero image")
     body = RichTextField(blank=True)
+    hero_image = models.ForeignKey(
+        'wagtailimages.Image',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+'
+    )
+
+
 
     content_panels = Page.content_panels + [
         FieldPanel('header_text'),
