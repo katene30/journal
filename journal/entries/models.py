@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
+from django.utils.dateformat import DateFormat
 from wagtail.fields import RichTextField
 from wagtail.snippets.models import register_snippet
 from wagtail.models import Page
@@ -152,3 +153,44 @@ class JournalEntryFormPage(Page):
             form = EntryForm()
         
         return render(request, 'entries/journal_entry_form_page.html', {'form': form, 'slider_fields': SLIDER_FIELDS})
+
+from wagtail.models import Page
+from django.db import models
+from wagtail.admin.panels import FieldPanel
+from django.shortcuts import render
+from entries.models import JournalEntry
+
+class SummaryPage(Page):
+    intro_text = models.CharField(max_length=255, blank=True)
+
+    content_panels = Page.content_panels + [
+        FieldPanel('intro_text'),
+    ]
+
+    def serve(self, request):
+        # Get filters from the request
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+        metric = request.GET.get('metric', 'overall_day_rating')
+
+        # Fetch entries based on filters
+        journal_entries = JournalEntry.objects.filter(
+            user=request.user,
+            date__range=[start_date, end_date]
+        ).order_by('date')
+
+        # Prepare data for the chart
+        dates = [DateFormat(entry.date).format('Y-m-d') for entry in journal_entries]
+        values = [getattr(entry, metric) for entry in journal_entries]
+
+        context = self.get_context(request)
+        context['dates'] = dates
+        context['values'] = values
+        context['metric'] = metric
+        context['available_metrics'] = [
+            'mood', 'depression_level', 'anxiety_level', 'stress_level', 
+            'sleep_quality', 'energy_level', 
+            'social_interactions_quality', 'productivity_level', 
+            'diet_quality', 'self_care_effectiveness', 'overall_day_rating'
+        ]
+        return render(request, 'entries/summary_page.html', context)
