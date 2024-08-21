@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
+from django.utils.dateformat import DateFormat
 from wagtail.fields import RichTextField
 from wagtail.snippets.models import register_snippet
 from wagtail.models import Page
@@ -152,3 +153,60 @@ class JournalEntryFormPage(Page):
             form = EntryForm()
         
         return render(request, 'entries/journal_entry_form_page.html', {'form': form, 'slider_fields': SLIDER_FIELDS})
+
+from wagtail.models import Page
+from django.db import models
+from wagtail.admin.panels import FieldPanel
+from django.shortcuts import render
+from entries.models import JournalEntry
+
+class SummaryPage(Page):
+    intro_text = models.CharField(max_length=255, blank=True)
+
+    content_panels = Page.content_panels + [
+        FieldPanel('intro_text'),
+    ]
+
+    METRIC_LABELS = {
+        'mood': 'Mood',
+        'depression_level': 'Depression Level',
+        'anxiety_level': 'Anxiety Level',
+        'stress_level': 'Stress Level',
+        'sleep_quality': 'Sleep Quality',
+        'energy_level': 'Energy Level',
+        'social_interactions_quality': 'Social Interactions Quality',
+        'productivity_level': 'Productivity Level',
+        'diet_quality': 'Diet Quality',
+        'self_care_effectiveness': 'Self-care Effectiveness',
+        'overall_day_rating': 'Overall Day Rating'
+    }
+
+    def serve(self, request):
+        # Get filters from the request
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+        metric = request.GET.get('metric', 'overall_day_rating')
+
+        # Fetch entries based on filters
+        journal_entries = JournalEntry.objects.filter(
+            user=request.user,
+            date__range=[start_date, end_date]
+        ).order_by('date')
+
+        # Prepare data for the chart
+        dates = [DateFormat(entry.date).format('Y-m-d') for entry in journal_entries]
+        values = [getattr(entry, metric) for entry in journal_entries]
+
+        available_metric_labels = [
+            (key, self.METRIC_LABELS[key])
+            for key in self.METRIC_LABELS
+        ]
+
+        context = self.get_context(request)
+        context['dates'] = dates
+        context['values'] = values
+        context['metric'] = metric
+        context['metric_label'] = self.METRIC_LABELS.get(metric, metric)
+        context['available_metrics'] = [key for key in self.METRIC_LABELS.keys()]
+        context['available_metric_labels'] = available_metric_labels
+        return render(request, 'entries/summary_page.html', context)
