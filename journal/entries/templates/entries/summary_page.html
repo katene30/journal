@@ -14,9 +14,9 @@
 
     <label for="metric">Metric:</label>
     <select id="metric" name="metric">
-      {% for metric in available_metrics %}
-        <option value="{{ metric }}" {% if metric == request.GET.metric %}selected{% endif %}>{{ metric }}</option>
-      {% endfor %}
+        {% for metric, label in available_metric_labels %}
+            <option value="{{ metric }}" {% if metric == request.GET.metric %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
     </select>
 
     <button type="submit">Apply Filters</button>
@@ -33,7 +33,7 @@
         data: {
             labels: {{ dates|safe }},  // Ensure dates are passed as a JS array
             datasets: [{
-                label: '{{ metric|title }}',
+                label: '{{ metric_label }}',
                 data: {{ values|safe }},  // Ensure values are passed as a JS array
                 fill: false,
                 borderColor: 'rgb(75, 192, 192)',
@@ -51,7 +51,7 @@
                 y: {
                     title: {
                         display: true,
-                        text: '{{ metric|title }}'
+                        text: '{{ metric_label }}'
                     }
                 }
             }

@@ -167,6 +167,20 @@ class SummaryPage(Page):
         FieldPanel('intro_text'),
     ]
 
+    METRIC_LABELS = {
+        'mood': 'Mood',
+        'depression_level': 'Depression Level',
+        'anxiety_level': 'Anxiety Level',
+        'stress_level': 'Stress Level',
+        'sleep_quality': 'Sleep Quality',
+        'energy_level': 'Energy Level',
+        'social_interactions_quality': 'Social Interactions Quality',
+        'productivity_level': 'Productivity Level',
+        'diet_quality': 'Diet Quality',
+        'self_care_effectiveness': 'Self-care Effectiveness',
+        'overall_day_rating': 'Overall Day Rating'
+    }
+
     def serve(self, request):
         # Get filters from the request
         start_date = request.GET.get('start_date')
@@ -183,14 +197,16 @@ class SummaryPage(Page):
         dates = [DateFormat(entry.date).format('Y-m-d') for entry in journal_entries]
         values = [getattr(entry, metric) for entry in journal_entries]
 
+        available_metric_labels = [
+            (key, self.METRIC_LABELS[key])
+            for key in self.METRIC_LABELS
+        ]
+
         context = self.get_context(request)
         context['dates'] = dates
         context['values'] = values
         context['metric'] = metric
-        context['available_metrics'] = [
-            'mood', 'depression_level', 'anxiety_level', 'stress_level', 
-            'sleep_quality', 'energy_level', 
-            'social_interactions_quality', 'productivity_level', 
-            'diet_quality', 'self_care_effectiveness', 'overall_day_rating'
-        ]
+        context['metric_label'] = self.METRIC_LABELS.get(metric, metric)
+        context['available_metrics'] = [key for key in self.METRIC_LABELS.keys()]
+        context['available_metric_labels'] = available_metric_labels
         return render(request, 'entries/summary_page.html', context)
