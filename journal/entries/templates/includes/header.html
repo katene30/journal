@@ -20,6 +20,19 @@
           </li>
         {% endfor %}
         </ul>
+          <!-- User status -->
+        <div class="d-flex align-items-center">
+          {% if request.user.is_authenticated %}
+            <span class="badge bg-success me-2">Welcome, {{ request.user.username }}</span>
+            <form method="post" action="{% url 'logout' %}" class="d-inline ms-2">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
+            </form>
+          {% else %}
+            <span class="badge bg-warning text-dark me-2">You are not logged in</span>
+            <a href="{% url 'login' %}" class="btn btn-outline-light btn-sm">Login</a>
+          {% endif %}
+        </div>
       </div>
     </div>
   </nav>

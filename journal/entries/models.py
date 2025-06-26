@@ -144,6 +144,8 @@ class JournalEntryFormPage(Page):
 
     def serve(self, request, *args, **kwargs):
         from entries.forms import EntryForm
+        if not request.user.is_authenticated:
+            return redirect(f'/login/?next={request.path}')
         if request.method == 'POST':
             form = EntryForm(request.POST, user=request.user)
             if form.is_valid():
@@ -182,6 +184,9 @@ class SummaryPage(Page):
     }
 
     def serve(self, request):
+        if not request.user.is_authenticated:
+            return redirect(f'/login/?next={request.path}')
+
         # Get filters from the request
         start_date = request.GET.get('start_date')
         end_date = request.GET.get('end_date')
