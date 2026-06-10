@@ -1,0 +1,26 @@
+databases:
+  - name: journal-db
+    plan: free
+    databaseName: journal
+    user: journal
+
+services:
+  - type: web
+    name: journal
+    plan: free
+    runtime: python
+    buildCommand: ./build.sh
+    startCommand: cd journal && gunicorn journal.wsgi:application
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: journal-db
+          property: connectionString
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: COHERE_API_KEY
+        sync: false
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: WEB_CONCURRENCY
+        value: 4

@@ -45,13 +45,22 @@ class JournalEntry(models.Model):
     
     def generate_header(self):
         import cohere
-        co = cohere.Client(settings.COHERE_API_KEY)
+        import logging
 
-        response = co.chat(
-            message=f'Generate a fun and creative header for the following journal entry log in five words or less. Make sure to only include the heading with no other text:\n\n{self.log}',
-        )
+        logger = logging.getLogger(__name__)
 
-        self.generated_header = response.text
+        try:
+            co = cohere.Client(settings.COHERE_API_KEY)
+            response = co.chat(
+                message=f'Generate a fun and creative header for the following journal entry log in five words or less. Make sure to only include the heading with no other text:\n\n{self.log}',
+            )
+            self.generated_header = response.text
+        except Exception as e:
+            logger.warning(f"Failed to generate header via Cohere: {e}")
+            # Fallback: use first few words of the log
+            words = self.log.split()[:5]
+            self.generated_header = ' '.join(words) + ('...' if len(self.log.split()) > 5 else '')
+
         self.save()
 
 class HomePage(Page):
@@ -156,12 +165,6 @@ class JournalEntryFormPage(Page):
         
         return render(request, 'entries/journal_entry_form_page.html', {'form': form, 'slider_fields': SLIDER_FIELDS})
 
-from wagtail.models import Page
-from django.db import models
-from wagtail.admin.panels import FieldPanel
-from django.shortcuts import render
-from entries.models import JournalEntry
-
 class SummaryPage(Page):
     intro_text = models.CharField(max_length=255, blank=True)
 
@@ -184,13 +187,21 @@ class SummaryPage(Page):
     }
 
     def serve(self, request):
+        from datetime import date, timedelta
+
         if not request.user.is_authenticated:
             return redirect(f'/login/?next={request.path}')
 
-        # Get filters from the request
+        # Get filters from the request with defaults
         start_date = request.GET.get('start_date')
         end_date = request.GET.get('end_date')
         metric = request.GET.get('metric', 'overall_day_rating')
+
+        # Default to last 30 days if dates not provided
+        if not end_date:
+            end_date = date.today()
+        if not start_date:
+            start_date = date.today() - timedelta(days=30)
 
         # Fetch entries based on filters
         journal_entries = JournalEntry.objects.filter(

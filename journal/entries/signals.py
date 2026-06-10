@@ -1,11 +1,15 @@
+import logging
+
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from wagtail.models import Site
 from .models import JournalEntry, JournalEntryPage
 
+logger = logging.getLogger(__name__)
+
 @receiver(post_save, sender=JournalEntry)
 def create_journal_entry_page(sender, instance, created, **kwargs):
-    print(f"Signal triggered for JournalEntry {instance.pk}")
+    logger.debug(f"Signal triggered for JournalEntry {instance.pk}")
     if created:
         # Create a JournalEntryPage linked to this JournalEntry
         homepage = Site.objects.first().root_page
