@@ -2,20 +2,59 @@
 {% load wagtailcore_tags %}
 {% block content %}
     <div id="journal-entry">
-        <h2>Entry for {{ entry.user.username }} on {{ entry.date }}</h2>
-        <p>{{ entry.log|safe }}</p>
-        <p><strong>Sleep Hours:</strong> {{ entry.sleep_hours }}</p>
-        <p><strong>Alcohol/Caffeine Consumption:</strong> {{ entry.alcohol_caffeine_consumption }}</p>
-        {% if entry.significant_events %}
-            <p><strong>Significant Events:</strong> {{ entry.significant_events }}</p>
-        {% endif %}
-        <!-- Bar Chart -->
-        <div class="metrics-chart">
+        <h2>{{ entry.generated_header|default:entry.title }}</h2>
+        <p class="text-muted">{{ entry.date }}</p>
+
+        <!-- Hauora Chart -->
+        <div class="metrics-chart mb-4">
             {% include "includes/bar_chart.html" with chart_id=chart_id chart_labels=chart_labels|safe chart_data=chart_data|safe chart_colors=chart_colors|safe chart_title=chart_title %}
         </div>
 
+        <!-- Reflection -->
+        {% if entry.best_thing_today %}
+            <div class="mb-3">
+                <strong>Best thing today:</strong>
+                <p>{{ entry.best_thing_today }}</p>
+            </div>
+        {% endif %}
+
+        {% if entry.hardest_thing_today %}
+            <div class="mb-3">
+                <strong>Hardest thing today:</strong>
+                <p>{{ entry.hardest_thing_today }}</p>
+            </div>
+        {% endif %}
+
+        {% if entry.significant_events %}
+            <div class="mb-3">
+                <strong>Significant events:</strong>
+                <p>{{ entry.significant_events }}</p>
+            </div>
+        {% endif %}
+
+        {% if entry.log %}
+            <div class="mb-3">
+                <strong>Journal:</strong>
+                <p>{{ entry.log|linebreaks }}</p>
+            </div>
+        {% endif %}
+
+        <!-- Quick stats -->
+        <div class="row mb-4">
+            {% if entry.sleep_hours %}
+                <div class="col-auto">
+                    <span class="badge bg-secondary">{{ entry.sleep_hours }}h sleep</span>
+                </div>
+            {% endif %}
+            {% if entry.alcohol_caffeine_consumption %}
+                <div class="col-auto">
+                    <span class="badge bg-secondary">{{ entry.alcohol_caffeine_consumption }}</span>
+                </div>
+            {% endif %}
+        </div>
+
         <button type="button" class="btn btn-primary" onclick="toggleEditForm()">Edit</button>
-        <form method="post" action="{% pageurl page %}">
+        <form method="post" action="{% pageurl page %}" class="d-inline">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger" name="delete_button">Delete</button>
         </form>
