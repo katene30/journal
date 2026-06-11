@@ -1,0 +1,94 @@
+{% extends "entries/base.html" %}
+
+{% block title %}{{ entry.date }} - My Journal{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+    <a href="{% url 'entry_list' %}" class="btn btn-outline-secondary btn-sm">← Back to entries</a>
+</div>
+
+<h1>{{ entry.header }}</h1>
+<p class="text-muted">{{ entry.date }}</p>
+
+<!-- Hauora Chart -->
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title">Hauora Overview</h5>
+        <canvas id="hauoraChart" height="100"></canvas>
+    </div>
+</div>
+
+<!-- Reflection -->
+{% if entry.best_thing_today %}
+    <div class="mb-3">
+        <strong>Best thing today:</strong>
+        <p>{{ entry.best_thing_today }}</p>
+    </div>
+{% endif %}
+
+{% if entry.hardest_thing_today %}
+    <div class="mb-3">
+        <strong>Hardest thing today:</strong>
+        <p>{{ entry.hardest_thing_today }}</p>
+    </div>
+{% endif %}
+
+{% if entry.significant_events %}
+    <div class="mb-3">
+        <strong>Significant events:</strong>
+        <p>{{ entry.significant_events }}</p>
+    </div>
+{% endif %}
+
+{% if entry.log %}
+    <div class="mb-3">
+        <strong>Journal:</strong>
+        <p>{{ entry.log|linebreaks }}</p>
+    </div>
+{% endif %}
+
+<!-- Quick stats -->
+<div class="d-flex gap-2 mb-4">
+    {% if entry.sleep_hours %}
+        <span class="badge bg-secondary">{{ entry.sleep_hours }}h sleep</span>
+    {% endif %}
+    {% if entry.alcohol_caffeine_consumption %}
+        <span class="badge bg-secondary">{{ entry.alcohol_caffeine_consumption }}</span>
+    {% endif %}
+</div>
+
+<!-- Actions -->
+<div class="d-flex gap-2">
+    <a href="{% url 'entry_update' entry.pk %}" class="btn btn-primary">Edit</a>
+    <a href="{% url 'entry_delete' entry.pk %}" class="btn btn-danger">Delete</a>
+</div>
+
+<script>
+    const ctx = document.getElementById('hauoraChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ chart_labels|safe }},
+            datasets: [{
+                label: 'Score',
+                data: {{ chart_data|safe }},
+                backgroundColor: {{ chart_colors|safe }},
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 10
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

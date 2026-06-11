@@ -1,12 +1,12 @@
 from django import forms
 from django.forms.widgets import Textarea
 
-from entries.models import JournalEntryPage
+from .models import JournalEntry
 
 
 class JournalEntryForm(forms.ModelForm):
 
-    help_texts = {
+    HELP_TEXTS = {
         # Taha Hinengaro
         'mood': 'How did you feel today? (1 = low, 10 = great)',
         'anxiety_level': 'How anxious were you? (1 = calm, 10 = very anxious)',
@@ -42,7 +42,7 @@ class JournalEntryForm(forms.ModelForm):
     }
 
     class Meta:
-        model = JournalEntryPage
+        model = JournalEntry
         fields = [
             'date',
             # Hinengaro
@@ -63,7 +63,7 @@ class JournalEntryForm(forms.ModelForm):
             'significant_events', 'log',
         ]
         widgets = {
-            'date': forms.SelectDateWidget(),
+            'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'best_thing_today': Textarea(attrs={
                 'class': 'form-control',
                 'rows': 2,
@@ -88,4 +88,7 @@ class JournalEntryForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
-            field.help_text = self.help_texts.get(field_name, '')
+            field.help_text = self.HELP_TEXTS.get(field_name, '')
+            # Add form-control class to all fields
+            if 'class' not in field.widget.attrs:
+                field.widget.attrs['class'] = 'form-control'

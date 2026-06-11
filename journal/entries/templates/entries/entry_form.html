@@ -1,47 +1,187 @@
-{% load wagtailcore_tags entries_tags wagtailimages_tags custom_filters %}
+{% extends "entries/base.html" %}
 
-<form method="post">
+{% block title %}{% if object %}Edit Entry{% else %}New Entry{% endif %} - My Journal{% endblock %}
+
+{% block content %}
+<h1>{% if object %}Edit Entry{% else %}New Entry{% endif %}</h1>
+
+<form method="post" class="mt-4">
     {% csrf_token %}
-    <div class="mb-3">
-        {{ form.non_field_errors }}
-        {% for field in form %}
-            {% with field.html_name|slugify as html_name %}
-                <div class="form-group mb-3">
-                    <label for="{{ html_name }}" class="form-label">{{ field.label }}:</label>
-                    {% if field.name in slider_fields %}
-                        <output for="{{ html_name }}" id="{{ html_name }}-output">{{ field.value|default_if_none:0 }}</output>
-                        <input type="range" aria-describedby="{{ html_name }}-help" class="form-range form-control" id="{{ html_name }}" name="{{ field.name }}" min="1" max="10" value="{{ field.value|default_if_none:0 }}">
-                        <small id="{{ html_name }}-help" class="form-text text-muted">{{ field.help_text }}</small>
 
-                    {% elif field.name == 'alcohol_caffeine_consumption' or field.name == 'sleep_hours' %}
-                        <input type="text" class="form-control form-control-lg" id="{{ html_name }}" name="{{ field.name }}" value="{{ field.value|default_if_none:'' }}">
-                        <small id="{{ html_name }}-help" class="form-text text-muted">{{ field.help_text }}</small>
-                    {% else %}
-                        {{ field }}
-                        <small id="{{ html_name }}-help" class="form-text text-muted">{{ field.help_text }}</small>
-                    {% endif %}
-                    {{ field.errors }}
-                </div>
-            {% endwith %}
-        {% endfor %}
+    <!-- Date -->
+    <div class="mb-4">
+        <label class="form-label fw-bold">Date</label>
+        {{ form.date }}
+        {% if form.date.errors %}<div class="text-danger">{{ form.date.errors }}</div>{% endif %}
     </div>
-    <button type="submit" class="btn btn-primary">Save</button>
+
+    <!-- Taha Hinengaro -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">Taha Hinengaro - Mind</div>
+        <div class="card-body">
+            <div class="row">
+                {% for field in form %}
+                    {% if field.name in 'mood,anxiety_level,stress_level' %}
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">{{ field.label }}</label>
+                            <div class="d-flex align-items-center gap-2">
+                                <input type="range" class="form-range flex-grow-1"
+                                       name="{{ field.name }}" min="1" max="10"
+                                       value="{{ field.value|default:5 }}"
+                                       oninput="this.nextElementSibling.textContent = this.value">
+                                <span class="badge bg-secondary">{{ field.value|default:5 }}</span>
+                            </div>
+                            <small class="text-muted">{{ field.help_text }}</small>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Taha Tinana -->
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">Taha Tinana - Body</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ form.sleep_hours.label }}</label>
+                    {{ form.sleep_hours }}
+                    <small class="text-muted">{{ form.sleep_hours.help_text }}</small>
+                </div>
+                {% for field in form %}
+                    {% if field.name in 'sleep_quality,exercise_level,diet_quality,energy_level' %}
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">{{ field.label }}</label>
+                            <div class="d-flex align-items-center gap-2">
+                                <input type="range" class="form-range flex-grow-1"
+                                       name="{{ field.name }}" min="1" max="10"
+                                       value="{{ field.value|default:5 }}"
+                                       oninput="this.nextElementSibling.textContent = this.value">
+                                <span class="badge bg-secondary">{{ field.value|default:5 }}</span>
+                            </div>
+                            <small class="text-muted">{{ field.help_text }}</small>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">{{ form.alcohol_caffeine_consumption.label }}</label>
+                    {{ form.alcohol_caffeine_consumption }}
+                    <small class="text-muted">{{ form.alcohol_caffeine_consumption.help_text }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Taha Whānau -->
+    <div class="card mb-4">
+        <div class="card-header bg-warning">Taha Whānau - Family/Belonging</div>
+        <div class="card-body">
+            <div class="row">
+                {% for field in form %}
+                    {% if field.name in 'social_connection,social_interactions_quality' %}
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">{{ field.label }}</label>
+                            <div class="d-flex align-items-center gap-2">
+                                <input type="range" class="form-range flex-grow-1"
+                                       name="{{ field.name }}" min="1" max="10"
+                                       value="{{ field.value|default:5 }}"
+                                       oninput="this.nextElementSibling.textContent = this.value">
+                                <span class="badge bg-secondary">{{ field.value|default:5 }}</span>
+                            </div>
+                            <small class="text-muted">{{ field.help_text }}</small>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Taha Wairua -->
+    <div class="card mb-4">
+        <div class="card-header bg-purple text-white" style="background-color: #9C27B0;">Taha Wairua - Spirit</div>
+        <div class="card-body">
+            <label class="form-label">{{ form.sense_of_meaning.label }}</label>
+            <div class="d-flex align-items-center gap-2">
+                <input type="range" class="form-range flex-grow-1"
+                       name="sense_of_meaning" min="1" max="10"
+                       value="{{ form.sense_of_meaning.value|default:5 }}"
+                       oninput="this.nextElementSibling.textContent = this.value">
+                <span class="badge bg-secondary">{{ form.sense_of_meaning.value|default:5 }}</span>
+            </div>
+            <small class="text-muted">{{ form.sense_of_meaning.help_text }}</small>
+        </div>
+    </div>
+
+    <!-- Mauriora -->
+    <div class="card mb-4">
+        <div class="card-header text-white" style="background-color: #E91E63;">Mauriora - Identity</div>
+        <div class="card-body">
+            <label class="form-label">{{ form.felt_like_myself.label }}</label>
+            <div class="d-flex align-items-center gap-2">
+                <input type="range" class="form-range flex-grow-1"
+                       name="felt_like_myself" min="1" max="10"
+                       value="{{ form.felt_like_myself.value|default:5 }}"
+                       oninput="this.nextElementSibling.textContent = this.value">
+                <span class="badge bg-secondary">{{ form.felt_like_myself.value|default:5 }}</span>
+            </div>
+            <small class="text-muted">{{ form.felt_like_myself.help_text }}</small>
+        </div>
+    </div>
+
+    <!-- Waiora -->
+    <div class="card mb-4">
+        <div class="card-header text-white" style="background-color: #00BCD4;">Waiora - Environment</div>
+        <div class="card-body">
+            <label class="form-label">{{ form.environment_quality.label }}</label>
+            <div class="d-flex align-items-center gap-2">
+                <input type="range" class="form-range flex-grow-1"
+                       name="environment_quality" min="1" max="10"
+                       value="{{ form.environment_quality.value|default:5 }}"
+                       oninput="this.nextElementSibling.textContent = this.value">
+                <span class="badge bg-secondary">{{ form.environment_quality.value|default:5 }}</span>
+            </div>
+            <small class="text-muted">{{ form.environment_quality.help_text }}</small>
+        </div>
+    </div>
+
+    <!-- Reflection -->
+    <div class="card mb-4">
+        <div class="card-header bg-secondary text-white">Reflection</div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label class="form-label">{{ form.overall_day_rating.label }}</label>
+                <div class="d-flex align-items-center gap-2">
+                    <input type="range" class="form-range flex-grow-1"
+                           name="overall_day_rating" min="1" max="10"
+                           value="{{ form.overall_day_rating.value|default:5 }}"
+                           oninput="this.nextElementSibling.textContent = this.value">
+                    <span class="badge bg-secondary">{{ form.overall_day_rating.value|default:5 }}</span>
+                </div>
+                <small class="text-muted">{{ form.overall_day_rating.help_text }}</small>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">{{ form.best_thing_today.label }}</label>
+                {{ form.best_thing_today }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label">{{ form.hardest_thing_today.label }}</label>
+                {{ form.hardest_thing_today }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label">{{ form.significant_events.label }}</label>
+                {{ form.significant_events }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label">{{ form.log.label }}</label>
+                {{ form.log }}
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary btn-lg">Save Entry</button>
+        <a href="{% url 'entry_list' %}" class="btn btn-outline-secondary btn-lg">Cancel</a>
+    </div>
 </form>
-<script>
-    // Add event listeners to update the output element when the range input changes
-    document.addEventListener("DOMContentLoaded", function() {
-        var rangeInputs = document.querySelectorAll("input[type='range']");
-        
-        rangeInputs.forEach(function(input) {
-            var output = document.getElementById(input.id + "-output");
-
-            // Update the output element with the current value of the range input
-            output.textContent = input.value;
-
-            // Add event listener to update the output when input value changes
-            input.addEventListener("input", function() {
-                output.textContent = this.value;
-            });
-        });
-    });
-</script>
+{% endblock %}
