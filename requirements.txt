@@ -10,8 +10,10 @@ psycopg2-binary>=2.9
 # Static files
 whitenoise>=6.0
 
-# AI
-cohere>=5.0
+# AI - pinned to avoid dependency hell
+cohere==5.5.8
+httpx>=0.27.0,<0.28.0
+httpcore>=1.0.0,<2.0.0
 
 # Config
 python-decouple>=3.8
