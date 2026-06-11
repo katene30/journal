@@ -1,12 +1,10 @@
-from entries.models import JournalEntry
-from django.forms import ModelForm
 from django import forms
 from django.forms.widgets import Textarea
-from datetime import date
-from django.db.models import CharField
+
+from entries.models import JournalEntryPage
 
 
-class EntryForm(ModelForm):
+class JournalEntryForm(forms.ModelForm):
 
     help_texts = {
         'mood': 'How did you feel today? Rate your overall mood from 1 (feeling blue) to 10 (over the moon)!',
@@ -25,32 +23,28 @@ class EntryForm(ModelForm):
         'overall_day_rating': 'Overall, how was your day? Rate from 1 (terrible) to 10 (fantastic).',
     }
 
-
     class Meta:
-        model = JournalEntry
-        exclude = ['user','entry_url', 'generated_header']
+        model = JournalEntryPage
+        fields = [
+            'date', 'log',
+            'mood', 'depression_level', 'anxiety_level', 'stress_level',
+            'sleep_hours', 'sleep_quality', 'energy_level',
+            'social_interactions_quality', 'productivity_level', 'diet_quality',
+            'alcohol_caffeine_consumption', 'self_care_effectiveness',
+            'significant_events', 'overall_day_rating',
+        ]
         widgets = {
             'log': Textarea(attrs={
                 'class': "form-control",
                 'placeholder': "Write about your day, thoughts, feelings, and significant events here..."
-                }),
+            }),
             'significant_events': Textarea(attrs={
                 'class': "form-control",
-                }),
+            }),
             'date': forms.SelectDateWidget(),
         }
 
     def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
             field.help_text = self.help_texts.get(field_name, '')
-
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-        if self.user:
-            instance.user = self.user
-        if commit:
-            instance.generate_header()
-            instance.save()
-        return instance

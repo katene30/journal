@@ -14,7 +14,7 @@
           <div class="card-body d-flex flex-column">
             <h4 class="card-title">{{ entry.date }}</h4>
             <p class="card-text flex-grow-1">{{ entry.log|safe|truncate_log }}</p>
-            <a href="{{ entry.entry_url }}" class="btn btn-primary mt-auto" role="button">Read More</a>
+            <a href="{{ entry.url }}" class="btn btn-primary mt-auto" role="button">Read More</a>
           </div>
         </div>
       </div>
