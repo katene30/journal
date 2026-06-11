@@ -1,15 +1,10 @@
-import logging
-
 from django.db import models
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
 from django.utils.dateformat import DateFormat
 from wagtail.fields import RichTextField
 from wagtail.models import Page
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, MultiFieldPanel
-
-logger = logging.getLogger(__name__)
 
 # Fields that use 1-10 slider input
 SLIDER_FIELDS = [
@@ -135,18 +130,12 @@ class JournalEntryPage(Page):
     ]
 
     def generate_header(self):
-        import cohere
-
-        try:
-            co = cohere.Client(settings.COHERE_API_KEY)
-            response = co.chat(
-                message=f'Generate a fun and creative header for the following journal entry log in five words or less. Make sure to only include the heading with no other text:\n\n{self.log}',
-            )
-            self.generated_header = response.text
-        except Exception as e:
-            logger.warning(f"Failed to generate header via Cohere: {e}")
+        """Generate a simple header from the first few words of the log."""
+        if self.log:
             words = self.log.split()[:5]
-            self.generated_header = ' '.join(words) + ('...' if len(self.log.split()) > 5 else '')
+            self.generated_header = ' '.join(words) + ('...' if len(words) == 5 else '')
+        else:
+            self.generated_header = f"Entry for {self.date}"
 
     def serve(self, request):
         from entries.forms import JournalEntryForm
