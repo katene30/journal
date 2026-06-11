@@ -1,6 +1,5 @@
 # Core
 Django>=5.0,<6.0
-wagtail>=6.1,<7.0
 gunicorn>=23.0
 
 # Database
@@ -12,6 +11,3 @@ whitenoise>=6.0
 
 # Config
 python-decouple>=3.8
-
-# Image processing (required by Wagtail)
-pillow>=10.0

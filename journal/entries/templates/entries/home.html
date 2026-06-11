@@ -1,0 +1,52 @@
+{% extends "entries/base.html" %}
+
+{% block title %}Home - My Journal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <h1>Hauora Journal</h1>
+        <p class="lead">Track your wellbeing across Te Whare Tapa Whā</p>
+
+        {% if user.is_authenticated %}
+            <div class="d-flex gap-2 mb-4">
+                <a href="{% url 'entry_create' %}" class="btn btn-primary">New Entry</a>
+                <a href="{% url 'summary' %}" class="btn btn-outline-secondary">View Summary</a>
+            </div>
+
+            {% if entries %}
+                <h2>Recent Entries</h2>
+                <div class="row">
+                    {% for entry in entries %}
+                        <div class="col-12 col-md-6 col-lg-4 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header">{{ entry.header }}</div>
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ entry.date }}</h5>
+                                    <p class="card-text text-muted">
+                                        {% if entry.log %}
+                                            {{ entry.log|truncatewords:20 }}
+                                        {% else %}
+                                            No log entry
+                                        {% endif %}
+                                    </p>
+                                    <a href="{{ entry.get_absolute_url }}" class="btn btn-sm btn-outline-primary">View</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <a href="{% url 'entry_list' %}" class="btn btn-link">View all entries →</a>
+            {% else %}
+                <div class="alert alert-info">
+                    No entries yet. <a href="{% url 'entry_create' %}">Create your first entry</a> to start tracking your hauora.
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="alert alert-warning">
+                <a href="{% url 'login' %}">Log in</a> to start journaling.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

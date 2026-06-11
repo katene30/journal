@@ -1,10 +1,6 @@
-{% load wagtailcore_tags navigation_tags %}
-
-{% get_site_root as site_root %}
-
 <nav class="navbar navbar-expand-lg bg-primary mb-3" data-bs-theme="dark">
   <div class="container-fluid">
-    <a class="navbar-brand" href="{% pageurl site_root %}">Journal</a>
+    <a class="navbar-brand" href="{% url 'home' %}">Journal</a>
 
     <!-- Mobile user badge/login/logout -->
     <div class="d-lg-none ms-auto d-flex align-items-center">
@@ -26,16 +22,20 @@
 
     <div class="collapse navbar-collapse" id="navbarColor01">
       <ul class="navbar-nav me-auto">
-        {% for menuitem in site_root.get_children.live.in_menu %}
+        <li class="nav-item">
+          <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'home' %}">Home</a>
+        </li>
+        {% if request.user.is_authenticated %}
           <li class="nav-item">
-            <a class="nav-link {% if menuitem.url == request.path %}active{% endif %}" href="{% pageurl menuitem %}">
-              {{ menuitem.title }}
-              {% if menuitem.url == request.path %}
-                <span class="visually-hidden">(current)</span>
-              {% endif %}
-            </a>
+            <a class="nav-link {% if 'entries' in request.path and 'new' not in request.path %}active{% endif %}" href="{% url 'entry_list' %}">Entries</a>
           </li>
-        {% endfor %}
+          <li class="nav-item">
+            <a class="nav-link {% if 'new' in request.path %}active{% endif %}" href="{% url 'entry_create' %}">New Entry</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if 'summary' in request.path %}active{% endif %}" href="{% url 'summary' %}">Summary</a>
+          </li>
+        {% endif %}
       </ul>
 
       <!-- Desktop user badge/login/logout -->
