@@ -4,24 +4,298 @@ Notes for future frontend improvements - moving from Bootstrap to custom SCSS + 
 
 ## Planned Stack
 
-- **Svelte/SvelteKit** - Progressive enhancement, form handling
+- **SvelteKit** - Progressive enhancement, transitions, form handling
+- **TypeScript** - Type safety for pillar data structures
 - **SCSS** - Following Springload patterns
-- **HTMX** - For simple AJAX interactions (optional alongside Svelte)
 - **Chart.js** - Keep for data visualization
+
+### Why Svelte + TypeScript?
+
+| Requirement | Svelte | Preact | Vanilla TS |
+|-------------|--------|--------|------------|
+| Smooth pillar transitions | Built-in (`transition:slide`) | Need library | Manual |
+| Swipe gestures | Easy with libs | Easy with libs | Manual |
+| State per pillar | Reactive by default | useState hooks | Manual |
+| Small bundle | ~2kb compiled | ~3kb | 0kb (but more code) |
+| Learning curve | Gentle (HTML-like) | React knowledge needed | None |
+| Team exploring | Yes (Sam) | No | Yes (crfnz) |
+
+Svelte transitions are trivial:
+```svelte
+{#if activePillar === 'hinengaro'}
+  <div transition:slide>
+    <HinenaroPillar />
+  </div>
+{/if}
+```
+
+---
+
+## Entry Flow Design Spec
+
+### Core Philosophy
+
+This app is a **guided daily journal structured around Te Whare Tapa Whā**.
+
+Key principles:
+- **Reflection first, data second**
+- **No "completion pressure"**
+- Each pillar holds its own **mauri (presence/energy)**
+- User can stop at any time after reflection
+- Navigation is fluid, not linear obligation
+
+The user is not "filling out a form" — they are "recording a state of being".
+
+---
+
+### Entry Flow (High Level)
+
+#### Step 1: Entry Cover
+```
+Friday, 12th of June
+```
+- Human-first date format
+- Calendar icon opens date picker
+
+#### Step 2: Daily Reflection Gate (Entry Point)
+
+Components:
+- Overall semantic differential scales (bipolar)
+- Journal text area (free writing)
+- "Save & Exit" option
+
+Example scales:
+```
+Calm ←――――●―――――→ Overwhelmed
+Low energy ←―――●――――→ Energised
+Disconnected ←――●―――→ Grounded
+```
+
+**User can stop here and still have a complete entry.**
+
+#### Step 3: Pillar Navigation (Optional Deeper Reflection)
+
+After reflection, user can optionally explore pillars.
+
+---
+
+### Pillar Navigation UI
+
+Horizontal pill navigator (sticky):
+
+```
+📝  🧠  💪  💛  🌿
+```
+
+| Icon | Pillar | Domain |
+|------|--------|--------|
+| 📝 | Reflection | Entry base |
+| 🧠 | Hinengaro | Mind |
+| 💪 | Tinana | Body |
+| 💛 | Whānau | Relationships |
+| 🌿 | Wairua | Spirit/Meaning |
+
+### Mauri States (Not Progress)
+
+Instead of completion percentages:
+
+| State | Meaning |
+|-------|---------|
+| ○ | Untouched |
+| ◔ | Lightly engaged |
+| ◕ | Meaningful reflection |
+| ● | Deep presence recorded |
+
+Example display:
+```
+📝● 🧠◕ 💪◔ 💛○ 🌿○
+```
+
+No progress bars. No pressure.
+
+---
+
+### Pillar Screen Structure
+
+Each pillar follows consistent structure:
+
+#### 1. Opening Statement (Bilingual)
+```
+"E pēhea ana tō hinengaro i tēnei rā?"
+How is your mind today?
+```
+Te Reo Māori first, English below.
+
+#### 2. Semantic Differential Scales
+```
+Calm ─────●───── Overwhelmed
+Focused ───●───── Distracted
+Stable ────●───── Anxious
+```
+- 5-7 discrete positions
+- No numeric labels (unless toggled)
+
+#### 3. Pillar-Specific Inputs
+
+**🧠 Hinengaro (Mind)**
+- Mood scales
+- Stress scale
+- Emotional notes
+
+**💪 Tinana (Body)**
+- Energy
+- Sleep quality
+- Movement/exercise
+- Nutrition awareness
+
+**💛 Whānau (Relationships)**
+- Connection quality
+- Social interaction presence
+- Emotional closeness
+
+**🌿 Wairua (Spirit)**
+- Meaning alignment
+- Groundedness
+- Connection to nature/purpose
+
+#### 4. Reflection Prompt
+```
+What stood out most in this space today?
+```
+Optional text field.
+
+---
+
+### Navigation Behaviour
+
+Users can:
+- Swipe left/right between pillars
+- Tap pillar icons to jump directly
+- Return to reflection at any time
+- Exit without completing all pillars
+
+**No lock-in flow.**
+
+---
+
+### Exit Options
+
+At any point:
+- Save Entry
+- Continue Later
+- Return to Reflection
+- Close without completion
+
+After reflection screen:
+```
+[Save Entry]
+    or
+[Continue to Hauora →]
+```
+
+---
+
+### Visual Language
+
+- Minimal UI
+- Soft transitions between pillars
+- No harsh progress indicators
+- Icons carry meaning, not decoration
+- Calm, diary-like aesthetic
+
+---
+
+## TypeScript Data Structures
+
+```typescript
+type MauriState = 'untouched' | 'light' | 'meaningful' | 'deep';
+
+interface SemanticScale {
+  leftLabel: string;    // e.g., "Calm"
+  rightLabel: string;   // e.g., "Overwhelmed"
+  value: number | null; // 1-7, null if not set
+}
+
+interface PillarState {
+  mauri: MauriState;
+  scales: SemanticScale[];
+  reflection?: string;
+}
+
+interface EntryState {
+  id?: number;
+  date: Date;
+
+  // Core reflection (always available)
+  overallScales: SemanticScale[];
+  journalText: string;
+
+  // Pillar states
+  hinengaro: PillarState;
+  tinana: PillarState;
+  whanau: PillarState;
+  wairua: PillarState;
+
+  // Metadata
+  savedAt?: Date;
+  isDraft: boolean;
+}
+
+// Derived pillar scores (calculated, not input)
+interface DerivedScores {
+  hinengaro: number;  // Average of mind scales (anxiety/stress inverted)
+  tinana: number;     // Average of body scales
+  whanau: number;     // Average of relationship scales
+  wairua: number;     // Meaning/spirit score
+}
+```
+
+---
+
+## SvelteKit Project Structure
+
+```
+frontend/
+├── src/
+│   ├── lib/
+│   │   ├── components/
+│   │   │   ├── PillarNav.svelte
+│   │   │   ├── SemanticScale.svelte
+│   │   │   ├── PillarScreen.svelte
+│   │   │   ├── ReflectionGate.svelte
+│   │   │   └── MauriIndicator.svelte
+│   │   ├── stores/
+│   │   │   └── entry.ts          # Entry state store
+│   │   ├── types/
+│   │   │   └── index.ts          # TypeScript interfaces
+│   │   └── utils/
+│   │       └── derived-scores.ts # Score calculations
+│   ├── routes/
+│   │   ├── +page.svelte          # Home/entry list
+│   │   ├── entry/
+│   │   │   ├── new/+page.svelte  # New entry flow
+│   │   │   └── [id]/+page.svelte # View/edit entry
+│   │   └── api/                  # API routes (or call Django)
+│   └── app.html
+├── static/
+│   └── scss/                     # SCSS files
+└── svelte.config.js
+```
+
+---
 
 ## SCSS Architecture (Springload Pattern)
 
 ### File Structure
 ```
-static_src/
-├── scss/
-│   ├── _variables.scss      # Design tokens
-│   ├── _mixins.scss         # Reusable functions
-│   ├── _layout.scss         # Container, grid patterns
-│   ├── _elements.scss       # Base element styles
-│   ├── _components.scss     # Component styles
-│   ├── _utilities.scss      # Helper classes
-│   └── main.scss            # Entry point
+scss/
+├── _variables.scss      # Design tokens
+├── _mixins.scss         # Reusable functions
+├── _layout.scss         # Container, grid patterns
+├── _elements.scss       # Base element styles
+├── _components.scss     # Component styles
+├── _utilities.scss      # Helper classes
+└── main.scss            # Entry point
 ```
 
 ### Design Tokens
@@ -43,16 +317,14 @@ static_src/
   --color-tinana: #4CAF50;     // Body - green
   --color-whanau: #FF9800;     // Family - orange
   --color-wairua: #9C27B0;     // Spirit - purple
-  --color-mauriora: #E91E63;   // Identity - pink
-  --color-waiora: #00BCD4;     // Environment - teal
+
+  // Semantic scale
+  --scale-segments: 7;
+  --scale-height: 48px;
 
   @media (min-width: 768px) {
     --page-gutter: 32px;
     --space-md: 32px;
-  }
-
-  @media (min-width: 1024px) {
-    --page-gutter: 48px;
   }
 }
 ```
@@ -80,62 +352,7 @@ $bp-xl: 1440px;
 @mixin xl { @media (min-width: $bp-xl) { @content; } }
 ```
 
-### Grid Patterns
-```scss
-// Standard grid
-@mixin grid($cols: 12, $gap: 20px) {
-  display: grid;
-  grid-template-columns: repeat($cols, minmax(0, 1fr));
-  gap: $gap;
-}
-
-// Auto-fit responsive grid (for cards)
-.pillar-grid {
-  display: grid;
-  gap: var(--space-md);
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-}
-```
-
-## Layout Philosophy
-
-### Bootstrap vs Custom
-```
-Bootstrap:  HTML controls layout (classes everywhere)
-            <div class="container"><div class="row"><div class="col-md-6">
-
-Custom:     CSS controls layout (clean HTML)
-            <div class="content-page">
-```
-
-### Key Principle
-Define layout in CSS with grid-template-areas, not scattered col classes:
-
-```scss
-.entry-detail {
-  @include content-width;
-  display: grid;
-  grid-template-areas:
-    "header"
-    "chart"
-    "pillars"
-    "reflection";
-  gap: var(--space-lg);
-
-  @include lg {
-    grid-template-areas:
-      "header header"
-      "chart pillars"
-      "reflection reflection";
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-.entry-header { grid-area: header; }
-.entry-chart { grid-area: chart; }
-.entry-pillars { grid-area: pillars; }
-.entry-reflection { grid-area: reflection; }
-```
+---
 
 ## Accessibility Patterns
 
@@ -167,48 +384,63 @@ button:focus-visible {
 }
 ```
 
-### Visually Hidden (Screen Reader Only)
-```scss
-@mixin visually-hidden {
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  margin: -1px !important;
-  padding: 0 !important;
-  overflow: hidden !important;
-  clip: rect(0, 0, 0, 0) !important;
-  border: 0 !important;
-}
+### Semantic Scale A11y
+```svelte
+<fieldset role="radiogroup" aria-label="Rate from Calm to Overwhelmed">
+  {#each segments as segment, i}
+    <input
+      type="radio"
+      name="mood-scale"
+      value={i + 1}
+      aria-label="Level {i + 1} of {segments.length}"
+    />
+  {/each}
+</fieldset>
 ```
 
-## Form UX Ideas
+---
 
-### Simplify Entry Form
-1. **Quick mode** - Overall rating + journal only (daily habit)
-2. **Full mode** - All pillars (weekly reflection)
-3. **Pillar-by-pillar wizard** - One screen per pillar, swipe through
+## Derived Scores (Backend)
 
-### Visual Whare Metaphor
-Display pillars as walls of a house - tap to expand/rate each one.
-Makes the framework tangible, not just a form.
-
-### Derived Scores (Calculate, Don't Ask)
+Add to Django model:
 ```python
-# In model
 @property
 def hinengaro_score(self):
-    return (self.mood + (10 - self.anxiety_level) + (10 - self.stress_level)) / 3
+    """Calculate mind pillar score (invert anxiety/stress)."""
+    values = [
+        self.mood,
+        10 - self.anxiety_level if self.anxiety_level else None,
+        10 - self.stress_level if self.stress_level else None,
+    ]
+    valid = [v for v in values if v is not None]
+    return sum(valid) / len(valid) if valid else None
 
 @property
 def tinana_score(self):
-    return mean([self.sleep_quality, self.exercise_level, self.diet_quality, self.energy_level])
+    """Calculate body pillar score."""
+    values = [self.sleep_quality, self.exercise_level, self.diet_quality, self.energy_level]
+    valid = [v for v in values if v is not None]
+    return sum(valid) / len(valid) if valid else None
+
+@property
+def whanau_score(self):
+    """Calculate relationships pillar score."""
+    values = [self.social_connection, self.social_interactions_quality]
+    valid = [v for v in values if v is not None]
+    return sum(valid) / len(valid) if valid else None
+
+@property
+def wairua_score(self):
+    """Spirit pillar is single metric."""
+    return self.sense_of_meaning
 ```
 
-Show pillar scores on dashboard, raw metrics only in detail view.
+---
 
 ## Resources
 
 - [Svelte Tutorial](https://svelte.dev/tutorial)
+- [SvelteKit Docs](https://kit.svelte.dev/docs)
 - [SvelteKit Forms](https://kit.svelte.dev/docs/form-actions)
-- [HTMX](https://htmx.org/) - If needed for simple AJAX
+- [Svelte Transitions](https://svelte.dev/docs#template-syntax-element-directives-transition-fn)
 - [Charts.css](https://chartscss.org/) - Pure CSS charts alternative
