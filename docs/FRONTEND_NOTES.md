@@ -437,6 +437,62 @@ def wairua_score(self):
 
 ---
 
+## Implementation Tasks (Priority Order)
+
+When implementing Svelte + TypeScript + SCSS, fix these pain points first:
+
+### Current Page Reload Issues
+- Entry form submission
+- Summary chart filtering
+- Pagination
+- Delete confirmation
+- Logout
+- All navigation
+
+### Tasks by Priority
+
+| # | Task | Impact | Difficulty |
+|---|------|--------|------------|
+| 1 | **Summary chart AJAX filtering** | Every filter change reloads | Easy |
+| 2 | **Client-side form validation** | No feedback until submit | Easy |
+| 3 | **Pagination without reload** | Browsing entries reloads | Easy |
+| 4 | **Entry form AJAX submission** | Every entry reloads page | Medium |
+| 5 | **Auto-save / draft support** | Risk of data loss | Medium |
+| 6 | **SPA navigation** | All nav causes reload | Medium |
+
+### Implementation Notes
+
+**1. Summary chart filtering (Easy)**
+- Svelte reactive statement watches filter changes
+- Fetch new data, update Chart.js instance
+- No page reload
+
+**2. Client-side validation (Easy)**
+- Svelte form binding with validation
+- Show errors inline as user types
+- Still validate on backend
+
+**3. Pagination (Easy)**
+- Fetch next page via API
+- Append/replace entry list
+- Update URL with `history.pushState`
+
+**4. Entry form submission (Medium)**
+- POST via fetch, not form submit
+- Show success feedback inline
+- Redirect only after confirmed save
+
+**5. Auto-save drafts (Medium)**
+- Save to localStorage on input change (debounced)
+- Check for draft on page load
+- Clear draft on successful submit
+
+**6. SPA navigation (Medium)**
+- SvelteKit handles this with `use:enhance`
+- Or keep Django routes, just AJAX the content
+
+---
+
 ## Resources
 
 - [Svelte Tutorial](https://svelte.dev/tutorial)
