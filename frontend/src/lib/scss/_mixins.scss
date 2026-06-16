@@ -1,0 +1,124 @@
+@use 'variables' as *;
+
+// ==========================================================================
+// Breakpoint Mixins
+// ==========================================================================
+
+@mixin sm {
+	@media (min-width: $bp-sm) {
+		@content;
+	}
+}
+
+@mixin md {
+	@media (min-width: $bp-md) {
+		@content;
+	}
+}
+
+@mixin lg {
+	@media (min-width: $bp-lg) {
+		@content;
+	}
+}
+
+@mixin xl {
+	@media (min-width: $bp-xl) {
+		@content;
+	}
+}
+
+// ==========================================================================
+// Layout Mixins
+// ==========================================================================
+
+// Container mixin (replaces Bootstrap .container)
+@mixin content-width {
+	width: 100%;
+	max-width: calc(var(--content-max-width) + var(--page-gutter) * 2);
+	margin-inline: auto;
+	padding-inline: var(--page-gutter);
+}
+
+// Standard grid
+@mixin grid($cols: 12, $gap: 20px) {
+	display: grid;
+	grid-template-columns: repeat($cols, minmax(0, 1fr));
+	gap: $gap;
+}
+
+// Flex column
+@mixin flex-column($gap: var(--space-md)) {
+	display: flex;
+	flex-direction: column;
+	gap: $gap;
+}
+
+// ==========================================================================
+// Accessibility Mixins
+// ==========================================================================
+
+// Minimum touch target (48px)
+@mixin touch-target {
+	min-height: 48px;
+	min-width: 48px;
+}
+
+// Visually hidden (screen reader only)
+@mixin visually-hidden {
+	position: absolute !important;
+	width: 1px !important;
+	height: 1px !important;
+	margin: -1px !important;
+	padding: 0 !important;
+	overflow: hidden !important;
+	clip: rect(0, 0, 0, 0) !important;
+	border: 0 !important;
+}
+
+// Focus visible outline
+@mixin focus-visible {
+	&:focus-visible {
+		outline: 2px solid var(--color-focus);
+		outline-offset: 2px;
+	}
+}
+
+// ==========================================================================
+// Component Mixins
+// ==========================================================================
+
+// Card surface
+@mixin card {
+	background: var(--color-surface);
+	border-radius: var(--radius-md);
+	box-shadow: var(--shadow-sm);
+}
+
+// Button base
+@mixin button-base {
+	@include touch-target;
+	@include focus-visible;
+
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-xs);
+	padding: var(--space-xs) var(--space-md);
+	border: none;
+	border-radius: var(--radius-md);
+	font-family: var(--font-family);
+	font-size: var(--font-size-base);
+	font-weight: 500;
+	cursor: pointer;
+	transition: background-color var(--transition-fast), transform var(--transition-fast);
+
+	&:active {
+		transform: scale(0.98);
+	}
+
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+}
