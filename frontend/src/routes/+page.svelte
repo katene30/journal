@@ -278,6 +278,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-xs);
+		margin-bottom: var(--space-md);
 
 		label {
 			font-size: var(--font-size-sm);

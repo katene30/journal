@@ -50,7 +50,7 @@
 	.semantic-scale {
 		border: none;
 		padding: 0;
-		margin: 0;
+		margin: 0 0 var(--space-md) 0;
 	}
 
 	.semantic-scale__title {
