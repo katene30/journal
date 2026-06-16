@@ -8,6 +8,7 @@
 		currentEntry,
 		entryActions,
 		entryApiActions,
+		pillarMauriStates,
 		type EntryData
 	} from '$lib/stores/entry';
 
@@ -115,6 +116,7 @@
 		<!-- Pillar Navigation -->
 		<PillarNav
 			activePillar={$activePillar}
+			mauriStates={$pillarMauriStates}
 			onselect={(id) => entryActions.navigateToPillar(id)}
 		/>
 

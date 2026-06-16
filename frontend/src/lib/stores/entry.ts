@@ -1,4 +1,4 @@
-import { writable, derived, get } from 'svelte/store';
+import { writable, derived, get, type Readable } from 'svelte/store';
 import type { PillarId } from '$lib/types';
 import { entriesApi, type Entry } from '$lib/api';
 
@@ -79,6 +79,57 @@ const PILLAR_ORDER: PillarId[] = [
 	'mauriora',
 	'waiora'
 ];
+
+// Mauri state type
+export type MauriState = 'untouched' | 'light' | 'meaningful' | 'deep';
+
+// Calculate mauri state for each pillar based on filled fields
+export const pillarMauriStates = derived(currentEntry, ($entry) => {
+	const countFilled = (fields: (keyof EntryData)[]) =>
+		fields.filter(f => {
+			const val = $entry[f];
+			return val !== null && val !== '' && val !== undefined;
+		}).length;
+
+	const getMauri = (filled: number, total: number): MauriState => {
+		if (filled === 0) return 'untouched';
+		const ratio = filled / total;
+		if (ratio >= 0.8) return 'deep';
+		if (ratio >= 0.4) return 'meaningful';
+		return 'light';
+	};
+
+	return {
+		reflection: getMauri(
+			countFilled(['overall_day_rating', 'best_thing_today', 'hardest_thing_today', 'significant_events', 'log']),
+			5
+		),
+		hinengaro: getMauri(
+			countFilled(['mood', 'anxiety_level', 'stress_level']),
+			3
+		),
+		tinana: getMauri(
+			countFilled(['sleep_quality', 'energy_level', 'exercise_level', 'diet_quality', 'sleep_hours']),
+			5
+		),
+		whanau: getMauri(
+			countFilled(['social_connection', 'social_interactions_quality']),
+			2
+		),
+		wairua: getMauri(
+			countFilled(['sense_of_meaning']),
+			1
+		),
+		mauriora: getMauri(
+			countFilled(['felt_like_myself']),
+			1
+		),
+		waiora: getMauri(
+			countFilled(['environment_quality']),
+			1
+		)
+	};
+});
 
 // Actions
 export const entryActions = {
