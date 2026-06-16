@@ -12,9 +12,17 @@ export const PILLARS: PillarConfig[] = [
 			english: 'How was your day today?'
 		},
 		scales: [
-			{ id: 'overall-calm', leftLabel: 'Calm', rightLabel: 'Overwhelmed' },
-			{ id: 'overall-energy', leftLabel: 'Low energy', rightLabel: 'Energised' },
-			{ id: 'overall-grounded', leftLabel: 'Disconnected', rightLabel: 'Grounded' }
+			{
+				id: 'overall_day_rating',
+				leftLabel: 'Difficult day',
+				rightLabel: 'Great day'
+			}
+		],
+		textFields: [
+			{ id: 'best_thing_today', label: 'Best thing today', placeholder: 'What went well?' },
+			{ id: 'hardest_thing_today', label: 'Hardest thing today', placeholder: 'What was challenging?' },
+			{ id: 'significant_events', label: 'Significant events', placeholder: 'Anything notable happen?' },
+			{ id: 'log', label: 'Journal', placeholder: "What's on your mind?" }
 		]
 	},
 	{
@@ -29,9 +37,8 @@ export const PILLARS: PillarConfig[] = [
 		},
 		scales: [
 			{ id: 'mood', leftLabel: 'Low mood', rightLabel: 'Positive mood' },
-			{ id: 'anxiety', leftLabel: 'Calm', rightLabel: 'Anxious' },
-			{ id: 'stress', leftLabel: 'Relaxed', rightLabel: 'Stressed' },
-			{ id: 'focus', leftLabel: 'Focused', rightLabel: 'Distracted' }
+			{ id: 'anxiety_level', leftLabel: 'Calm', rightLabel: 'Anxious' },
+			{ id: 'stress_level', leftLabel: 'Relaxed', rightLabel: 'Stressed' }
 		]
 	},
 	{
@@ -45,10 +52,14 @@ export const PILLARS: PillarConfig[] = [
 			english: 'How is your body today?'
 		},
 		scales: [
-			{ id: 'energy', leftLabel: 'Exhausted', rightLabel: 'Energetic' },
-			{ id: 'sleep', leftLabel: 'Poor sleep', rightLabel: 'Well rested' },
-			{ id: 'movement', leftLabel: 'Sedentary', rightLabel: 'Active' },
-			{ id: 'nourishment', leftLabel: 'Poorly nourished', rightLabel: 'Well nourished' }
+			{ id: 'sleep_quality', leftLabel: 'Poor sleep', rightLabel: 'Well rested' },
+			{ id: 'energy_level', leftLabel: 'Exhausted', rightLabel: 'Energetic' },
+			{ id: 'exercise_level', leftLabel: 'Sedentary', rightLabel: 'Active' },
+			{ id: 'diet_quality', leftLabel: 'Poorly nourished', rightLabel: 'Well nourished' }
+		],
+		extraFields: [
+			{ id: 'sleep_hours', type: 'number', label: 'Hours of sleep', placeholder: '8' },
+			{ id: 'alcohol_caffeine_consumption', type: 'text', label: 'Alcohol/caffeine', placeholder: 'e.g., 2 coffees, 1 beer' }
 		]
 	},
 	{
@@ -62,9 +73,8 @@ export const PILLARS: PillarConfig[] = [
 			english: 'How are your connections today?'
 		},
 		scales: [
-			{ id: 'connection', leftLabel: 'Isolated', rightLabel: 'Connected' },
-			{ id: 'interactions', leftLabel: 'Draining interactions', rightLabel: 'Nourishing interactions' },
-			{ id: 'belonging', leftLabel: 'Disconnected', rightLabel: 'Belonging' }
+			{ id: 'social_connection', leftLabel: 'Isolated', rightLabel: 'Connected' },
+			{ id: 'social_interactions_quality', leftLabel: 'Draining', rightLabel: 'Nourishing' }
 		]
 	},
 	{
@@ -78,9 +88,35 @@ export const PILLARS: PillarConfig[] = [
 			english: 'How is your spirit today?'
 		},
 		scales: [
-			{ id: 'meaning', leftLabel: 'Lacking purpose', rightLabel: 'Purposeful' },
-			{ id: 'grounded', leftLabel: 'Ungrounded', rightLabel: 'Grounded' },
-			{ id: 'peace', leftLabel: 'Unsettled', rightLabel: 'At peace' }
+			{ id: 'sense_of_meaning', leftLabel: 'Lacking purpose', rightLabel: 'Purposeful' }
+		]
+	},
+	{
+		id: 'mauriora',
+		icon: '🪞',
+		name: 'Mauriora',
+		teReo: 'Identity',
+		color: '#00BCD4',
+		question: {
+			maori: 'I rongo koe i a koe anō i tēnei rā?',
+			english: 'Did you feel like yourself today?'
+		},
+		scales: [
+			{ id: 'felt_like_myself', leftLabel: 'Not myself', rightLabel: 'Fully myself' }
+		]
+	},
+	{
+		id: 'waiora',
+		icon: '🏡',
+		name: 'Waiora',
+		teReo: 'Environment',
+		color: '#795548',
+		question: {
+			maori: 'E pēhea ana tō taiao i tēnei rā?',
+			english: 'How is your environment today?'
+		},
+		scales: [
+			{ id: 'environment_quality', leftLabel: 'Unsupportive', rightLabel: 'Supportive' }
 		]
 	}
 ];

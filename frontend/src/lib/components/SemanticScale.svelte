@@ -10,44 +10,30 @@
 
 	let { scale, value = null, segments = 7, onchange }: Props = $props();
 
-	const handleSelect = (index: number) => {
-		const newValue = index + 1;
+	const handleChange = (newValue: number) => {
 		onchange?.(newValue);
-	};
-
-	const handleKeydown = (e: KeyboardEvent, index: number) => {
-		if (e.key === 'Enter' || e.key === ' ') {
-			e.preventDefault();
-			handleSelect(index);
-		} else if (e.key === 'ArrowRight' && value !== null && value < segments) {
-			onchange?.(value + 1);
-		} else if (e.key === 'ArrowLeft' && value !== null && value > 1) {
-			onchange?.(value - 1);
-		}
 	};
 </script>
 
-<fieldset class="semantic-scale" role="radiogroup" aria-label="Rate from {scale.leftLabel} to {scale.rightLabel}">
+<fieldset class="semantic-scale">
 	<legend class="visually-hidden">{scale.leftLabel} to {scale.rightLabel}</legend>
 
 	<span class="semantic-scale__label semantic-scale__label--left">{scale.leftLabel}</span>
 
-	<div class="semantic-scale__segments">
+	<div class="semantic-scale__options">
 		{#each Array(segments) as _, i}
-			<button
-				type="button"
-				class="semantic-scale__segment"
-				class:semantic-scale__segment--selected={value === i + 1}
-				class:semantic-scale__segment--filled={value !== null && i + 1 <= value}
-				role="radio"
-				aria-checked={value === i + 1}
-				aria-label="Level {i + 1} of {segments}"
-				tabindex={value === i + 1 || (value === null && i === 0) ? 0 : -1}
-				onclick={() => handleSelect(i)}
-				onkeydown={(e) => handleKeydown(e, i)}
-			>
-				<span class="visually-hidden">{i + 1}</span>
-			</button>
+			{@const optionValue = i + 1}
+			<label class="semantic-scale__option">
+				<input
+					type="radio"
+					name={scale.id}
+					value={optionValue}
+					checked={value === optionValue}
+					onchange={() => handleChange(optionValue)}
+				/>
+				<span class="semantic-scale__radio"></span>
+				<span class="visually-hidden">{optionValue}</span>
+			</label>
 		{/each}
 	</div>
 
@@ -55,8 +41,6 @@
 </fieldset>
 
 <style lang="scss">
-	@use '$lib/scss/mixins' as mx;
-
 	.semantic-scale {
 		display: flex;
 		align-items: center;
@@ -64,64 +48,73 @@
 		border: none;
 		padding: 0;
 		margin: 0;
+	}
 
-		&__label {
-			font-size: var(--font-size-sm);
-			color: var(--color-text-muted);
-			min-width: 80px;
+	.semantic-scale__label {
+		font-size: var(--font-size-sm);
+		color: var(--color-text-muted);
+		min-width: 80px;
 
-			&--left {
-				text-align: right;
-			}
-
-			&--right {
-				text-align: left;
-			}
+		&--left {
+			text-align: right;
 		}
 
-		&__segments {
-			display: flex;
-			gap: 4px;
-			flex: 1;
-			justify-content: center;
+		&--right {
+			text-align: left;
 		}
+	}
 
-		&__segment {
-			@include mx.touch-target;
-			@include mx.focus-visible;
+	.semantic-scale__options {
+		display: flex;
+		gap: var(--space-xs);
+	}
 
-			width: 100%;
-			max-width: 48px;
-			height: var(--scale-height);
-			border: 2px solid var(--color-border);
-			border-radius: var(--radius-sm);
-			background: var(--color-surface);
-			cursor: pointer;
-			transition:
-				background-color var(--transition-fast),
-				border-color var(--transition-fast),
-				transform var(--transition-fast);
+	.semantic-scale__option {
+		position: relative;
+		cursor: pointer;
 
-			&:hover {
-				border-color: var(--color-focus);
+		input {
+			position: absolute;
+			opacity: 0;
+			width: 0;
+			height: 0;
+
+			&:checked + .semantic-scale__radio {
+				background: var(--pillar-color, var(--color-hinengaro));
+				border-color: var(--pillar-color, var(--color-hinengaro));
 			}
 
-			&--filled {
-				background: var(--color-focus);
-				border-color: var(--color-focus);
-				opacity: 0.3;
-			}
-
-			&--selected {
-				background: var(--color-focus);
-				border-color: var(--color-focus);
-				opacity: 1;
-				transform: scale(1.1);
+			&:focus-visible + .semantic-scale__radio {
+				outline: 2px solid var(--color-focus);
+				outline-offset: 2px;
 			}
 		}
 	}
 
+	.semantic-scale__radio {
+		display: block;
+		width: 32px;
+		height: 32px;
+		border: 2px solid var(--color-border);
+		border-radius: 50%;
+		background: var(--color-surface);
+		transition: all var(--transition-fast);
+
+		&:hover {
+			border-color: var(--pillar-color, var(--color-hinengaro));
+			background: color-mix(in srgb, var(--pillar-color, var(--color-hinengaro)) 10%, white);
+		}
+	}
+
 	.visually-hidden {
-		@include mx.visually-hidden;
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
 	}
 </style>

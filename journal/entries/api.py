@@ -33,6 +33,22 @@ class JournalEntryViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(entry)
         return Response(serializer.data, status=status.HTTP_200_OK if not created else status.HTTP_201_CREATED)
 
+    @action(detail=False, methods=['get'], url_path='by-date/(?P<date>[0-9]{4}-[0-9]{2}-[0-9]{2})')
+    def by_date(self, request, date=None):
+        """Get or create entry for a specific date."""
+        from datetime import datetime
+        try:
+            parsed_date = datetime.strptime(date, '%Y-%m-%d').date()
+        except ValueError:
+            return Response({'detail': 'Invalid date format'}, status=status.HTTP_400_BAD_REQUEST)
+
+        entry, created = JournalEntry.objects.get_or_create(
+            user=request.user,
+            date=parsed_date,
+        )
+        serializer = self.get_serializer(entry)
+        return Response(serializer.data)
+
     @action(detail=False, methods=['get'])
     def recent(self, request):
         """Get recent entries (last 7 days)."""

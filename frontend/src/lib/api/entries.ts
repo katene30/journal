@@ -57,5 +57,7 @@ export const entriesApi = {
 
 	today: () => api.get<Entry>('/entries/today/'),
 
+	byDate: (date: string) => api.get<Entry>(`/entries/by-date/${date}/`),
+
 	recent: () => api.get<EntryListItem[]>('/entries/recent/')
 };

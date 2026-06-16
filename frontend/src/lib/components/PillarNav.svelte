@@ -1,30 +1,13 @@
 <script lang="ts">
-	import type { PillarId, MauriState } from '$lib/types';
+	import type { PillarId } from '$lib/types';
 	import { PILLARS } from '$lib/config/pillars';
 
 	interface Props {
 		activePillar: PillarId;
-		pillarStates: Record<PillarId, MauriState>;
+		onselect?: (id: PillarId) => void;
 	}
 
-	let { activePillar = $bindable('reflection'), pillarStates = {
-		reflection: 'untouched',
-		hinengaro: 'untouched',
-		tinana: 'untouched',
-		whanau: 'untouched',
-		wairua: 'untouched'
-	} }: Props = $props();
-
-	const mauriSymbols: Record<MauriState, string> = {
-		untouched: '○',
-		light: '◔',
-		meaningful: '◕',
-		deep: '●'
-	};
-
-	const handleSelect = (id: PillarId) => {
-		activePillar = id;
-	};
+	let { activePillar, onselect }: Props = $props();
 </script>
 
 <nav class="pillar-nav" aria-label="Journal pillars">
@@ -37,13 +20,11 @@
 					class:pillar-nav__button--active={activePillar === pillar.id}
 					style="--pillar-color: {pillar.color}"
 					aria-current={activePillar === pillar.id ? 'true' : undefined}
-					aria-label="{pillar.name} - {pillarStates[pillar.id]}"
-					onclick={() => handleSelect(pillar.id)}
+					aria-label={pillar.name}
+					onclick={() => onselect?.(pillar.id)}
 				>
 					<span class="pillar-nav__icon">{pillar.icon}</span>
-					<span class="pillar-nav__mauri" aria-hidden="true">
-						{mauriSymbols[pillarStates[pillar.id]]}
-					</span>
+					<span class="pillar-nav__name">{pillar.name}</span>
 				</button>
 			</li>
 		{/each}
@@ -51,64 +32,67 @@
 </nav>
 
 <style lang="scss">
-	@use '$lib/scss/mixins' as mx;
-
 	.pillar-nav {
-		position: sticky;
-		top: 0;
-		z-index: 10;
-		background: var(--color-surface);
-		border-bottom: 1px solid var(--color-border);
 		padding: var(--space-sm) 0;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
 
-		&__list {
-			display: flex;
-			justify-content: center;
-			gap: var(--space-sm);
-			list-style: none;
-			margin: 0;
-			padding: 0;
+	.pillar-nav__list {
+		display: flex;
+		justify-content: center;
+		gap: var(--space-xs);
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		min-width: min-content;
+	}
+
+	.pillar-nav__item {
+		flex-shrink: 0;
+	}
+
+	.pillar-nav__button {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 4px;
+		padding: var(--space-sm);
+		background: var(--color-surface);
+		border: 2px solid transparent;
+		border-radius: var(--radius-md);
+		cursor: pointer;
+		transition: all var(--transition-fast);
+		min-width: 60px;
+
+		&:hover {
+			background: var(--color-bg);
 		}
 
-		&__item {
-			margin: 0;
+		&:focus-visible {
+			outline: 2px solid var(--color-focus);
+			outline-offset: 2px;
 		}
 
-		&__button {
-			@include mx.touch-target;
-			@include mx.focus-visible;
-
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			gap: 2px;
-			padding: var(--space-xs);
-			border: 2px solid transparent;
-			border-radius: var(--radius-md);
-			background: transparent;
-			cursor: pointer;
-			transition:
-				border-color var(--transition-fast),
-				background-color var(--transition-fast);
-
-			&:hover {
-				background: var(--color-bg);
-			}
-
-			&--active {
-				border-color: var(--pillar-color);
-				background: var(--color-bg);
-			}
+		&--active {
+			border-color: var(--pillar-color);
+			background: color-mix(in srgb, var(--pillar-color) 10%, white);
 		}
+	}
 
-		&__icon {
-			font-size: 1.5rem;
-			line-height: 1;
-		}
+	.pillar-nav__icon {
+		font-size: 1.5rem;
+		line-height: 1;
+	}
 
-		&__mauri {
-			font-size: var(--font-size-xs);
-			color: var(--color-text-muted);
+	.pillar-nav__name {
+		font-size: var(--font-size-xs);
+		color: var(--color-text-muted);
+		white-space: nowrap;
+
+		.pillar-nav__button--active & {
+			color: var(--pillar-color);
+			font-weight: 500;
 		}
 	}
 </style>

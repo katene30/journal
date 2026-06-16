@@ -1,51 +1,84 @@
 import { writable, derived, get } from 'svelte/store';
-import type { EntryState, PillarState, MauriState, PillarId } from '$lib/types';
-import { entriesApi, type Entry, type EntryUpdate } from '$lib/api';
+import type { PillarId } from '$lib/types';
+import { entriesApi, type Entry } from '$lib/api';
 
-// Helper to create empty pillar state
-const createEmptyPillarState = (): PillarState => ({
-	mauri: 'untouched',
-	scales: [],
-	reflection: ''
-});
+// Entry data matching Django model exactly
+export interface EntryData {
+	id?: number;
+	date: string; // YYYY-MM-DD format
+	// Hinengaro
+	mood: number | null;
+	anxiety_level: number | null;
+	stress_level: number | null;
+	// Tinana
+	sleep_hours: number | null;
+	sleep_quality: number | null;
+	exercise_level: number | null;
+	diet_quality: number | null;
+	energy_level: number | null;
+	alcohol_caffeine_consumption: string;
+	// Whanau
+	social_connection: number | null;
+	social_interactions_quality: number | null;
+	// Wairua
+	sense_of_meaning: number | null;
+	// Mauriora
+	felt_like_myself: number | null;
+	// Waiora
+	environment_quality: number | null;
+	// Reflection
+	overall_day_rating: number | null;
+	best_thing_today: string;
+	hardest_thing_today: string;
+	significant_events: string;
+	log: string;
+}
 
-// Initial entry state
-const createEmptyEntry = (): EntryState => ({
-	date: new Date(),
-	overallScales: [],
-	journalText: '',
-	hinengaro: createEmptyPillarState(),
-	tinana: createEmptyPillarState(),
-	whanau: createEmptyPillarState(),
-	wairua: createEmptyPillarState(),
-	isDraft: true
-});
+function todayString(): string {
+	return new Date().toISOString().split('T')[0];
+}
+
+function createEmptyEntry(): EntryData {
+	return {
+		date: todayString(),
+		mood: null,
+		anxiety_level: null,
+		stress_level: null,
+		sleep_hours: null,
+		sleep_quality: null,
+		exercise_level: null,
+		diet_quality: null,
+		energy_level: null,
+		alcohol_caffeine_consumption: '',
+		social_connection: null,
+		social_interactions_quality: null,
+		sense_of_meaning: null,
+		felt_like_myself: null,
+		environment_quality: null,
+		overall_day_rating: null,
+		best_thing_today: '',
+		hardest_thing_today: '',
+		significant_events: '',
+		log: ''
+	};
+}
 
 // Main entry store
-export const currentEntry = writable<EntryState>(createEmptyEntry());
+export const currentEntry = writable<EntryData>(createEmptyEntry());
 
 // Active pillar store
 export const activePillar = writable<PillarId>('reflection');
 
-// Derived store for pillar mauri states (for nav display)
-export const pillarMauriStates = derived(currentEntry, ($entry) => ({
-	reflection: calculateMauri($entry.overallScales.length, $entry.journalText),
-	hinengaro: $entry.hinengaro.mauri,
-	tinana: $entry.tinana.mauri,
-	whanau: $entry.whanau.mauri,
-	wairua: $entry.wairua.mauri
-}));
-
-// Calculate mauri state based on engagement
-function calculateMauri(scalesAnswered: number, reflectionText: string): MauriState {
-	const hasReflection = reflectionText.trim().length > 0;
-	const hasScales = scalesAnswered > 0;
-
-	if (hasReflection && scalesAnswered >= 2) return 'deep';
-	if (hasReflection || scalesAnswered >= 2) return 'meaningful';
-	if (hasScales) return 'light';
-	return 'untouched';
-}
+// Pillar order for navigation
+const PILLAR_ORDER: PillarId[] = [
+	'reflection',
+	'hinengaro',
+	'tinana',
+	'whanau',
+	'wairua',
+	'mauriora',
+	'waiora'
+];
 
 // Actions
 export const entryActions = {
@@ -54,21 +87,12 @@ export const entryActions = {
 		activePillar.set('reflection');
 	},
 
-	setDate: (date: Date) => {
+	setDate: (date: string) => {
 		currentEntry.update((e) => ({ ...e, date }));
 	},
 
-	setJournalText: (text: string) => {
-		currentEntry.update((e) => ({ ...e, journalText: text }));
-	},
-
-	updatePillar: (pillarId: PillarId, updates: Partial<PillarState>) => {
-		if (pillarId === 'reflection') return; // Reflection is handled separately
-
-		currentEntry.update((e) => ({
-			...e,
-			[pillarId]: { ...e[pillarId as keyof Pick<EntryState, 'hinengaro' | 'tinana' | 'whanau' | 'wairua'>], ...updates }
-		}));
+	setField: <K extends keyof EntryData>(field: K, value: EntryData[K]) => {
+		currentEntry.update((e) => ({ ...e, [field]: value }));
 	},
 
 	navigateToPillar: (pillarId: PillarId) => {
@@ -76,21 +100,80 @@ export const entryActions = {
 	},
 
 	navigateNext: () => {
-		const order: PillarId[] = ['reflection', 'hinengaro', 'tinana', 'whanau', 'wairua'];
 		activePillar.update((current) => {
-			const currentIndex = order.indexOf(current);
-			const nextIndex = Math.min(currentIndex + 1, order.length - 1);
-			return order[nextIndex];
+			const idx = PILLAR_ORDER.indexOf(current);
+			return PILLAR_ORDER[Math.min(idx + 1, PILLAR_ORDER.length - 1)];
 		});
 	},
 
 	navigatePrev: () => {
-		const order: PillarId[] = ['reflection', 'hinengaro', 'tinana', 'whanau', 'wairua'];
 		activePillar.update((current) => {
-			const currentIndex = order.indexOf(current);
-			const prevIndex = Math.max(currentIndex - 1, 0);
-			return order[prevIndex];
+			const idx = PILLAR_ORDER.indexOf(current);
+			return PILLAR_ORDER[Math.max(idx - 1, 0)];
 		});
+	}
+};
+
+// Helper to map API response to store
+function mapApiToStore(apiEntry: Entry): EntryData {
+	return {
+		id: apiEntry.id,
+		date: apiEntry.date,
+		mood: apiEntry.mood,
+		anxiety_level: apiEntry.anxiety_level,
+		stress_level: apiEntry.stress_level,
+		sleep_hours: apiEntry.sleep_hours,
+		sleep_quality: apiEntry.sleep_quality,
+		exercise_level: apiEntry.exercise_level,
+		diet_quality: apiEntry.diet_quality,
+		energy_level: apiEntry.energy_level,
+		alcohol_caffeine_consumption: apiEntry.alcohol_caffeine_consumption || '',
+		social_connection: apiEntry.social_connection,
+		social_interactions_quality: apiEntry.social_interactions_quality,
+		sense_of_meaning: apiEntry.sense_of_meaning,
+		felt_like_myself: apiEntry.felt_like_myself,
+		environment_quality: apiEntry.environment_quality,
+		overall_day_rating: apiEntry.overall_day_rating,
+		best_thing_today: apiEntry.best_thing_today || '',
+		hardest_thing_today: apiEntry.hardest_thing_today || '',
+		significant_events: apiEntry.significant_events || '',
+		log: apiEntry.log || ''
+	};
+}
+
+// API actions
+export const entryApiActions = {
+	loadToday: async () => {
+		const apiEntry = await entriesApi.today();
+		currentEntry.set(mapApiToStore(apiEntry));
+		return apiEntry;
+	},
+
+	loadByDate: async (date: string) => {
+		const apiEntry = await entriesApi.byDate(date);
+		currentEntry.set(mapApiToStore(apiEntry));
+		return apiEntry;
+	},
+
+	loadEntry: async (id: number) => {
+		const apiEntry = await entriesApi.get(id);
+		currentEntry.set(mapApiToStore(apiEntry));
+		return apiEntry;
+	},
+
+	saveEntry: async () => {
+		const entry = get(currentEntry);
+		const { id, ...data } = entry;
+
+		let saved: Entry;
+		if (id) {
+			saved = await entriesApi.update(id, data);
+		} else {
+			saved = await entriesApi.create(data as Entry);
+		}
+
+		currentEntry.update((e) => ({ ...e, id: saved.id }));
+		return saved;
 	}
 };
 
@@ -98,20 +181,15 @@ export const entryActions = {
 const DRAFT_KEY = 'journal_draft';
 
 export const saveDraft = () => {
-	currentEntry.subscribe((entry) => {
-		if (entry.isDraft) {
-			localStorage.setItem(DRAFT_KEY, JSON.stringify(entry));
-		}
-	});
+	const entry = get(currentEntry);
+	localStorage.setItem(DRAFT_KEY, JSON.stringify(entry));
 };
 
-export const loadDraft = (): EntryState | null => {
+export const loadDraft = (): EntryData | null => {
 	const saved = localStorage.getItem(DRAFT_KEY);
 	if (saved) {
 		try {
-			const parsed = JSON.parse(saved);
-			parsed.date = new Date(parsed.date);
-			return parsed;
+			return JSON.parse(saved);
 		} catch {
 			return null;
 		}
@@ -121,115 +199,4 @@ export const loadDraft = (): EntryState | null => {
 
 export const clearDraft = () => {
 	localStorage.removeItem(DRAFT_KEY);
-};
-
-// Map frontend state to Django API format
-function toApiFormat(entry: EntryState): EntryUpdate {
-	const scaleValue = (scales: { id: string; value: number | null }[], id: string) =>
-		scales.find((s) => s.id === id)?.value ?? null;
-
-	return {
-		date: entry.date.toISOString().split('T')[0],
-		// Reflection
-		log: entry.journalText,
-		overall_day_rating: scaleValue(entry.overallScales, 'overall'),
-		// Hinengaro
-		mood: scaleValue(entry.hinengaro.scales, 'mood'),
-		anxiety_level: scaleValue(entry.hinengaro.scales, 'anxiety'),
-		stress_level: scaleValue(entry.hinengaro.scales, 'stress'),
-		// Tinana
-		sleep_quality: scaleValue(entry.tinana.scales, 'sleep'),
-		exercise_level: scaleValue(entry.tinana.scales, 'exercise'),
-		energy_level: scaleValue(entry.tinana.scales, 'energy'),
-		// Whanau
-		social_connection: scaleValue(entry.whanau.scales, 'connection'),
-		social_interactions_quality: scaleValue(entry.whanau.scales, 'support'),
-		// Wairua
-		sense_of_meaning: scaleValue(entry.wairua.scales, 'meaning')
-	};
-}
-
-// Map Django API response to frontend state
-function fromApiFormat(apiEntry: Entry): EntryState {
-	const makeScale = (id: string, value: number | null) => ({
-		id,
-		leftLabel: '',
-		rightLabel: '',
-		value
-	});
-
-	return {
-		id: apiEntry.id,
-		date: new Date(apiEntry.date),
-		overallScales: [makeScale('overall', apiEntry.overall_day_rating)],
-		journalText: apiEntry.log || '',
-		hinengaro: {
-			mauri: 'untouched',
-			scales: [
-				makeScale('mood', apiEntry.mood),
-				makeScale('anxiety', apiEntry.anxiety_level),
-				makeScale('stress', apiEntry.stress_level)
-			]
-		},
-		tinana: {
-			mauri: 'untouched',
-			scales: [
-				makeScale('sleep', apiEntry.sleep_quality),
-				makeScale('exercise', apiEntry.exercise_level),
-				makeScale('energy', apiEntry.energy_level)
-			]
-		},
-		whanau: {
-			mauri: 'untouched',
-			scales: [
-				makeScale('connection', apiEntry.social_connection),
-				makeScale('support', apiEntry.social_interactions_quality)
-			]
-		},
-		wairua: {
-			mauri: 'untouched',
-			scales: [makeScale('meaning', apiEntry.sense_of_meaning)]
-		},
-		savedAt: new Date(apiEntry.updated_at),
-		isDraft: false
-	};
-}
-
-// API actions
-export const entryApiActions = {
-	loadToday: async () => {
-		const apiEntry = await entriesApi.today();
-		const entry = fromApiFormat(apiEntry);
-		currentEntry.set(entry);
-		return entry;
-	},
-
-	loadEntry: async (id: number) => {
-		const apiEntry = await entriesApi.get(id);
-		const entry = fromApiFormat(apiEntry);
-		currentEntry.set(entry);
-		return entry;
-	},
-
-	saveEntry: async () => {
-		const entry = get(currentEntry);
-		const data = toApiFormat(entry);
-
-		let saved: Entry;
-		if (entry.id) {
-			saved = await entriesApi.update(entry.id, data);
-		} else {
-			saved = await entriesApi.create(data as Entry);
-		}
-
-		currentEntry.update((e) => ({
-			...e,
-			id: saved.id,
-			savedAt: new Date(saved.updated_at),
-			isDraft: false
-		}));
-
-		clearDraft();
-		return saved;
-	}
 };

@@ -5,20 +5,20 @@
 	import { PILLARS } from '$lib/config/pillars';
 	import {
 		activePillar,
-		pillarMauriStates,
 		currentEntry,
 		entryActions,
-		entryApiActions
+		entryApiActions,
+		type EntryData
 	} from '$lib/stores/entry';
-	import type { PillarId } from '$lib/types';
 
 	// State
 	let loading = $state(true);
 	let saving = $state(false);
 	let error = $state<string | null>(null);
 
-	// Format date nicely
-	const formatDate = (date: Date) => {
+	// Format date for display
+	const formatDateDisplay = (dateStr: string) => {
+		const date = new Date(dateStr + 'T00:00:00');
 		return date.toLocaleDateString('en-NZ', {
 			weekday: 'long',
 			day: 'numeric',
@@ -26,11 +26,8 @@
 		});
 	};
 
-	// Get current pillar config - use $derived for reactive values in Svelte 5
+	// Get current pillar config
 	let currentPillarConfig = $derived(PILLARS.find((p) => p.id === $activePillar));
-
-	// Scale values for current pillar
-	let scaleValues: Record<string, number | null> = $state({});
 
 	// Load today's entry on mount
 	onMount(async () => {
@@ -69,6 +66,31 @@
 			saving = false;
 		}
 	}
+
+	// Type-safe field setter
+	function setField<K extends keyof EntryData>(field: K, value: EntryData[K]) {
+		entryActions.setField(field, value);
+	}
+
+	// Handle date change - load entry for that date
+	async function handleDateChange(newDate: string) {
+		loading = true;
+		error = null;
+		try {
+			await entryApiActions.loadByDate(newDate);
+		} catch (e: unknown) {
+			console.error('Load error:', e);
+			if (e && typeof e === 'object' && 'detail' in e) {
+				error = String((e as { detail: string }).detail);
+			} else if (e instanceof Error) {
+				error = e.message;
+			} else {
+				error = 'Failed to load entry';
+			}
+		} finally {
+			loading = false;
+		}
+	}
 </script>
 
 {#if loading}
@@ -79,75 +101,101 @@
 			<div class="error">{error}</div>
 		{/if}
 
-		<!-- Date Header -->
+		<!-- Date Header with picker -->
 		<header class="entry-header">
-			<h1 class="entry-date">{formatDate($currentEntry.date)}</h1>
+			<h1 class="entry-date">{formatDateDisplay($currentEntry.date)}</h1>
+			<input
+				type="date"
+				class="date-picker"
+				value={$currentEntry.date}
+				onchange={(e) => handleDateChange(e.currentTarget.value)}
+			/>
 		</header>
 
-	<!-- Pillar Navigation -->
-	<PillarNav bind:activePillar={$activePillar} pillarStates={$pillarMauriStates} />
+		<!-- Pillar Navigation -->
+		<PillarNav
+			activePillar={$activePillar}
+			onselect={(id) => entryActions.navigateToPillar(id)}
+		/>
 
-	<!-- Pillar Content -->
-	{#if currentPillarConfig}
-		<section class="pillar-content" style="--pillar-color: {currentPillarConfig.color}">
-			<!-- Bilingual Question -->
-			<div class="pillar-question">
-				<p class="pillar-question__maori">{currentPillarConfig.question.maori}</p>
-				<p class="pillar-question__english">{currentPillarConfig.question.english}</p>
-			</div>
-
-			<!-- Scales -->
-			<div class="pillar-scales">
-				{#each currentPillarConfig.scales as scale (scale.id)}
-					<SemanticScale
-						{scale}
-						value={scaleValues[scale.id] ?? null}
-						onchange={(v) => (scaleValues[scale.id] = v)}
-					/>
-				{/each}
-			</div>
-
-			<!-- Reflection (on reflection pillar) -->
-			{#if $activePillar === 'reflection'}
-				<div class="journal-input">
-					<label for="journal-text" class="visually-hidden">Journal entry</label>
-					<textarea
-						id="journal-text"
-						class="journal-textarea"
-						placeholder="What's on your mind today?"
-						bind:value={$currentEntry.journalText}
-						rows="6"
-					></textarea>
+		<!-- Pillar Content -->
+		{#if currentPillarConfig}
+			<section class="pillar-content" style="--pillar-color: {currentPillarConfig.color}">
+				<!-- Bilingual Question -->
+				<div class="pillar-question">
+					<p class="pillar-question__maori">{currentPillarConfig.question.maori}</p>
+					<p class="pillar-question__english">{currentPillarConfig.question.english}</p>
 				</div>
-			{/if}
 
-			<!-- Pillar reflection prompt -->
-			{#if $activePillar !== 'reflection'}
-				<div class="pillar-reflection">
-					<label for="pillar-reflection" class="pillar-reflection__label">
-						What stood out most in this space today?
-					</label>
-					<textarea
-						id="pillar-reflection"
-						class="pillar-reflection__input"
-						placeholder="Optional reflection..."
-						rows="3"
-					></textarea>
+				<!-- Scales -->
+				<div class="pillar-scales">
+					{#each currentPillarConfig.scales as scale (scale.id)}
+						<SemanticScale
+							{scale}
+							value={$currentEntry[scale.id as keyof EntryData] as number | null}
+							onchange={(v) => setField(scale.id as keyof EntryData, v)}
+						/>
+					{/each}
 				</div>
-			{/if}
-		</section>
-	{/if}
 
-	<!-- Actions -->
-	<footer class="entry-actions">
-		<button type="button" class="btn btn--secondary" onclick={() => entryActions.reset()}>
-			Clear
-		</button>
-		<button type="button" class="btn btn--primary" onclick={handleSave} disabled={saving}>
-			{saving ? 'Saving...' : $activePillar === 'reflection' ? 'Save & Exit' : 'Save Entry'}
-		</button>
-	</footer>
-</div>
+				<!-- Extra fields (number/text inputs for Tinana) -->
+				{#if currentPillarConfig.extraFields}
+					<div class="extra-fields">
+						{#each currentPillarConfig.extraFields as field (field.id)}
+							<div class="field-group">
+								<label for={field.id}>{field.label}</label>
+								{#if field.type === 'number'}
+									<input
+										type="number"
+										id={field.id}
+										value={$currentEntry[field.id as keyof EntryData] ?? ''}
+										placeholder={field.placeholder}
+										onchange={(e) => setField(field.id as keyof EntryData, e.currentTarget.value ? Number(e.currentTarget.value) : null)}
+									/>
+								{:else}
+									<input
+										type="text"
+										id={field.id}
+										value={$currentEntry[field.id as keyof EntryData] ?? ''}
+										placeholder={field.placeholder}
+										onchange={(e) => setField(field.id as keyof EntryData, e.currentTarget.value)}
+									/>
+								{/if}
+							</div>
+						{/each}
+					</div>
+				{/if}
+
+				<!-- Text fields (for Reflection pillar) -->
+				{#if currentPillarConfig.textFields}
+					<div class="text-fields">
+						{#each currentPillarConfig.textFields as field (field.id)}
+							<div class="field-group">
+								<label for={field.id}>{field.label}</label>
+								<textarea
+									id={field.id}
+									value={$currentEntry[field.id as keyof EntryData] ?? ''}
+									placeholder={field.placeholder}
+									rows={field.id === 'log' ? 6 : 2}
+									onchange={(e) => setField(field.id as keyof EntryData, e.currentTarget.value)}
+								></textarea>
+							</div>
+						{/each}
+					</div>
+				{/if}
+			</section>
+		{/if}
+
+		<!-- Actions -->
+		<footer class="entry-actions">
+			<button type="button" class="btn btn--secondary" onclick={() => entryActions.reset()}>
+				Clear
+			</button>
+			<button type="button" class="btn btn--primary" onclick={handleSave} disabled={saving}>
+				{saving ? 'Saving...' : 'Save'}
+			</button>
+		</footer>
+	</div>
 {/if}
 
 <style lang="scss">
@@ -176,7 +224,21 @@
 	.entry-date {
 		font-size: var(--font-size-xl);
 		font-weight: 400;
-		margin: 0;
+		margin: 0 0 var(--space-sm);
+	}
+
+	.date-picker {
+		font-family: var(--font-family);
+		font-size: var(--font-size-sm);
+		padding: var(--space-xs) var(--space-sm);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-sm);
+		cursor: pointer;
+
+		&:focus {
+			outline: none;
+			border-color: var(--color-focus);
+		}
 	}
 
 	.pillar-content {
@@ -206,38 +268,51 @@
 		@include mx.flex-column(var(--space-md));
 	}
 
-	.journal-input,
-	.pillar-reflection {
+	.extra-fields,
+	.text-fields {
+		@include mx.flex-column(var(--space-md));
 		margin-top: var(--space-md);
 	}
 
-	.journal-textarea,
-	.pillar-reflection__input {
-		width: 100%;
-		padding: var(--space-sm);
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-md);
-		font-family: var(--font-family);
-		font-size: var(--font-size-base);
-		line-height: var(--line-height-base);
-		resize: vertical;
+	.field-group {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-xs);
 
-		&:focus {
-			outline: none;
-			border-color: var(--color-focus);
-			box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+		label {
+			font-size: var(--font-size-sm);
+			font-weight: 500;
+			color: var(--color-text);
 		}
 
-		&::placeholder {
-			color: var(--color-text-muted);
-		}
-	}
+		input,
+		textarea {
+			width: 100%;
+			padding: var(--space-sm);
+			border: 1px solid var(--color-border);
+			border-radius: var(--radius-md);
+			font-family: var(--font-family);
+			font-size: var(--font-size-base);
+			line-height: var(--line-height-base);
 
-	.pillar-reflection__label {
-		display: block;
-		margin-bottom: var(--space-xs);
-		font-size: var(--font-size-sm);
-		color: var(--color-text-muted);
+			&:focus {
+				outline: none;
+				border-color: var(--color-focus);
+				box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+			}
+
+			&::placeholder {
+				color: var(--color-text-muted);
+			}
+		}
+
+		textarea {
+			resize: vertical;
+		}
+
+		input[type='number'] {
+			max-width: 120px;
+		}
 	}
 
 	.entry-actions {
@@ -256,8 +331,13 @@
 			background: var(--color-hinengaro);
 			color: white;
 
-			&:hover {
+			&:hover:not(:disabled) {
 				background: darken(#2196f3, 10%);
+			}
+
+			&:disabled {
+				opacity: 0.6;
+				cursor: not-allowed;
 			}
 		}
 
