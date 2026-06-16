@@ -5,12 +5,14 @@
 		scale: Omit<SemanticScale, 'value'>;
 		value?: number | null;
 		segments?: number;
+		onchange?: (value: number) => void;
 	}
 
-	let { scale, value = $bindable(null), segments = 7 }: Props = $props();
+	let { scale, value = null, segments = 7, onchange }: Props = $props();
 
 	const handleSelect = (index: number) => {
-		value = index + 1;
+		const newValue = index + 1;
+		onchange?.(newValue);
 	};
 
 	const handleKeydown = (e: KeyboardEvent, index: number) => {
@@ -18,9 +20,9 @@
 			e.preventDefault();
 			handleSelect(index);
 		} else if (e.key === 'ArrowRight' && value !== null && value < segments) {
-			value = value + 1;
+			onchange?.(value + 1);
 		} else if (e.key === 'ArrowLeft' && value !== null && value > 1) {
-			value = value - 1;
+			onchange?.(value - 1);
 		}
 	};
 </script>

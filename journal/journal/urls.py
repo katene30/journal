@@ -9,6 +9,9 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(template_name='entries/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
 
+    # API
+    path('api/', include('entries.api_urls')),
+
     # App
     path('', include('entries.urls')),
 ]

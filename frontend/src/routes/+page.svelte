@@ -1,9 +1,21 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import PillarNav from '$lib/components/PillarNav.svelte';
 	import SemanticScale from '$lib/components/SemanticScale.svelte';
 	import { PILLARS } from '$lib/config/pillars';
-	import { activePillar, pillarMauriStates, currentEntry, entryActions } from '$lib/stores/entry';
+	import {
+		activePillar,
+		pillarMauriStates,
+		currentEntry,
+		entryActions,
+		entryApiActions
+	} from '$lib/stores/entry';
 	import type { PillarId } from '$lib/types';
+
+	// State
+	let loading = $state(true);
+	let saving = $state(false);
+	let error = $state<string | null>(null);
 
 	// Format date nicely
 	const formatDate = (date: Date) => {
@@ -19,13 +31,58 @@
 
 	// Scale values for current pillar
 	let scaleValues: Record<string, number | null> = $state({});
+
+	// Load today's entry on mount
+	onMount(async () => {
+		try {
+			await entryApiActions.loadToday();
+		} catch (e: unknown) {
+			console.error('Load error:', e);
+			if (e && typeof e === 'object' && 'detail' in e) {
+				error = String((e as { detail: string }).detail);
+			} else if (e instanceof Error) {
+				error = e.message;
+			} else {
+				error = 'Failed to load entry';
+			}
+		} finally {
+			loading = false;
+		}
+	});
+
+	// Save handler
+	async function handleSave() {
+		saving = true;
+		error = null;
+		try {
+			await entryApiActions.saveEntry();
+		} catch (e: unknown) {
+			console.error('Save error:', e);
+			if (e && typeof e === 'object' && 'detail' in e) {
+				error = String((e as { detail: string }).detail);
+			} else if (e instanceof Error) {
+				error = e.message;
+			} else {
+				error = 'Failed to save entry';
+			}
+		} finally {
+			saving = false;
+		}
+	}
 </script>
 
-<div class="container">
-	<!-- Date Header -->
-	<header class="entry-header">
-		<h1 class="entry-date">{formatDate($currentEntry.date)}</h1>
-	</header>
+{#if loading}
+	<div class="loading">Loading...</div>
+{:else}
+	<div class="container">
+		{#if error}
+			<div class="error">{error}</div>
+		{/if}
+
+		<!-- Date Header -->
+		<header class="entry-header">
+			<h1 class="entry-date">{formatDate($currentEntry.date)}</h1>
+		</header>
 
 	<!-- Pillar Navigation -->
 	<PillarNav bind:activePillar={$activePillar} pillarStates={$pillarMauriStates} />
@@ -42,7 +99,11 @@
 			<!-- Scales -->
 			<div class="pillar-scales">
 				{#each currentPillarConfig.scales as scale (scale.id)}
-					<SemanticScale {scale} bind:value={scaleValues[scale.id]} />
+					<SemanticScale
+						{scale}
+						value={scaleValues[scale.id] ?? null}
+						onchange={(v) => (scaleValues[scale.id] = v)}
+					/>
 				{/each}
 			</div>
 
@@ -82,14 +143,30 @@
 		<button type="button" class="btn btn--secondary" onclick={() => entryActions.reset()}>
 			Clear
 		</button>
-		<button type="button" class="btn btn--primary">
-			{$activePillar === 'reflection' ? 'Save & Exit' : 'Save Entry'}
+		<button type="button" class="btn btn--primary" onclick={handleSave} disabled={saving}>
+			{saving ? 'Saving...' : $activePillar === 'reflection' ? 'Save & Exit' : 'Save Entry'}
 		</button>
 	</footer>
 </div>
+{/if}
 
 <style lang="scss">
 	@use '$lib/scss/mixins' as mx;
+
+	.loading {
+		text-align: center;
+		padding: var(--space-xl);
+		color: var(--color-text-muted);
+	}
+
+	.error {
+		background: #fee;
+		border: 1px solid var(--color-error);
+		color: var(--color-error);
+		padding: var(--space-sm);
+		border-radius: var(--radius-md);
+		margin-bottom: var(--space-md);
+	}
 
 	.entry-header {
 		text-align: center;
