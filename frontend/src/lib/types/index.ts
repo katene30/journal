@@ -1,8 +1,10 @@
 // Semantic differential scale (bipolar)
 export interface SemanticScale {
 	id: string;
+	title: string;
 	leftLabel: string;
 	rightLabel: string;
+	helpText?: string;
 	value: number | null;
 }
 

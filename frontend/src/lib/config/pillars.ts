@@ -14,14 +14,16 @@ export const PILLARS: PillarConfig[] = [
 		scales: [
 			{
 				id: 'overall_day_rating',
-				leftLabel: 'Difficult day',
-				rightLabel: 'Great day'
+				title: 'Overall Day',
+				leftLabel: 'Difficult',
+				rightLabel: 'Great',
+				helpText: 'How would you rate your day overall?'
 			}
 		],
 		textFields: [
 			{ id: 'best_thing_today', label: 'Best thing today', placeholder: 'What went well?' },
 			{ id: 'hardest_thing_today', label: 'Hardest thing today', placeholder: 'What was challenging?' },
-			{ id: 'significant_events', label: 'Significant events', placeholder: 'Anything notable happen?' },
+			{ id: 'significant_events', label: 'Significant events', placeholder: 'Anything notable?' },
 			{ id: 'log', label: 'Journal', placeholder: "What's on your mind?" }
 		]
 	},
@@ -36,9 +38,27 @@ export const PILLARS: PillarConfig[] = [
 			english: 'How is your mind today?'
 		},
 		scales: [
-			{ id: 'mood', leftLabel: 'Low mood', rightLabel: 'Positive mood' },
-			{ id: 'anxiety_level', leftLabel: 'Calm', rightLabel: 'Anxious' },
-			{ id: 'stress_level', leftLabel: 'Relaxed', rightLabel: 'Stressed' }
+			{
+				id: 'mood',
+				title: 'Mood',
+				leftLabel: 'Low',
+				rightLabel: 'Positive',
+				helpText: 'Your overall emotional state'
+			},
+			{
+				id: 'anxiety_level',
+				title: 'Anxiety',
+				leftLabel: 'Calm',
+				rightLabel: 'Anxious',
+				helpText: 'How worried or on-edge do you feel?'
+			},
+			{
+				id: 'stress_level',
+				title: 'Stress',
+				leftLabel: 'Relaxed',
+				rightLabel: 'Stressed',
+				helpText: 'How much pressure are you feeling?'
+			}
 		]
 	},
 	{
@@ -52,14 +72,38 @@ export const PILLARS: PillarConfig[] = [
 			english: 'How is your body today?'
 		},
 		scales: [
-			{ id: 'sleep_quality', leftLabel: 'Poor sleep', rightLabel: 'Well rested' },
-			{ id: 'energy_level', leftLabel: 'Exhausted', rightLabel: 'Energetic' },
-			{ id: 'exercise_level', leftLabel: 'Sedentary', rightLabel: 'Active' },
-			{ id: 'diet_quality', leftLabel: 'Poorly nourished', rightLabel: 'Well nourished' }
+			{
+				id: 'sleep_quality',
+				title: 'Sleep Quality',
+				leftLabel: 'Poor',
+				rightLabel: 'Great',
+				helpText: 'How well did you sleep?'
+			},
+			{
+				id: 'energy_level',
+				title: 'Energy',
+				leftLabel: 'Exhausted',
+				rightLabel: 'Energetic',
+				helpText: 'Your physical energy level'
+			},
+			{
+				id: 'exercise_level',
+				title: 'Movement',
+				leftLabel: 'Sedentary',
+				rightLabel: 'Active',
+				helpText: 'How much did you move today?'
+			},
+			{
+				id: 'diet_quality',
+				title: 'Nourishment',
+				leftLabel: 'Poor',
+				rightLabel: 'Well fed',
+				helpText: 'How well did you eat?'
+			}
 		],
 		extraFields: [
 			{ id: 'sleep_hours', type: 'number', label: 'Hours of sleep', placeholder: '8' },
-			{ id: 'alcohol_caffeine_consumption', type: 'text', label: 'Alcohol/caffeine', placeholder: 'e.g., 2 coffees, 1 beer' }
+			{ id: 'alcohol_caffeine_consumption', type: 'text', label: 'Alcohol/caffeine', placeholder: 'e.g., 2 coffees' }
 		]
 	},
 	{
@@ -73,8 +117,20 @@ export const PILLARS: PillarConfig[] = [
 			english: 'How are your connections today?'
 		},
 		scales: [
-			{ id: 'social_connection', leftLabel: 'Isolated', rightLabel: 'Connected' },
-			{ id: 'social_interactions_quality', leftLabel: 'Draining', rightLabel: 'Nourishing' }
+			{
+				id: 'social_connection',
+				title: 'Connection',
+				leftLabel: 'Isolated',
+				rightLabel: 'Connected',
+				helpText: 'How connected do you feel to others?'
+			},
+			{
+				id: 'social_interactions_quality',
+				title: 'Interaction Quality',
+				leftLabel: 'Draining',
+				rightLabel: 'Nourishing',
+				helpText: 'Were your interactions positive?'
+			}
 		]
 	},
 	{
@@ -88,7 +144,13 @@ export const PILLARS: PillarConfig[] = [
 			english: 'How is your spirit today?'
 		},
 		scales: [
-			{ id: 'sense_of_meaning', leftLabel: 'Lacking purpose', rightLabel: 'Purposeful' }
+			{
+				id: 'sense_of_meaning',
+				title: 'Meaning',
+				leftLabel: 'Lacking',
+				rightLabel: 'Purposeful',
+				helpText: 'Do you feel a sense of purpose?'
+			}
 		]
 	},
 	{
@@ -102,7 +164,13 @@ export const PILLARS: PillarConfig[] = [
 			english: 'Did you feel like yourself today?'
 		},
 		scales: [
-			{ id: 'felt_like_myself', leftLabel: 'Not myself', rightLabel: 'Fully myself' }
+			{
+				id: 'felt_like_myself',
+				title: 'Authenticity',
+				leftLabel: 'Not myself',
+				rightLabel: 'Fully myself',
+				helpText: 'How true to yourself did you feel?'
+			}
 		]
 	},
 	{
@@ -116,7 +184,13 @@ export const PILLARS: PillarConfig[] = [
 			english: 'How is your environment today?'
 		},
 		scales: [
-			{ id: 'environment_quality', leftLabel: 'Unsupportive', rightLabel: 'Supportive' }
+			{
+				id: 'environment_quality',
+				title: 'Environment',
+				leftLabel: 'Unsupportive',
+				rightLabel: 'Supportive',
+				helpText: 'Is your space helping or hindering you?'
+			}
 		]
 	}
 ];

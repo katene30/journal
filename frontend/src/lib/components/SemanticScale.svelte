@@ -16,44 +16,60 @@
 </script>
 
 <fieldset class="semantic-scale">
-	<legend class="visually-hidden">{scale.leftLabel} to {scale.rightLabel}</legend>
+	<legend class="semantic-scale__title">{scale.title}</legend>
 
-	<span class="semantic-scale__label semantic-scale__label--left">{scale.leftLabel}</span>
+	<div class="semantic-scale__row">
+		<span class="semantic-scale__label semantic-scale__label--left">{scale.leftLabel}</span>
 
-	<div class="semantic-scale__options">
-		{#each Array(segments) as _, i}
-			{@const optionValue = i + 1}
-			<label class="semantic-scale__option">
-				<input
-					type="radio"
-					name={scale.id}
-					value={optionValue}
-					checked={value === optionValue}
-					onchange={() => handleChange(optionValue)}
-				/>
-				<span class="semantic-scale__radio"></span>
-				<span class="visually-hidden">{optionValue}</span>
-			</label>
-		{/each}
+		<div class="semantic-scale__options">
+			{#each Array(segments) as _, i}
+				{@const optionValue = i + 1}
+				<label class="semantic-scale__option">
+					<input
+						type="radio"
+						name={scale.id}
+						value={optionValue}
+						checked={value === optionValue}
+						onchange={() => handleChange(optionValue)}
+					/>
+					<span class="semantic-scale__radio"></span>
+					<span class="visually-hidden">{optionValue}</span>
+				</label>
+			{/each}
+		</div>
+
+		<span class="semantic-scale__label semantic-scale__label--right">{scale.rightLabel}</span>
 	</div>
 
-	<span class="semantic-scale__label semantic-scale__label--right">{scale.rightLabel}</span>
+	{#if scale.helpText}
+		<p class="semantic-scale__help">{scale.helpText}</p>
+	{/if}
 </fieldset>
 
 <style lang="scss">
 	.semantic-scale {
-		display: flex;
-		align-items: center;
-		gap: var(--space-sm);
 		border: none;
 		padding: 0;
 		margin: 0;
 	}
 
+	.semantic-scale__title {
+		font-size: var(--font-size-base);
+		font-weight: 500;
+		color: var(--color-text);
+		margin-bottom: var(--space-xs);
+	}
+
+	.semantic-scale__row {
+		display: flex;
+		align-items: center;
+		gap: var(--space-sm);
+	}
+
 	.semantic-scale__label {
 		font-size: var(--font-size-sm);
 		color: var(--color-text-muted);
-		min-width: 80px;
+		min-width: 70px;
 
 		&--left {
 			text-align: right;
@@ -93,8 +109,8 @@
 
 	.semantic-scale__radio {
 		display: block;
-		width: 32px;
-		height: 32px;
+		width: 28px;
+		height: 28px;
 		border: 2px solid var(--color-border);
 		border-radius: 50%;
 		background: var(--color-surface);
@@ -104,6 +120,13 @@
 			border-color: var(--pillar-color, var(--color-hinengaro));
 			background: color-mix(in srgb, var(--pillar-color, var(--color-hinengaro)) 10%, white);
 		}
+	}
+
+	.semantic-scale__help {
+		font-size: var(--font-size-xs);
+		color: var(--color-text-muted);
+		margin: var(--space-xs) 0 0;
+		font-style: italic;
 	}
 
 	.visually-hidden {
