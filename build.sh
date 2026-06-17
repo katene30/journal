@@ -2,8 +2,18 @@
 # Exit on error
 set -o errexit
 
-# Install dependencies
+# Install Python dependencies
 pip install -r requirements.txt
+
+# Build frontend
+cd frontend
+npm ci
+npm run build
+cd ..
+
+# Copy built frontend to Django static
+mkdir -p journal/staticfiles/frontend
+cp -r frontend/build/* journal/staticfiles/frontend/
 
 # Change to Django project directory
 cd journal
