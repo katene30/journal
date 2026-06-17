@@ -18,6 +18,7 @@
 	let saving = $state(false);
 	let error = $state<string | null>(null);
 	let showSavedToast = $state(false);
+	let entryLoaded = $state(false);
 
 	// Format date for display
 	const formatDateDisplay = (dateStr: string) => {
@@ -85,6 +86,10 @@
 		error = null;
 		try {
 			await entryApiActions.loadByDate(newDate);
+			entryLoaded = true;
+			setTimeout(() => {
+				entryLoaded = false;
+			}, 600);
 		} catch (e: unknown) {
 			console.error('Load error:', e);
 			if (e && typeof e === 'object' && 'detail' in e) {
@@ -132,7 +137,7 @@
 
 		<!-- Pillar Content -->
 		{#if currentPillarConfig}
-			<section class="pillar-content" style="--pillar-color: {currentPillarConfig.color}">
+			<section class="pillar-content" class:pillar-content--loaded={entryLoaded} style="--pillar-color: {currentPillarConfig.color}">
 				<!-- Bilingual Question -->
 				<div class="pillar-question">
 					<p class="pillar-question__maori">{currentPillarConfig.question.maori}</p>
@@ -254,8 +259,22 @@
 	}
 
 	.pillar-content {
-		padding: var(--space-lg) 0;
+		padding: var(--space-lg);
 		@include mx.flex-column(var(--space-lg));
+		border-radius: var(--radius-md);
+	}
+
+	.pillar-content--loaded {
+		animation: highlight-pulse 0.6s ease-out;
+	}
+
+	@keyframes highlight-pulse {
+		0% {
+			background-color: color-mix(in srgb, var(--pillar-color) 20%, transparent);
+		}
+		100% {
+			background-color: transparent;
+		}
 	}
 
 	.pillar-question {
