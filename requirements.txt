@@ -3,6 +3,10 @@ Django>=5.0,<6.0
 gunicorn>=23.0
 djangorestframework>=3.15
 
+# Auth
+dj-rest-auth[with_social]>=5.0
+django-allauth>=0.61
+
 # Database
 dj-database-url>=2.0
 psycopg2-binary>=2.9

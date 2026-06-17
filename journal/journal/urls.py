@@ -16,9 +16,13 @@ def serve_spa_static(request, path):
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # Auth
+    # Auth (legacy Django templates)
     path('login/', auth_views.LoginView.as_view(template_name='entries/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
+
+    # Auth API (for SPA)
+    path('api/auth/', include('dj_rest_auth.urls')),
+    path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
 
     # API
     path('api/', include('entries.api_urls')),
