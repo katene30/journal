@@ -19,6 +19,8 @@
 	let error = $state<string | null>(null);
 	let showSavedToast = $state(false);
 	let entryLoaded = $state(false);
+	let slideDirection = $state<'left' | 'right' | null>(null);
+	let previousPillarIndex = $state(0);
 
 	// Format date for display
 	const formatDateDisplay = (dateStr: string) => {
@@ -30,8 +32,24 @@
 		});
 	};
 
-	// Get current pillar config
+	// Get current pillar config and index
 	let currentPillarConfig = $derived(PILLARS.find((p) => p.id === $activePillar));
+	let currentPillarIndex = $derived(PILLARS.findIndex((p) => p.id === $activePillar));
+
+	// Handle pillar navigation with direction tracking
+	function handlePillarSelect(id: string) {
+		const newIndex = PILLARS.findIndex((p) => p.id === id);
+		if (newIndex > currentPillarIndex) {
+			slideDirection = 'right';
+		} else if (newIndex < currentPillarIndex) {
+			slideDirection = 'left';
+		}
+		previousPillarIndex = currentPillarIndex;
+		entryActions.navigateToPillar(id);
+		setTimeout(() => {
+			slideDirection = null;
+		}, 300);
+	}
 
 	// Load today's entry on mount
 	onMount(async () => {
@@ -132,12 +150,18 @@
 		<PillarNav
 			activePillar={$activePillar}
 			mauriStates={$pillarMauriStates}
-			onselect={(id) => entryActions.navigateToPillar(id)}
+			onselect={handlePillarSelect}
 		/>
 
 		<!-- Pillar Content -->
 		{#if currentPillarConfig}
-			<section class="pillar-content" class:pillar-content--loaded={entryLoaded} style="--pillar-color: {currentPillarConfig.color}">
+			<section
+				class="pillar-content"
+				class:pillar-content--loaded={entryLoaded}
+				class:pillar-content--slide-left={slideDirection === 'left'}
+				class:pillar-content--slide-right={slideDirection === 'right'}
+				style="--pillar-color: {currentPillarConfig.color}"
+			>
 				<!-- Bilingual Question -->
 				<div class="pillar-question">
 					<p class="pillar-question__maori">{currentPillarConfig.question.maori}</p>
@@ -274,6 +298,36 @@
 		}
 		100% {
 			background-color: transparent;
+		}
+	}
+
+	.pillar-content--slide-left {
+		animation: slide-from-left 0.3s ease-out;
+	}
+
+	.pillar-content--slide-right {
+		animation: slide-from-right 0.3s ease-out;
+	}
+
+	@keyframes slide-from-left {
+		from {
+			opacity: 0;
+			transform: translateX(-30px);
+		}
+		to {
+			opacity: 1;
+			transform: translateX(0);
+		}
+	}
+
+	@keyframes slide-from-right {
+		from {
+			opacity: 0;
+			transform: translateX(30px);
+		}
+		to {
+			opacity: 1;
+			transform: translateX(0);
 		}
 	}
 

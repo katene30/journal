@@ -78,20 +78,26 @@
 		cursor: pointer;
 		transition: all var(--transition-fast);
 		min-width: 56px;
+	}
 
-		&:hover {
-			background: var(--color-bg);
-		}
+	.pillar-nav__button:hover {
+		border-color: var(--pillar-color);
+	}
 
-		&:focus-visible {
-			outline: 2px solid var(--color-focus);
-			outline-offset: 2px;
-		}
+	.pillar-nav__button:focus-visible {
+		outline: 2px solid var(--color-focus);
+		outline-offset: 2px;
+	}
 
-		&--active {
-			border-color: var(--pillar-color);
-			background: color-mix(in srgb, var(--pillar-color) 10%, white);
-		}
+	.pillar-nav__button--active {
+		background: var(--pillar-color);
+		border-color: var(--pillar-color);
+	}
+
+	.pillar-nav__button--active .pillar-nav__icon,
+	.pillar-nav__button--active .pillar-nav__name,
+	.pillar-nav__button--active .pillar-nav__mauri {
+		color: white;
 	}
 
 	.pillar-nav__icon {
@@ -103,20 +109,11 @@
 		font-size: var(--font-size-xs);
 		color: var(--color-text-muted);
 		white-space: nowrap;
-
-		.pillar-nav__button--active & {
-			color: var(--pillar-color);
-			font-weight: 500;
-		}
 	}
 
 	.pillar-nav__mauri {
 		font-size: var(--font-size-sm);
 		color: var(--color-text-muted);
 		line-height: 1;
-
-		.pillar-nav__button--active & {
-			color: var(--pillar-color);
-		}
 	}
 </style>
