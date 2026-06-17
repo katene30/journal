@@ -48,6 +48,7 @@ class JournalEntry(models.Model):
     class Meta:
         verbose_name_plural = 'journal entries'
         ordering = ['-date']
+        unique_together = ['user', 'date']
 
     def __str__(self):
         return f"{self.date} - {self.user.username}"

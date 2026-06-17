@@ -134,7 +134,12 @@ export const pillarMauriStates = derived(currentEntry, ($entry) => {
 // Actions
 export const entryActions = {
 	reset: () => {
-		currentEntry.set(createEmptyEntry());
+		// Clear fields but keep id and date
+		currentEntry.update((e) => ({
+			...createEmptyEntry(),
+			id: e.id,
+			date: e.date
+		}));
 		activePillar.set('reflection');
 	},
 
