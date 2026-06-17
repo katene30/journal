@@ -102,10 +102,15 @@ npm run dev
 ```
 
 Visit:
-- Frontend: `http://localhost:5173/`
+- Frontend (dev): `http://localhost:5173/`
 - Django admin: `http://localhost:8000/admin/`
 
 Log in via Django first (`http://localhost:8000/login/`), then use the frontend.
+
+**Production URLs:**
+- `/app` — SvelteKit entry form (requires login)
+- `/` — Django templates (legacy, gradual migration)
+- `/api/` — REST API
 
 ## Project Structure
 
