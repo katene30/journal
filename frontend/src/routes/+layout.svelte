@@ -1,7 +1,30 @@
 <script lang="ts">
 	import '$lib/scss/main.scss';
+	import { onMount } from 'svelte';
+	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
+	import { authActions, authLoading, isAuthenticated } from '$lib/stores/auth';
 
 	let { children } = $props();
+
+	const publicRoutes = ['/app/login', '/app/register'];
+
+	onMount(() => {
+		authActions.checkAuth();
+	});
+
+	$effect(() => {
+		const path = $page.url.pathname;
+		const isPublicRoute = publicRoutes.some(route => path.startsWith(route));
+
+		if (!$authLoading) {
+			if (!$isAuthenticated && !isPublicRoute) {
+				goto('/app/login');
+			} else if ($isAuthenticated && isPublicRoute) {
+				goto('/app');
+			}
+		}
+	});
 </script>
 
 <svelte:head>
@@ -9,10 +32,24 @@
 	<meta name="description" content="Track your wellbeing across Te Whare Tapa Whā" />
 </svelte:head>
 
-<a href="#main-content" class="skip-link">Skip to main content</a>
+{#if $authLoading}
+	<div class="loading-screen">Loading...</div>
+{:else}
+	<a href="#main-content" class="skip-link">Skip to main content</a>
 
-<div class="page">
-	<main id="main-content" class="main">
-		{@render children()}
-	</main>
-</div>
+	<div class="page">
+		<main id="main-content" class="main">
+			{@render children()}
+		</main>
+	</div>
+{/if}
+
+<style>
+	.loading-screen {
+		min-height: 100vh;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--color-text-muted);
+	}
+</style>
