@@ -1,42 +1,62 @@
 # Hauora Journal
 
-A personal wellbeing tracker built around Te Whare Tapa Whā and Te Pae Mahutonga - Māori models of health and wellbeing.
+A personal wellbeing tracker built around Te Whare Tapa Whā and Te Pae Mahutonga — Māori models of health and wellbeing.
 
 ## Overview
 
-Hauora Journal helps you track daily wellbeing across multiple dimensions, not just physical or mental health in isolation. The app is structured around the four walls of Te Whare Tapa Whā:
+Hauora Journal helps you track daily wellbeing holistically, not just physical or mental health in isolation. The app is structured around seven pillars:
 
-- **Taha Hinengaro** (Mind) - Mood, anxiety, stress levels
-- **Taha Tinana** (Body) - Sleep, exercise, diet, energy
-- **Taha Whānau** (Family/Belonging) - Social connection and interaction quality
-- **Taha Wairua** (Spirit) - Sense of meaning and purpose
+### Te Whare Tapa Whā (The Four Walls)
 
-Plus elements from Te Pae Mahutonga:
-- **Mauriora** (Identity) - Feeling like yourself
-- **Waiora** (Environment) - Quality of your physical environment
+| Pillar | Icon | What it tracks |
+|--------|------|----------------|
+| **Hinengaro** | 🧠 | Mind — mood, anxiety, stress |
+| **Tinana** | 💪 | Body — sleep, energy, exercise, diet |
+| **Whānau** | 💛 | Relationships — connection, interaction quality |
+| **Wairua** | 🌿 | Spirit — sense of meaning and purpose |
+
+### Te Pae Mahutonga (The Southern Cross)
+
+| Pillar | Icon | What it tracks |
+|--------|------|----------------|
+| **Mauriora** | 🪞 | Identity — feeling like yourself |
+| **Waiora** | 🏡 | Environment — is your space supportive? |
+
+### Reflection
+
+| Pillar | Icon | What it tracks |
+|--------|------|----------------|
+| **Reflection** | 📝 | Overall day rating, journal, highlights |
 
 ## Features
 
-- **Daily Entries** - Track wellbeing metrics with simple 1-10 sliders
-- **Reflection** - Record best/hardest moments and journal thoughts
-- **Summary Charts** - Visualize trends over time for any metric
-- **Per-Entry Charts** - See your hauora balance for each day
-- **PWA Support** - Install on your phone's home screen for app-like access
-- **Multi-user** - Each user sees only their own entries
+- **Semantic scales** — Bipolar scales (e.g., "Calm ↔ Anxious") instead of numeric ratings
+- **Bilingual prompts** — Questions in Te Reo Māori and English
+- **Mauri indicators** — Show engagement level per pillar (○ ◔ ◕ ●), not completion pressure
+- **One entry per day** — Edit throughout the day, each date has its own entry
+- **Date picker** — Review and edit past entries
+- **PWA Support** — Install on your phone's home screen
 
 ## Tech Stack
 
-- Django 5
-- Bootstrap 5
-- Chart.js
+**Backend:**
+- Django 5 + Django REST Framework
 - PostgreSQL (production) / SQLite (development)
-- Deployed on Render
+
+**Frontend:**
+- SvelteKit + TypeScript
+- SCSS (custom design tokens, no Bootstrap)
+- Vite
+
+**Deployment:**
+- Render (Django serves API + built frontend)
 
 ## Local Development
 
 ### Prerequisites
 
 - Python 3.11+
+- Node.js 20+
 - pip
 
 ### Setup
@@ -46,40 +66,80 @@ Plus elements from Te Pae Mahutonga:
 git clone https://github.com/katene30/journal.git
 cd journal
 
-# Create virtual environment
+# Backend setup
 python3 -m venv venv
 source venv/bin/activate
-
-# Install dependencies
 pip install -r requirements.txt
-
-# Set up environment
 cp example.env .env
 # Edit .env and set DJANGO_SECRET_KEY
 
-# Run migrations
 cd journal
 python manage.py migrate
-
-# Create a user
 python manage.py createsuperuser
+cd ..
 
-# Run the server
+# Frontend setup
+cd frontend
+npm install
+cd ..
+```
+
+### Running locally
+
+You need two terminals:
+
+**Terminal 1 — Django API:**
+```bash
+cd journal
+source ../venv/bin/activate
 python manage.py runserver
 ```
 
-Visit `http://127.0.0.1:8000/`
+**Terminal 2 — SvelteKit frontend:**
+```bash
+cd frontend
+npm run dev
+```
+
+Visit:
+- Frontend: `http://localhost:5173/`
+- Django admin: `http://localhost:8000/admin/`
+
+Log in via Django first (`http://localhost:8000/login/`), then use the frontend.
+
+## Project Structure
+
+```
+journal/
+├── frontend/           # SvelteKit app
+│   ├── src/
+│   │   ├── lib/
+│   │   │   ├── components/   # SemanticScale, PillarNav
+│   │   │   ├── config/       # Pillar definitions
+│   │   │   ├── stores/       # Entry state, mauri calculation
+│   │   │   ├── api/          # API client
+│   │   │   └── scss/         # Design tokens, mixins
+│   │   └── routes/           # Pages
+│   └── vite.config.ts
+├── journal/            # Django project
+│   ├── journal/        # Settings
+│   └── entries/        # App (models, views, API)
+├── docs/
+│   ├── PILLARS.md      # Pillar documentation
+│   └── FRONTEND_NOTES.md
+└── requirements.txt
+```
 
 ## Deployment
 
-The app is configured for Render deployment with:
-- `render.yaml` - Blueprint for web service and database
-- `build.sh` - Build script that runs migrations and collectstatic
+Configured for Render with:
+- `render.yaml` — Blueprint for web service + database
+- `build.sh` — Builds frontend, collects static files, runs migrations
 
-Environment variables needed:
-- `DJANGO_SECRET_KEY` - Secret key for Django
-- `DATABASE_URL` - PostgreSQL connection string (auto-set by Render)
-- `DJANGO_SUPERUSER_USERNAME/EMAIL/PASSWORD` - For creating admin user on deploy
+Environment variables:
+- `DJANGO_SECRET_KEY`
+- `DATABASE_URL` (auto-set by Render)
+- `DJANGO_SUPERUSER_USERNAME/EMAIL/PASSWORD`
 
 ## License
 
