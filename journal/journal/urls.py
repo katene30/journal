@@ -26,6 +26,8 @@ urlpatterns = [
     # SvelteKit SPA static files
     re_path(r'^app/(?P<path>_app/.*)$', serve_spa_static),
     re_path(r'^app/(?P<path>robots\.txt)$', serve_spa_static),
+    re_path(r'^app/(?P<path>favicon\.ico)$', serve_spa_static),
+    re_path(r'^(?P<path>favicon\.ico)$', serve_spa_static),
 
     # SvelteKit SPA (new frontend)
     re_path(r'^app(?:/.*)?$', spa_view, name='spa'),
