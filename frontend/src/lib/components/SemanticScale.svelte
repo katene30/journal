@@ -8,7 +8,7 @@
 		onchange?: (value: number) => void;
 	}
 
-	let { scale, value = null, segments = 7, onchange }: Props = $props();
+	let { scale, value = null, segments = 5, onchange }: Props = $props();
 
 	const handleChange = (newValue: number) => {
 		onchange?.(newValue);
