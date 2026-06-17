@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { fly } from 'svelte/transition';
 	import PillarNav from '$lib/components/PillarNav.svelte';
 	import SemanticScale from '$lib/components/SemanticScale.svelte';
 	import { PILLARS } from '$lib/config/pillars';
@@ -16,6 +17,7 @@
 	let loading = $state(true);
 	let saving = $state(false);
 	let error = $state<string | null>(null);
+	let showSavedToast = $state(false);
 
 	// Format date for display
 	const formatDateDisplay = (dateStr: string) => {
@@ -54,6 +56,10 @@
 		error = null;
 		try {
 			await entryApiActions.saveEntry();
+			showSavedToast = true;
+			setTimeout(() => {
+				showSavedToast = false;
+			}, 3000);
 		} catch (e: unknown) {
 			console.error('Save error:', e);
 			if (e && typeof e === 'object' && 'detail' in e) {
@@ -98,6 +104,10 @@
 	<div class="loading">Loading...</div>
 {:else}
 	<div class="container">
+		{#if showSavedToast}
+			<div class="toast toast--success" transition:fly={{ y: -20, duration: 300 }}>&#10003; Saved</div>
+		{/if}
+
 		{#if error}
 			<div class="error">{error}</div>
 		{/if}

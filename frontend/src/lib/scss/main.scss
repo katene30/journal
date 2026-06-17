@@ -140,3 +140,30 @@ a {
 .mb-lg {
 	margin-bottom: var(--space-lg);
 }
+
+// ==========================================================================
+// Toast
+// ==========================================================================
+
+.toast {
+	position: fixed;
+	top: var(--space-md);
+	left: 50%;
+	transform: translateX(-50%);
+	padding: var(--space-sm) var(--space-lg);
+	border-radius: var(--radius-md);
+	font-weight: 600;
+	font-size: var(--font-size-base);
+	z-index: 9999;
+	box-shadow: var(--shadow-md);
+
+	&--success {
+		background-color: var(--color-success);
+		color: #fff;
+	}
+
+	&--error {
+		background-color: var(--color-error);
+		color: #fff;
+	}
+}
