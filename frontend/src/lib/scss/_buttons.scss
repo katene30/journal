@@ -17,6 +17,10 @@
 			background: color-mix(in srgb, var(--color-hinengaro) 85%, black);
 		}
 
+		&:active:not(:disabled) {
+			background: color-mix(in srgb, var(--color-hinengaro) 70%, black);
+		}
+
 		&:disabled {
 			opacity: 0.6;
 			cursor: not-allowed;
@@ -27,10 +31,22 @@
 		background: transparent;
 		color: var(--color-text);
 		border: 1px solid var(--color-border);
-		transition: border-color var(--transition-fast);
+		transition:
+			border-color var(--transition-fast),
+			background-color var(--transition-fast);
 
-		&:hover {
+		&:hover:not(:disabled) {
 			border-color: var(--color-hinengaro);
+		}
+
+		&:active:not(:disabled) {
+			border-color: var(--color-hinengaro);
+			background: color-mix(in srgb, var(--color-hinengaro) 10%, transparent);
+		}
+
+		&:disabled {
+			opacity: 0.4;
+			cursor: not-allowed;
 		}
 	}
 
@@ -40,8 +56,12 @@
 		border: 1px solid transparent;
 		transition: background-color var(--transition-fast);
 
-		&:hover {
+		&:hover:not(:disabled) {
 			background: color-mix(in srgb, var(--color-error) 85%, black);
+		}
+
+		&:active:not(:disabled) {
+			background: color-mix(in srgb, var(--color-error) 70%, black);
 		}
 	}
 }

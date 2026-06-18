@@ -113,7 +113,7 @@
 	cursor: pointer;
 	transition: background-color var(--transition-fast), transform var(--transition-fast);
 
-	&:active {
+	&:active:not(:disabled) {
 		transform: scale(0.98);
 	}
 

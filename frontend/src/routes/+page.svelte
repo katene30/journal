@@ -61,6 +61,22 @@
 		}, 300);
 	}
 
+	// Prev/Next pillar navigation
+	let isFirstPillar = $derived(currentPillarIndex === 0);
+	let isLastPillar = $derived(currentPillarIndex === PILLARS.length - 1);
+
+	function goToPrevPillar() {
+		if (!isFirstPillar) {
+			handlePillarSelect(PILLARS[currentPillarIndex - 1].id);
+		}
+	}
+
+	function goToNextPillar() {
+		if (!isLastPillar) {
+			handlePillarSelect(PILLARS[currentPillarIndex + 1].id);
+		}
+	}
+
 	// Load today's entry on mount
 	onMount(async () => {
 		try {
@@ -264,6 +280,26 @@
 				{/if}
 			</section>
 		{/if}
+
+		<!-- Pillar Navigation -->
+		<nav class="pillar-nav-buttons" aria-label="Pillar navigation">
+			<button
+				type="button"
+				class="btn btn--secondary btn--nav"
+				onclick={goToPrevPillar}
+				disabled={isFirstPillar}
+			>
+				&#8592; Back
+			</button>
+			<button
+				type="button"
+				class="btn btn--secondary btn--nav"
+				onclick={goToNextPillar}
+				disabled={isLastPillar}
+			>
+				Next &#8594;
+			</button>
+		</nav>
 
 		<!-- Actions -->
 		<footer class="entry-actions">
@@ -495,12 +531,26 @@
 		}
 	}
 
+	.pillar-nav-buttons {
+		display: flex;
+		justify-content: space-between;
+		gap: var(--space-md);
+		margin-top: var(--space-lg);
+
+		.btn--nav {
+			&:disabled {
+				opacity: 0.4;
+				cursor: not-allowed;
+			}
+		}
+	}
+
 	.entry-actions {
 		display: flex;
 		justify-content: center;
 		gap: var(--space-sm);
 		padding: var(--space-lg) 0;
 		border-top: 1px solid var(--color-border);
-		margin-top: var(--space-lg);
+		margin-top: var(--space-md);
 	}
 </style>
