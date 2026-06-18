@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { fly } from 'svelte/transition';
 	import { goto } from '$app/navigation';
+	import BackToTop from '$lib/components/BackToTop.svelte';
 	import PillarNav from '$lib/components/PillarNav.svelte';
 	import SemanticScale from '$lib/components/SemanticScale.svelte';
 	import { PILLARS } from '$lib/config/pillars';
@@ -300,6 +301,8 @@
 			</div>
 		</div>
 	{/if}
+
+	<BackToTop />
 {/if}
 
 <style lang="scss">
