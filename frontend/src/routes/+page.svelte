@@ -77,6 +77,32 @@
 		}
 	}
 
+	// Swipe detection for mobile
+	let touchStartX = 0;
+	let touchStartY = 0;
+	const swipeThreshold = 50;
+
+	function handleTouchStart(e: TouchEvent) {
+		touchStartX = e.touches[0].clientX;
+		touchStartY = e.touches[0].clientY;
+	}
+
+	function handleTouchEnd(e: TouchEvent) {
+		const touchEndX = e.changedTouches[0].clientX;
+		const touchEndY = e.changedTouches[0].clientY;
+		const deltaX = touchEndX - touchStartX;
+		const deltaY = touchEndY - touchStartY;
+
+		// Only trigger if horizontal swipe is greater than vertical (not scrolling)
+		if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > swipeThreshold) {
+			if (deltaX < 0) {
+				goToNextPillar();
+			} else {
+				goToPrevPillar();
+			}
+		}
+	}
+
 	// Load today's entry on mount
 	onMount(async () => {
 		try {
@@ -215,6 +241,10 @@
 				class:pillar-content--slide-left={slideDirection === 'left'}
 				class:pillar-content--slide-right={slideDirection === 'right'}
 				style="--pillar-color: {currentPillarConfig.color}"
+				role="group"
+				aria-label="Pillar content - swipe to navigate"
+				ontouchstart={handleTouchStart}
+				ontouchend={handleTouchEnd}
 			>
 				<!-- Bilingual Question -->
 				<div class="pillar-question">
