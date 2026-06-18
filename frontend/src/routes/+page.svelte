@@ -25,6 +25,8 @@
 	let saving = $state(false);
 	let error = $state<string | null>(null);
 	let showSavedToast = $state(false);
+	let showClearedToast = $state(false);
+	let showClearConfirm = $state(false);
 	let entryLoaded = $state(false);
 	let slideDirection = $state<'left' | 'right' | null>(null);
 	let previousPillarIndex = $state(0);
@@ -105,6 +107,24 @@
 		entryActions.setField(field, value);
 	}
 
+	// Clear confirmation handlers
+	function handleClearClick() {
+		showClearConfirm = true;
+	}
+
+	function confirmClear() {
+		entryActions.reset();
+		showClearConfirm = false;
+		showClearedToast = true;
+		setTimeout(() => {
+			showClearedToast = false;
+		}, 3000);
+	}
+
+	function cancelClear() {
+		showClearConfirm = false;
+	}
+
 	// Handle date change - load entry for that date
 	async function handleDateChange(newDate: string) {
 		loading = true;
@@ -136,6 +156,10 @@
 	<div class="container">
 		{#if showSavedToast}
 			<div class="toast toast--success" transition:fly={{ y: -20, duration: 300 }}>&#10003; Saved</div>
+		{/if}
+
+		{#if showClearedToast}
+			<div class="toast toast--error" transition:fly={{ y: -20, duration: 300 }}>&#10005; Entry cleared</div>
 		{/if}
 
 		{#if error}
@@ -242,7 +266,7 @@
 
 		<!-- Actions -->
 		<footer class="entry-actions">
-			<button type="button" class="btn btn--secondary" onclick={() => entryActions.reset()}>
+			<button type="button" class="btn btn--secondary" onclick={handleClearClick}>
 				Clear
 			</button>
 			<button type="button" class="btn btn--primary" onclick={handleSave} disabled={saving}>
@@ -250,6 +274,32 @@
 			</button>
 		</footer>
 	</div>
+
+	<!-- Clear Confirmation Dialog -->
+	{#if showClearConfirm}
+		<div class="dialog-backdrop" onclick={cancelClear} role="presentation">
+			<div
+				class="dialog"
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="clear-dialog-title"
+				tabindex="-1"
+				onclick={(e) => e.stopPropagation()}
+				onkeydown={(e) => e.key === 'Escape' && cancelClear()}
+			>
+				<h2 id="clear-dialog-title" class="dialog__title">Clear entry?</h2>
+				<p class="dialog__body">This will remove all unsaved changes for today's entry.</p>
+				<div class="dialog__actions">
+					<button type="button" class="btn btn--secondary" onclick={cancelClear}>
+						Cancel
+					</button>
+					<button type="button" class="btn btn--danger" onclick={confirmClear}>
+						Clear
+					</button>
+				</div>
+			</div>
+		</div>
+	{/if}
 {/if}
 
 <style lang="scss">
@@ -449,33 +499,5 @@
 		padding: var(--space-lg) 0;
 		border-top: 1px solid var(--color-border);
 		margin-top: var(--space-lg);
-	}
-
-	.btn {
-		@include mx.button-base;
-
-		&--primary {
-			background: var(--color-hinengaro);
-			color: white;
-
-			&:hover:not(:disabled) {
-				background: darken(#2196f3, 10%);
-			}
-
-			&:disabled {
-				opacity: 0.6;
-				cursor: not-allowed;
-			}
-		}
-
-		&--secondary {
-			background: var(--color-bg);
-			color: var(--color-text);
-			border: 1px solid var(--color-border);
-
-			&:hover {
-				background: var(--color-border);
-			}
-		}
 	}
 </style>

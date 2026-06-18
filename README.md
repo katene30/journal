@@ -2,6 +2,16 @@
 
 A personal wellbeing tracker built around Te Whare Tapa Whā and Te Pae Mahutonga — Māori models of health and wellbeing.
 
+## Important links
+
+| Important links           |
+|---------------------------------- |
+| Documentation in [`docs/`](docs/) |
+|[Live site](https://journal-9hww.onrender.com)|
+|[Dev site FE](http://localhost:5173/)|
+|[Dev site BE](http://localhost:8000)|
+|[Django admin](http://localhost:8000/admin)|
+
 ## Overview
 
 Hauora Journal helps you track daily wellbeing holistically, not just physical or mental health in isolation. The app is structured around seven pillars:

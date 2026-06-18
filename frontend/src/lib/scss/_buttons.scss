@@ -1,0 +1,47 @@
+@use 'mixins' as mx;
+
+// ==========================================================================
+// Buttons
+// ==========================================================================
+
+.btn {
+	@include mx.button-base;
+
+	&--primary {
+		background: var(--color-hinengaro);
+		color: white;
+		border: 1px solid transparent;
+		transition: background-color var(--transition-fast);
+
+		&:hover:not(:disabled) {
+			background: color-mix(in srgb, var(--color-hinengaro) 85%, black);
+		}
+
+		&:disabled {
+			opacity: 0.6;
+			cursor: not-allowed;
+		}
+	}
+
+	&--secondary {
+		background: transparent;
+		color: var(--color-text);
+		border: 1px solid var(--color-border);
+		transition: border-color var(--transition-fast);
+
+		&:hover {
+			border-color: var(--color-hinengaro);
+		}
+	}
+
+	&--danger {
+		background: var(--color-error);
+		color: white;
+		border: 1px solid transparent;
+		transition: background-color var(--transition-fast);
+
+		&:hover {
+			background: color-mix(in srgb, var(--color-error) 85%, black);
+		}
+	}
+}

@@ -1,5 +1,7 @@
 @use 'variables';
 @use 'mixins' as mx;
+@use 'buttons';
+@use 'dialog';
 
 // ==========================================================================
 // Reset & Base
@@ -165,5 +167,11 @@ a {
 	&--error {
 		background-color: var(--color-error);
 		color: #fff;
+	}
+
+	&--info {
+		background-color: var(--color-surface);
+		color: var(--color-text);
+		border: 1px solid var(--color-border);
 	}
 }

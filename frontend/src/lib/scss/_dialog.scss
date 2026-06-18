@@ -1,0 +1,39 @@
+// ==========================================================================
+// Dialog / Modal
+// ==========================================================================
+
+.dialog-backdrop {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 100;
+}
+
+.dialog {
+	background: var(--color-surface);
+	border-radius: var(--radius-lg);
+	padding: var(--space-lg);
+	max-width: 400px;
+	width: 90%;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+
+	&__title {
+		font-size: var(--font-size-lg);
+		font-weight: 600;
+		margin: 0 0 var(--space-sm);
+	}
+
+	&__body {
+		color: var(--color-text-muted);
+		margin: 0 0 var(--space-lg);
+	}
+
+	&__actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: var(--space-sm);
+	}
+}
