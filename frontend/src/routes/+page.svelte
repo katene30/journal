@@ -538,6 +538,8 @@
 		margin-top: var(--space-lg);
 
 		.btn--nav {
+			min-width: 100px;
+
 			&:disabled {
 				opacity: 0.4;
 				cursor: not-allowed;

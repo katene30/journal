@@ -30,6 +30,7 @@
 					style="--pillar-color: {pillar.color}"
 					aria-current={activePillar === pillar.id ? 'true' : undefined}
 					aria-label="{pillar.name} - {mauriStates?.[pillar.id] ?? 'untouched'}"
+					title={pillar.name}
 					onclick={() => onselect?.(pillar.id)}
 				>
 					<span class="pillar-nav__icon">{pillar.icon}</span>
@@ -53,23 +54,28 @@
 	}
 
 	.pillar-nav__list {
-		display: flex;
-		justify-content: center;
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
 		gap: var(--space-xs);
 		list-style: none;
 		margin: 0;
 		padding: 0;
-		min-width: min-content;
+
+		@media (min-width: 768px) {
+			display: flex;
+			justify-content: center;
+		}
 	}
 
 	.pillar-nav__item {
-		flex-shrink: 0;
+		display: flex;
 	}
 
 	.pillar-nav__button {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		justify-content: center;
 		gap: 2px;
 		padding: var(--space-sm);
 		background: var(--color-surface);
@@ -77,7 +83,13 @@
 		border-radius: var(--radius-md);
 		cursor: pointer;
 		transition: all var(--transition-fast);
-		min-width: 56px;
+		flex: 1;
+		min-width: 0;
+
+		@media (min-width: 768px) {
+			flex: 0 0 auto;
+			width: 88px;
+		}
 	}
 
 	.pillar-nav__button:hover {
@@ -108,7 +120,6 @@
 	.pillar-nav__name {
 		font-size: var(--font-size-xs);
 		color: var(--color-text-muted);
-		white-space: nowrap;
 	}
 
 	.pillar-nav__mauri {
