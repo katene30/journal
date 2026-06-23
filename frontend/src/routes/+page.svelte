@@ -308,28 +308,28 @@
 						{/each}
 					</div>
 				{/if}
+
+				<!-- Pillar Navigation -->
+				<nav class="pillar-nav-buttons" aria-label="Pillar navigation">
+					<button
+						type="button"
+						class="btn btn--secondary btn--nav"
+						onclick={goToPrevPillar}
+						disabled={isFirstPillar}
+					>
+						&#8592; Back
+					</button>
+					<button
+						type="button"
+						class="btn btn--secondary btn--nav"
+						onclick={goToNextPillar}
+						disabled={isLastPillar}
+					>
+						Next &#8594;
+					</button>
+				</nav>
 			</section>
 		{/if}
-
-		<!-- Pillar Navigation -->
-		<nav class="pillar-nav-buttons" aria-label="Pillar navigation">
-			<button
-				type="button"
-				class="btn btn--secondary btn--nav"
-				onclick={goToPrevPillar}
-				disabled={isFirstPillar}
-			>
-				&#8592; Back
-			</button>
-			<button
-				type="button"
-				class="btn btn--secondary btn--nav"
-				onclick={goToNextPillar}
-				disabled={isLastPillar}
-			>
-				Next &#8594;
-			</button>
-		</nav>
 
 		<!-- Actions -->
 		<footer class="entry-actions">
@@ -443,9 +443,16 @@
 	}
 
 	.pillar-content {
-		padding: var(--space-lg);
+		padding: var(--space-md);
 		@include mx.flex-column(var(--space-lg));
-		border-radius: var(--radius-md);
+		border-radius: var(--radius-lg);
+		min-height: 400px;
+		background: var(--color-surface);
+		box-shadow: var(--shadow-md);
+
+		@media (min-width: 768px) {
+			padding: var(--space-lg);
+		}
 	}
 
 	.pillar-content--loaded {
@@ -565,7 +572,9 @@
 		display: flex;
 		justify-content: space-between;
 		gap: var(--space-md);
-		margin-top: var(--space-lg);
+		margin-top: auto;
+		padding-top: var(--space-lg);
+		border-top: 1px solid var(--color-border);
 
 		.btn--nav {
 			min-width: 100px;

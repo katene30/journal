@@ -63,13 +63,23 @@
 	.semantic-scale__row {
 		display: flex;
 		align-items: center;
-		gap: var(--space-sm);
+		gap: var(--space-xs);
+
+		@media (min-width: 500px) {
+			gap: var(--space-sm);
+		}
 	}
 
 	.semantic-scale__label {
-		font-size: var(--font-size-sm);
+		font-size: var(--font-size-xs);
 		color: var(--color-text-muted);
-		min-width: 70px;
+		flex: 0 1 60px;
+		min-width: 0;
+
+		@media (min-width: 500px) {
+			font-size: var(--font-size-sm);
+			flex: 0 0 80px;
+		}
 
 		&--left {
 			text-align: right;
@@ -82,7 +92,13 @@
 
 	.semantic-scale__options {
 		display: flex;
-		gap: var(--space-xs);
+		gap: 4px;
+		flex: 1;
+		justify-content: center;
+
+		@media (min-width: 500px) {
+			gap: var(--space-xs);
+		}
 	}
 
 	.semantic-scale__option {
@@ -109,12 +125,17 @@
 
 	.semantic-scale__radio {
 		display: block;
-		width: 28px;
-		height: 28px;
+		width: 24px;
+		height: 24px;
 		border: 2px solid var(--color-border);
 		border-radius: 50%;
 		background: var(--color-surface);
 		transition: all var(--transition-fast);
+
+		@media (min-width: 500px) {
+			width: 28px;
+			height: 28px;
+		}
 
 		&:hover {
 			border-color: var(--pillar-color, var(--color-hinengaro));

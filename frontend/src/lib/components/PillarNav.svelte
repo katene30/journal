@@ -49,8 +49,6 @@
 <style lang="scss">
 	.pillar-nav {
 		padding: var(--space-sm) 0;
-		overflow-x: auto;
-		-webkit-overflow-scrolling: touch;
 	}
 
 	.pillar-nav__list {
