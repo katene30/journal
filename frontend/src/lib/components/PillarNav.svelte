@@ -49,24 +49,32 @@
 <style lang="scss">
 	.pillar-nav {
 		padding: var(--space-sm) 0;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
 	}
 
 	.pillar-nav__list {
-		display: grid;
-		grid-template-columns: repeat(4, 1fr);
+		display: flex;
 		gap: var(--space-xs);
 		list-style: none;
 		margin: 0;
 		padding: 0;
+		width: max-content;
+		min-width: 100%;
+		justify-content: center;
 
 		@media (min-width: 768px) {
-			display: flex;
-			justify-content: center;
+			width: auto;
 		}
 	}
 
 	.pillar-nav__item {
-		display: flex;
+		flex: 1 1 0;
+		min-width: 70px;
+
+		@media (min-width: 768px) {
+			flex: 0 0 auto;
+		}
 	}
 
 	.pillar-nav__button {
@@ -81,11 +89,10 @@
 		border-radius: var(--radius-md);
 		cursor: pointer;
 		transition: all var(--transition-fast);
-		flex: 1;
-		min-width: 0;
+		width: 100%;
+		white-space: nowrap;
 
 		@media (min-width: 768px) {
-			flex: 0 0 auto;
 			width: 88px;
 		}
 	}
