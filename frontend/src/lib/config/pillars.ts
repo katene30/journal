@@ -5,8 +5,8 @@ export const PILLARS: PillarConfig[] = [
 		id: 'reflection',
 		icon: '📝',
 		name: 'Reflection',
-		teReo: 'Whakaaro',
-		color: '#607D8B',
+		teReo: 'Koiri',
+		color: '#5a6b73',
 		question: {
 			maori: 'He pēhea tō rā i tēnei rā?',
 			english: 'How was your day today?'
@@ -31,8 +31,8 @@ export const PILLARS: PillarConfig[] = [
 		id: 'hinengaro',
 		icon: '🧠',
 		name: 'Hinengaro',
-		teReo: 'Mind',
-		color: '#2196F3',
+		teReo: 'Koru',
+		color: '#1a4a5e',
 		question: {
 			maori: 'E pēhea ana tō hinengaro i tēnei rā?',
 			english: 'How is your mind today?'
@@ -65,8 +65,8 @@ export const PILLARS: PillarConfig[] = [
 		id: 'tinana',
 		icon: '💪',
 		name: 'Tinana',
-		teReo: 'Body',
-		color: '#4CAF50',
+		teReo: 'Mangopare',
+		color: '#2d6a5a',
 		question: {
 			maori: 'E pēhea ana tō tinana i tēnei rā?',
 			english: 'How is your body today?'
@@ -110,8 +110,8 @@ export const PILLARS: PillarConfig[] = [
 		id: 'whanau',
 		icon: '💛',
 		name: 'Whānau',
-		teReo: 'Relationships',
-		color: '#FF9800',
+		teReo: 'Pikorua',
+		color: '#d4a03a',
 		question: {
 			maori: 'E pēhea ana ō hononga i tēnei rā?',
 			english: 'How are your connections today?'
@@ -137,8 +137,8 @@ export const PILLARS: PillarConfig[] = [
 		id: 'wairua',
 		icon: '🌿',
 		name: 'Wairua',
-		teReo: 'Spirit',
-		color: '#9C27B0',
+		teReo: 'Manaia',
+		color: '#6b4a6e',
 		question: {
 			maori: 'E pēhea ana tō wairua i tēnei rā?',
 			english: 'How is your spirit today?'
@@ -157,8 +157,8 @@ export const PILLARS: PillarConfig[] = [
 		id: 'mauriora',
 		icon: '🪞',
 		name: 'Mauriora',
-		teReo: 'Identity',
-		color: '#00BCD4',
+		teReo: 'Hei Tiki',
+		color: '#8b5a3c',
 		question: {
 			maori: 'I rongo koe i a koe anō i tēnei rā?',
 			english: 'Did you feel like yourself today?'
@@ -177,8 +177,8 @@ export const PILLARS: PillarConfig[] = [
 		id: 'waiora',
 		icon: '🏡',
 		name: 'Waiora',
-		teReo: 'Environment',
-		color: '#795548',
+		teReo: 'Ngutukākā',
+		color: '#4a5d23',
 		question: {
 			maori: 'E pēhea ana tō taiao i tēnei rā?',
 			english: 'How is your environment today?'

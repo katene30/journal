@@ -16,24 +16,34 @@
 	--content-max-width: 800px;
 	--page-gutter: 16px;
 
-	// Pillar colors (Te Whare Tapa Whā)
-	--color-reflection: #607d8b;
-	--color-hinengaro: #2196f3;
-	--color-tinana: #4caf50;
-	--color-whanau: #ff9800;
-	--color-wairua: #9c27b0;
+	// Ngāpuhi palette - Te Tai Tokerau inspired
+	--color-moana: #1a4a5e;        // Deep harbour blue
+	--color-pounamu: #2d6a5a;      // Greenstone teal
+	--color-whenua: #3d2b1f;       // Rich earth brown
+	--color-kakahu: #f5f0e6;       // Warm cream (woven cloth)
+	--color-harakeke: #4a5d23;     // Flax green
+	--color-kowhai: #d4a03a;       // Kowhai gold
 
-	// Neutral palette
-	--color-bg: #fafafa;
-	--color-surface: #ffffff;
-	--color-text: #1a1a1a;
-	--color-text-muted: #666666;
-	--color-border: #e0e0e0;
+	// Pillar colors (Ngāpuhi-inspired)
+	--color-reflection: #5a6b73;   // Koiri - muted stone grey
+	--color-hinengaro: #1a4a5e;    // Koru - deep moana blue
+	--color-tinana: #2d6a5a;       // Mangopare - pounamu green
+	--color-whanau: #d4a03a;       // Pikorua - kowhai gold
+	--color-wairua: #6b4a6e;       // Manaia - twilight purple
+	--color-mauriora: #8b5a3c;     // Hei Tiki - carved wood brown
+	--color-waiora: #4a5d23;       // Ngutukākā - harakeke green
+
+	// Neutral palette - warm, natural tones
+	--color-bg: #f7f4ef;           // Warm off-white
+	--color-surface: #fffefa;      // Soft cream white
+	--color-text: #2a2520;         // Warm black (not pure)
+	--color-text-muted: #6b635a;   // Warm grey
+	--color-border: #d9d4cb;       // Warm border
 
 	// Interactive states
-	--color-focus: var(--color-hinengaro);
-	--color-error: #d32f2f;
-	--color-success: #388e3c;
+	--color-focus: var(--color-moana);
+	--color-error: #a63d2f;        // Warmer red
+	--color-success: #3d6b4a;      // Warmer green
 
 	// Typography
 	--font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
