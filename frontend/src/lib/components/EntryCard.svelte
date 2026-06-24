@@ -2,7 +2,7 @@
 	import type { EntryListItem } from '$lib/api/entries';
 
 	interface Props {
-		entry: EntryListItem & { log?: string };
+		entry: EntryListItem;
 		href?: string;
 	}
 

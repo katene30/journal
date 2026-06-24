@@ -6,6 +6,7 @@ export interface EntryListItem {
 	header: string;
 	overall_day_rating: number | null;
 	mood: number | null;
+	log: string;
 }
 
 export interface Entry {

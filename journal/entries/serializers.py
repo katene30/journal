@@ -46,4 +46,4 @@ class JournalEntryListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = JournalEntry
-        fields = ['id', 'date', 'header', 'overall_day_rating', 'mood']
+        fields = ['id', 'date', 'header', 'overall_day_rating', 'mood', 'log']
