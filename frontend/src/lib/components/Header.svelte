@@ -97,9 +97,6 @@
 				</ul>
 
 				<div class="header__user">
-					<span class="header__user-name">
-						{$currentUser?.first_name || $currentUser?.email || 'User'}
-					</span>
 					<button
 						type="button"
 						class="header__logout"
@@ -124,7 +121,7 @@
 	.header__container {
 		display: flex;
 		align-items: center;
-		justify-content: space-between;
+		gap: var(--space-lg);
 		padding: var(--space-sm) var(--space-md);
 		max-width: 1200px;
 		margin: 0 auto;
@@ -149,6 +146,7 @@
 		background: none;
 		border: none;
 		cursor: pointer;
+		margin-left: auto;
 
 		@media (min-width: 768px) {
 			display: none;
@@ -193,6 +191,7 @@
 			position: static;
 			padding: 0;
 			box-shadow: none;
+			flex: 1;
 		}
 	}
 
@@ -214,31 +213,51 @@
 
 		@media (min-width: 768px) {
 			flex-direction: row;
-			gap: var(--space-sm);
+			gap: var(--space-md);
 		}
 	}
 
 	.header__nav-link {
 		display: block;
-		padding: var(--space-sm) var(--space-md);
-		color: rgba(255, 255, 255, 0.85);
+		padding: var(--space-sm) 0;
+		color: rgba(255, 255, 255, 0.8);
 		text-decoration: none;
-		border-radius: var(--radius-sm);
-		transition: background var(--transition-fast), color var(--transition-fast);
+		position: relative;
+		transition: color var(--transition-fast);
 
 		&:hover {
-			background: rgba(255, 255, 255, 0.1);
 			color: white;
 		}
 
 		@media (min-width: 768px) {
-			padding: var(--space-xs) var(--space-sm);
+			padding: var(--space-xs) 0;
+
+			&::after {
+				content: '';
+				position: absolute;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				height: 2px;
+				background: var(--color-kowhai);
+				transform: scaleX(0);
+				transition: transform var(--transition-fast);
+			}
+
+			&:hover::after {
+				transform: scaleX(1);
+			}
 		}
 	}
 
 	.header__nav-link--active {
-		background: rgba(255, 255, 255, 0.15);
 		color: white;
+
+		@media (min-width: 768px) {
+			&::after {
+				transform: scaleX(1);
+			}
+		}
 	}
 
 	.header__user {
@@ -257,38 +276,28 @@
 		}
 	}
 
-	.header__user-name {
-		font-size: var(--font-size-sm);
-		color: rgba(255, 255, 255, 0.85);
-	}
-
 	.header__logout {
-		padding: var(--space-xs) var(--space-sm);
+		padding: var(--space-xs) 0;
 		background: transparent;
-		border: 1px solid rgba(255, 255, 255, 0.5);
-		border-radius: var(--radius-sm);
-		color: white;
+		border: none;
+		color: rgba(255, 255, 255, 0.8);
 		font-size: var(--font-size-sm);
 		cursor: pointer;
-		transition: background var(--transition-fast), border-color var(--transition-fast);
+		transition: color var(--transition-fast);
 
 		&:hover {
-			background: rgba(255, 255, 255, 0.1);
-			border-color: white;
+			color: white;
 		}
 	}
 
 	.header__login {
-		padding: var(--space-xs) var(--space-md);
-		background: var(--color-kowhai);
-		border-radius: var(--radius-sm);
-		color: var(--color-whenua);
+		margin-left: auto;
+		color: rgba(255, 255, 255, 0.8);
 		text-decoration: none;
-		font-weight: 500;
-		transition: background var(--transition-fast);
+		transition: color var(--transition-fast);
 
 		&:hover {
-			background: var(--color-kowhai-light, #e0b54d);
+			color: white;
 		}
 	}
 </style>
