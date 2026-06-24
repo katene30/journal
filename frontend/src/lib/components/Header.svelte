@@ -116,6 +116,8 @@
 	.header {
 		background: var(--color-moana);
 		color: white;
+		position: relative;
+		z-index: 100;
 	}
 
 	.header__container {
