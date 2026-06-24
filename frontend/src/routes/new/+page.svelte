@@ -325,9 +325,16 @@
 			<button type="button" class="btn btn--secondary" onclick={handleClearClick}>
 				Clear
 			</button>
-			<button type="button" class="btn btn--primary" onclick={handleSave} disabled={saving}>
-				{saving ? 'Saving...' : 'Save'}
-			</button>
+			<div class="entry-actions__right">
+				{#if $currentEntry.id}
+					<a href="/app/entries/{$currentEntry.id}" class="btn btn--secondary">
+						View Entry
+					</a>
+				{/if}
+				<button type="button" class="btn btn--primary" onclick={handleSave} disabled={saving}>
+					{saving ? 'Saving...' : 'Save'}
+				</button>
+			</div>
 		</footer>
 	</div>
 
@@ -549,10 +556,15 @@
 
 	.entry-actions {
 		display: flex;
-		justify-content: center;
+		justify-content: space-between;
 		gap: var(--space-sm);
 		padding: var(--space-lg) 0;
 		border-top: 1px solid var(--color-border);
 		margin-top: var(--space-md);
+	}
+
+	.entry-actions__right {
+		display: flex;
+		gap: var(--space-sm);
 	}
 </style>
