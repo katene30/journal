@@ -2,6 +2,13 @@
 	import type { PillarId } from '$lib/types';
 	import type { MauriState } from '$lib/stores/entry';
 	import { PILLARS } from '$lib/config/pillars';
+	import KoruIcon from '$lib/icons/KoruIcon.svelte';
+	import KoiriIcon from '$lib/icons/KoiriIcon.svelte';
+	import KoruSpiralIcon from '$lib/icons/KoruSpiralIcon.svelte';
+	import MangopareIcon from '$lib/icons/MangopareIcon.svelte';
+	import NgutukukaIcon from '$lib/icons/NgutukukaIcon.svelte';
+	import PoutamaIcon from '$lib/icons/PoutamaIcon.svelte';
+	import PuhoroIcon from '$lib/icons/PuhoroIcon.svelte';
 
 	interface Props {
 		activePillar: PillarId;
@@ -10,6 +17,8 @@
 	}
 
 	let { activePillar, mauriStates, onselect }: Props = $props();
+
+	const ICON_SIZE = 42;
 
 	const mauriSymbols: Record<MauriState, string> = {
 		untouched: '○',
@@ -22,6 +31,7 @@
 <nav class="pillar-nav" aria-label="Journal pillars">
 	<ul class="pillar-nav__list">
 		{#each PILLARS as pillar}
+			{@const iconColor = activePillar === pillar.id ? 'white' : pillar.color}
 			<li class="pillar-nav__item">
 				<button
 					type="button"
@@ -33,7 +43,25 @@
 					title={pillar.name}
 					onclick={() => onselect?.(pillar.id)}
 				>
-					<span class="pillar-nav__icon">{pillar.icon}</span>
+					<span class="pillar-nav__icon">
+						{#if pillar.id === 'hinengaro'}
+							<KoruIcon size={ICON_SIZE} color={iconColor} />
+						{:else if pillar.id === 'reflection'}
+							<KoiriIcon size={ICON_SIZE} color={iconColor} />
+						{:else if pillar.id === 'tinana'}
+							<MangopareIcon size={ICON_SIZE} color={iconColor} />
+						{:else if pillar.id === 'waiora'}
+							<NgutukukaIcon size={ICON_SIZE} color={iconColor} />
+						{:else if pillar.id === 'whanau'}
+							<PoutamaIcon size={ICON_SIZE} color={iconColor} />
+						{:else if pillar.id === 'wairua'}
+							<KoruSpiralIcon size={ICON_SIZE} color={iconColor} />
+						{:else if pillar.id === 'mauriora'}
+							<PuhoroIcon size={ICON_SIZE} color={iconColor} />
+						{:else}
+							{pillar.icon}
+						{/if}
+					</span>
 					<span class="pillar-nav__name">{pillar.name}</span>
 					{#if mauriStates}
 						<span class="pillar-nav__mauri" aria-hidden="true">
@@ -120,6 +148,15 @@
 	.pillar-nav__icon {
 		font-size: 1.25rem;
 		line-height: 1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 2rem;
+
+		:global(svg) {
+			max-height: 100%;
+			width: auto;
+		}
 	}
 
 	.pillar-nav__name {
