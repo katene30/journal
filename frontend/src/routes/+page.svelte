@@ -3,6 +3,7 @@
 	import { currentUser } from '$lib/stores/auth';
 	import { entriesApi, type EntryListItem } from '$lib/api/entries';
 	import EntryCard from '$lib/components/EntryCard.svelte';
+	import ArrowRightIcon from '$lib/icons/ArrowRightIcon.svelte';
 
 	let recentEntries = $state<EntryListItem[]>([]);
 	let loading = $state(true);
@@ -23,9 +24,9 @@
 	<p class="subtitle">Welcome to your Hauora Journal</p>
 
 	<div class="actions">
-		<a href="/app/new" class="action-card action-card--primary">
-			<span class="action-icon">+</span>
-			<span class="action-label">New Entry</span>
+		<a href="/app/new" class="btn">
+			New Entry
+			<ArrowRightIcon />
 		</a>
 	</div>
 
@@ -75,43 +76,22 @@
 		margin-bottom: var(--space-xl);
 	}
 
-	.action-card {
-		display: flex;
-		align-items: center;
-		gap: var(--space-md);
-		padding: var(--space-lg);
-		background: var(--color-surface);
-		border-radius: var(--radius-lg);
-		box-shadow: var(--shadow-sm);
-		text-decoration: none;
-		color: var(--color-text);
-		transition: box-shadow var(--transition-fast), transform var(--transition-fast);
-
-		&:hover {
-			box-shadow: var(--shadow-md);
-			transform: translateY(-2px);
-		}
-	}
-
-	.action-card--primary {
-		background: var(--color-moana);
-		color: white;
-	}
-
-	.action-icon {
-		font-size: var(--font-size-xl);
-		width: 48px;
-		height: 48px;
-		display: flex;
+	.btn {
+		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		background: rgba(255, 255, 255, 0.15);
+		gap: var(--space-xs);
+		padding: var(--space-sm) var(--space-lg);
+		background: var(--color-moana);
+		color: white;
 		border-radius: var(--radius-md);
-	}
-
-	.action-label {
-		font-size: var(--font-size-lg);
+		text-decoration: none;
 		font-weight: 500;
+		transition: background var(--transition-fast);
+
+		&:hover {
+			background: var(--color-pounamu);
+		}
 	}
 
 	.recent {

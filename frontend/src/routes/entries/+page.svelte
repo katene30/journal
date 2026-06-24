@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { entriesApi, type EntryListItem } from '$lib/api/entries';
 	import EntryCard from '$lib/components/EntryCard.svelte';
+	import ArrowRightIcon from '$lib/icons/ArrowRightIcon.svelte';
 
 	let entries = $state<EntryListItem[]>([]);
 	let loading = $state(true);
@@ -22,7 +23,7 @@
 <div class="entries-page">
 	<header class="page-header">
 		<h1>All Entries</h1>
-		<a href="/app/new" class="new-entry-btn">+ New Entry</a>
+		<a href="/app/new" class="new-entry-btn">New Entry <ArrowRightIcon /></a>
 	</header>
 
 	{#if loading}
@@ -66,6 +67,9 @@
 	}
 
 	.new-entry-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-xs);
 		padding: var(--space-sm) var(--space-md);
 		background: var(--color-moana);
 		color: white;
