@@ -7,6 +7,10 @@
 .btn {
 	@include mx.button-base;
 
+	&:hover {
+		text-decoration: none;
+	}
+
 	&--primary {
 		background: var(--color-hinengaro);
 		color: white;

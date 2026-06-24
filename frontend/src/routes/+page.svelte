@@ -24,7 +24,7 @@
 	<p class="subtitle">Welcome to your Hauora Journal</p>
 
 	<div class="actions">
-		<a href="/app/new" class="btn">
+		<a href="/app/new" class="btn btn--primary">
 			New Entry
 			<ArrowRightIcon />
 		</a>
@@ -74,24 +74,6 @@
 		flex-direction: column;
 		gap: var(--space-md);
 		margin-bottom: var(--space-xl);
-	}
-
-	.btn {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		gap: var(--space-xs);
-		padding: var(--space-sm) var(--space-lg);
-		background: var(--color-moana);
-		color: white;
-		border-radius: var(--radius-md);
-		text-decoration: none;
-		font-weight: 500;
-		transition: background var(--transition-fast);
-
-		&:hover {
-			background: var(--color-pounamu);
-		}
 	}
 
 	.recent {

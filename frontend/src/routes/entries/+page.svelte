@@ -23,7 +23,7 @@
 <div class="entries-page">
 	<header class="page-header">
 		<h1>All Entries</h1>
-		<a href="/app/new" class="new-entry-btn">New Entry <ArrowRightIcon /></a>
+		<a href="/app/new" class="btn btn--primary">New Entry <ArrowRightIcon /></a>
 	</header>
 
 	{#if loading}
@@ -64,23 +64,6 @@
 		font-size: var(--font-size-xl);
 		color: var(--color-text);
 		margin: 0;
-	}
-
-	.new-entry-btn {
-		display: inline-flex;
-		align-items: center;
-		gap: var(--space-xs);
-		padding: var(--space-sm) var(--space-md);
-		background: var(--color-moana);
-		color: white;
-		text-decoration: none;
-		border-radius: var(--radius-md);
-		font-weight: 500;
-		transition: background var(--transition-fast);
-
-		&:hover {
-			background: var(--color-pounamu);
-		}
 	}
 
 	.loading,
