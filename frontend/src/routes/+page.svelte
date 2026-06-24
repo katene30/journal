@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { fly } from 'svelte/transition';
-	import { goto } from '$app/navigation';
 	import BackToTop from '$lib/components/BackToTop.svelte';
 	import PillarNav from '$lib/components/PillarNav.svelte';
 	import SemanticScale from '$lib/components/SemanticScale.svelte';
 	import { PILLARS } from '$lib/config/pillars';
+	import type { PillarId } from '$lib/types';
 	import {
 		activePillar,
 		currentEntry,
@@ -14,12 +14,7 @@
 		pillarMauriStates,
 		type EntryData
 	} from '$lib/stores/entry';
-	import { authActions, currentUser } from '$lib/stores/auth';
 
-	async function handleLogout() {
-		await authActions.logout();
-		goto('/app/login');
-	}
 
 	// State
 	let loading = $state(true);
@@ -47,7 +42,7 @@
 	let currentPillarIndex = $derived(PILLARS.findIndex((p) => p.id === $activePillar));
 
 	// Handle pillar navigation with direction tracking
-	function handlePillarSelect(id: string) {
+	function handlePillarSelect(id: PillarId) {
 		const newIndex = PILLARS.findIndex((p) => p.id === id);
 		if (newIndex > currentPillarIndex) {
 			slideDirection = 'right';
@@ -208,12 +203,6 @@
 		{#if error}
 			<div class="error">{error}</div>
 		{/if}
-
-		<!-- User header -->
-		<div class="user-header">
-			<span class="user-email">{$currentUser?.email}</span>
-			<button type="button" class="logout-btn" onclick={handleLogout}>Sign out</button>
-		</div>
 
 		<!-- Date Header with picker -->
 		<header class="entry-header">
@@ -387,34 +376,6 @@
 		padding: var(--space-sm);
 		border-radius: var(--radius-md);
 		margin-bottom: var(--space-md);
-	}
-
-	.user-header {
-		display: flex;
-		justify-content: flex-end;
-		align-items: center;
-		gap: var(--space-sm);
-		padding: var(--space-sm) 0;
-	}
-
-	.user-email {
-		font-size: var(--font-size-sm);
-		color: var(--color-text-muted);
-	}
-
-	.logout-btn {
-		font-size: var(--font-size-sm);
-		color: var(--color-text-muted);
-		background: none;
-		border: none;
-		cursor: pointer;
-		padding: var(--space-xs) var(--space-sm);
-		border-radius: var(--radius-sm);
-
-		&:hover {
-			background: var(--color-bg);
-			color: var(--color-text);
-		}
 	}
 
 	.entry-header {
