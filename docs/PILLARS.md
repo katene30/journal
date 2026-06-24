@@ -6,27 +6,27 @@ The journal uses two Māori health models to track wellbeing holistically.
 
 A model developed by Sir Mason Durie representing health as a wharenui (meeting house) with four walls. All walls must be strong for the house to stand.
 
-| Pillar | Icon | Te Reo | English | What it tracks |
-|--------|------|--------|---------|----------------|
-| **Hinengaro** | 🧠 | Mind | Mental/Emotional | Mood, anxiety, stress |
-| **Tinana** | 💪 | Body | Physical | Sleep, energy, exercise, diet |
-| **Whānau** | 💛 | Family | Social/Relationships | Connection, interaction quality |
-| **Wairua** | 🌿 | Spirit | Spiritual | Sense of meaning/purpose |
+| Pillar | Symbol | Te Reo | English | What it tracks |
+|--------|--------|--------|---------|----------------|
+| **Hinengaro** | Koru | Mind | Mental/Emotional | Mood, anxiety, stress |
+| **Tinana** | Mangopare | Body | Physical | Sleep, energy, exercise, diet |
+| **Whānau** | Poutama | Family | Social/Relationships | Connection, interaction quality |
+| **Wairua** | Koru Spiral | Spirit | Spiritual | Sense of meaning/purpose |
 
 ## Te Pae Mahutonga (The Southern Cross)
 
 A model by Sir Mason Durie using the Southern Cross constellation. We use two of its stars:
 
-| Pillar | Icon | Te Reo | English | What it tracks |
-|--------|------|--------|---------|----------------|
-| **Mauriora** | 🪞 | Life force | Identity | Feeling like yourself |
-| **Waiora** | 🏡 | Environment | Physical environment | Is your space supportive? |
+| Pillar | Symbol | Te Reo | English | What it tracks |
+|--------|--------|--------|---------|----------------|
+| **Mauriora** | Puhoro | Life force | Identity | Feeling like yourself |
+| **Waiora** | Ngutukākā | Environment | Physical environment | Is your space supportive? |
 
 ## Reflection
 
-| Pillar | Icon | Purpose |
-|--------|------|---------|
-| **Reflection** | 📝 | Overall day rating + journal text fields |
+| Pillar | Symbol | Purpose |
+|--------|--------|---------|
+| **Reflection** | Koiri | Overall day rating + journal text fields |
 
 ## Mauri States
 
@@ -52,15 +52,15 @@ The mauri indicators are not judgmental - they simply show presence, not complet
 
 ## Pillar Symbols (Māori Design Icons)
 
-Moving from emoji to traditional Māori symbols rooted in carving and weaving traditions. Creates a progression: self → relationships → spirit → place → reflection.
+Custom SVG icons rooted in traditional Māori carving and weaving patterns. Each pillar has its own colour and symbol.
 
 | Pillar | Symbol | Core Meaning |
 |--------|--------|--------------|
 | **Hinengaro** | Koru | Growth, learning, adaptation |
 | **Tinana** | Mangopare | Strength, resilience, determination |
-| **Whānau** | Pikorua | Connection, loyalty, belonging |
-| **Wairua** | Manaia | Guidance, protection, spiritual balance |
-| **Mauriora** | Hei Tiki | Identity, whakapapa, authenticity |
+| **Whānau** | Poutama | Ascension, growth together, support |
+| **Wairua** | Koru Spiral | Spiritual depth, inward journey |
+| **Mauriora** | Puhoro | Speed, agility, life force in motion |
 | **Waiora** | Ngutukākā | Environment, guardianship of nature, flourishing |
 | **Reflection** | Koiri | Reflection, integration, self-awareness |
 
@@ -68,11 +68,24 @@ Moving from emoji to traditional Māori symbols rooted in carving and weaving tr
 
 - **Koru** — Unfurling fern frond. Internal growth, new beginnings, renewal of mind.
 - **Mangopare** — Hammerhead shark pattern. Capability, determination, tenacity of body.
-- **Pikorua** — Double twist. Two lives intertwined, connection and belonging.
-- **Manaia** — Guardian figure (bird/human/fish). Spiritual messenger and protector.
-- **Hei Tiki** — Ancestral figure. Personhood, whakapapa, cultural identity.
+- **Poutama** — Stepped pattern (stairway to heaven). Ascending levels of learning and growth together.
+- **Koru Spiral** — Deepening koru. Inward spiritual journey, connection to deeper self.
+- **Puhoro** — Speed and agility pattern. Life force in motion, vitality, forward momentum.
 - **Ngutukākā** — Kākā beak flower pattern. Relationship with living environment.
 - **Koiri** — Double koru reflecting each other. Self-reflection, inward movement.
+
+### Implementation
+
+Icons are Svelte components at `frontend/src/lib/icons/`:
+- `KoruIcon.svelte` (Hinengaro)
+- `MangopareIcon.svelte` (Tinana)
+- `PoutamaIcon.svelte` (Whānau)
+- `KoruSpiralIcon.svelte` (Wairua)
+- `PuhoroIcon.svelte` (Mauriora)
+- `NgutukukaIcon.svelte` (Waiora)
+- `KoiriIcon.svelte` (Reflection)
+
+Source SVGs are in `frontend/src/lib/icons/source/`.
 
 ### Adjective Sets (for UI language/prompts)
 
@@ -82,13 +95,13 @@ Reflective, Curious, Calm, Aware, Open, Learning, Adaptable, Thoughtful
 **Tinana (Mangopare)**
 Strong, Active, Energised, Resilient, Determined, Enduring, Capable, Robust
 
-**Whānau (Pikorua)**
+**Whānau (Poutama)**
 Connected, Supported, Trusted, Loyal, Caring, Included, Compassionate, Present
 
-**Wairua (Manaia)**
+**Wairua (Koru Spiral)**
 Grounded, Purposeful, Peaceful, Aligned, Guided, Sacred, Balanced, Connected
 
-**Mauriora (Hei Tiki)**
+**Mauriora (Puhoro)**
 Authentic, Proud, Rooted, Confident, True, Self-aware, Secure, Expressive
 
 **Waiora (Ngutukākā)**
@@ -138,11 +151,12 @@ Te Tai Tokerau carving traditions have distinctive styles:
 - **Harbours and waterways** — Hokianga, Waitangi, Bay of Islands
 - **Carving houses** — Study traditional Te Tai Tokerau whakairo
 
-### Implementation Ideas
+### Implementation Status
 
-1. **Card backgrounds** — Subtle kōwhaiwhai texture or border
-2. **Pillar icons** — SVG symbols in Ngāpuhi carving style
-3. **Navigation** — Wave-inspired curves
-4. **Loading states** — Koru unfurling animation
-5. **Empty states** — Manaia illustration
-6. **Mauri indicators** — Styled as carved circles
+- [x] **Pillar icons** — Custom SVG symbols in pillar colours
+- [x] **Colour palette** — Ngāpuhi-inspired (moana blue, pounamu, whenua, etc.)
+- [ ] **Card backgrounds** — Subtle kōwhaiwhai texture or border
+- [ ] **Navigation** — Wave-inspired curves
+- [ ] **Loading states** — Koru unfurling animation
+- [ ] **Empty states** — Manaia illustration
+- [ ] **Mauri indicators** — Styled as carved circles
