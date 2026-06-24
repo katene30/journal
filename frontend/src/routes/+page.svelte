@@ -25,7 +25,7 @@
 	<!-- Hero Section -->
 	<section class="hero">
 		<h1>Hauora Journal</h1>
-		<p class="hero__subtitle">Track your wellbeing through Te Whare Tapa Whā</p>
+		<p class="hero__subtitle">Holistic wellbeing tracking, rooted in te ao Māori</p>
 
 		<div class="hero__actions">
 			{#if $isAuthenticated}
