@@ -147,14 +147,39 @@ journal/
 
 ## Deployment
 
-Configured for Render with:
-- `render.yaml` — Blueprint for web service + database
-- `build.sh` — Builds frontend, collects static files, runs migrations
+### Docker (any container host, e.g. Google Cloud Run)
+
+The `Dockerfile` builds the Svelte frontend and the Django app into one image that listens on `$PORT` (default 8080).
+
+```bash
+docker build -t hauora-journal .
+```
+
+**Migrations are a separate step, not part of the build or startup.** Run them once per deploy, before the new version takes traffic, with the same image:
+
+```bash
+docker run --rm --env-file prod.env hauora-journal python manage.py migrate
+```
+
+On Cloud Run, do this as a Cloud Run Job that uses the same image, with the command `python manage.py migrate`.
 
 Environment variables:
-- `DJANGO_SECRET_KEY`
-- `DATABASE_URL` (auto-set by Render)
-- `DJANGO_SUPERUSER_USERNAME/EMAIL/PASSWORD`
+
+| Variable | Required | Example |
+|---|---|---|
+| `DJANGO_SECRET_KEY` | yes | long random string |
+| `DATABASE_URL` | yes | `postgresql://user:pass@host/db?sslmode=require` |
+| `ALLOWED_HOSTS` | yes | `journal-abc123.a.run.app` (comma-separated) |
+| `CSRF_TRUSTED_ORIGINS` | yes | `https://journal-abc123.a.run.app` (comma-separated, with scheme) |
+| `DEBUG` | no | `false` (default) |
+
+With `DEBUG` off, session and CSRF cookies are `Secure` (HTTPS only).
+
+### Render (legacy)
+
+- `render.yaml` — Blueprint for web service + database
+- `build.sh` — Builds frontend, collects static files, runs migrations (Render's free plan has no pre-deploy step)
+- `DATABASE_URL` is auto-set by Render; the Render hostname is added to `ALLOWED_HOSTS` automatically
 
 ## License
 
