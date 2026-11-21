@@ -161,7 +161,7 @@ docker build -t hauora-journal .
 docker run --rm --env-file prod.env hauora-journal python manage.py migrate
 ```
 
-On Cloud Run, do this as a Cloud Run Job that uses the same image, with the command `python manage.py migrate`.
+On Cloud Run this is a Cloud Run Job (see below).
 
 Environment variables:
 
@@ -174,6 +174,99 @@ Environment variables:
 | `DEBUG` | no | `false` (default) |
 
 With `DEBUG` off, session and CSRF cookies are `Secure` (HTTPS only).
+
+### Google Cloud Run + Neon
+
+The app runs on Cloud Run and the database is Neon's free Postgres. Both have free allowances that easily cover a personal app.
+
+#### One-time setup (in the browser)
+
+1. **Neon:** create a project at [neon.tech](https://neon.tech). Pick the AWS Sydney region (closest to NZ) and copy the **direct** connection string, not the pooled one; Django keeps its own connections open. It looks like `postgresql://user:pass@ep-xxx.ap-southeast-2.aws.neon.tech/neondb?sslmode=require`.
+2. **Google Cloud:** create a project and attach a billing account (a card is required even for the free allowance).
+3. **Budget alert:** in the Cloud Console go to *Billing → Budgets & alerts* and create a budget of about $5 with email alerts. This is your safety net against surprise charges.
+4. Install the [gcloud CLI](https://cloud.google.com/sdk/docs/install).
+
+#### One-time setup (terminal)
+
+```bash
+PROJECT_ID=your-gcp-project-id
+REGION=australia-southeast1                        # Sydney
+IMAGE=$REGION-docker.pkg.dev/$PROJECT_ID/journal/app
+
+gcloud auth login
+gcloud config set project $PROJECT_ID
+gcloud services enable run.googleapis.com artifactregistry.googleapis.com \
+  cloudbuild.googleapis.com secretmanager.googleapis.com
+
+# Where the Docker images are stored
+gcloud artifacts repositories create journal --repository-format=docker --location=$REGION
+
+# Secrets (never put these in env vars on the command line or in git)
+python3 -c 'import secrets; print(secrets.token_urlsafe(50), end="")' \
+  | gcloud secrets create django-secret-key --data-file=-
+printf '%s' 'postgresql://…your Neon direct connection string…' \
+  | gcloud secrets create database-url --data-file=-
+
+# Let Cloud Run read the secrets
+PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format='value(projectNumber)')
+for s in django-secret-key database-url; do
+  gcloud secrets add-iam-policy-binding $s \
+    --member=serviceAccount:$PROJECT_NUMBER-compute@developer.gserviceaccount.com \
+    --role=roles/secretmanager.secretAccessor
+done
+```
+
+#### First deploy
+
+```bash
+# 1. Build the image on Google's servers. Cloud Run needs linux/amd64; a local
+#    build on an Apple Silicon Mac would produce arm64.
+gcloud builds submit --tag $IMAGE
+
+# 2. Create and run the migration job
+gcloud run jobs create migrate --image $IMAGE --region $REGION \
+  --set-secrets DJANGO_SECRET_KEY=django-secret-key:latest,DATABASE_URL=database-url:latest \
+  --command python --args manage.py,migrate
+gcloud run jobs execute migrate --region $REGION --wait
+
+# 3. Deploy the web service. max-instances caps how far it can scale (and cost).
+gcloud run deploy journal --image $IMAGE --region $REGION \
+  --allow-unauthenticated \
+  --max-instances 2 \
+  --set-secrets DJANGO_SECRET_KEY=django-secret-key:latest,DATABASE_URL=database-url:latest
+
+# 4. Tell Django its public hostname (only known after the first deploy)
+URL=$(gcloud run services describe journal --region $REGION --format='value(status.url)')
+gcloud run services update journal --region $REGION \
+  --update-env-vars ALLOWED_HOSTS=${URL#https://},CSRF_TRUSTED_ORIGINS=$URL
+echo $URL
+```
+
+To create an admin user, run this locally against the Neon database:
+
+```bash
+cd journal
+DATABASE_URL='postgresql://…neon…' DJANGO_SECRET_KEY=anything python manage.py createsuperuser
+```
+
+#### Every deploy after that
+
+```bash
+gcloud builds submit --tag $IMAGE
+gcloud run jobs update migrate --image $IMAGE --region $REGION
+gcloud run jobs execute migrate --region $REGION --wait
+gcloud run deploy journal --image $IMAGE --region $REGION
+```
+
+#### Moving data from Render (optional)
+
+Do this before step 2 of the first deploy. Use a `pg_dump` with a major version at least as new as the Render database:
+
+```bash
+pg_dump --no-owner --no-acl "$RENDER_DATABASE_URL" | psql "$NEON_DATABASE_URL"
+```
+
+The migration job will then find everything already applied.
 
 ### Render (legacy)
 
