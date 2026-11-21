@@ -1,13 +1,15 @@
 from django.http import HttpResponse
 from django.conf import settings
 from django.middleware.csrf import get_token
-from django.contrib.auth.decorators import login_required
 import os
 
 
-@login_required
 def spa_view(request):
-    """Serve the SvelteKit SPA for any non-API route."""
+    """Serve the SvelteKit SPA for any non-API route.
+
+    Deliberately public: the SPA shell holds no user data, its own layout
+    redirects logged-out users to /app/login, and the API enforces auth.
+    """
     # Ensure CSRF cookie is set
     get_token(request)
 
