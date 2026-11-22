@@ -1,11 +1,14 @@
 from django.contrib import admin
-from django.contrib.auth import views as auth_views
 from django.urls import path, include, re_path
+from django.views.generic import RedirectView
 from django.views.static import serve
 from django.conf import settings
+import mimetypes
 import os
 
 from .views import spa_view
+
+mimetypes.add_type('application/manifest+json', '.webmanifest')
 
 
 def serve_spa_static(request, path):
@@ -16,10 +19,6 @@ def serve_spa_static(request, path):
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # Auth (legacy Django templates)
-    path('login/', auth_views.LoginView.as_view(template_name='entries/login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
-
     # Auth API (for SPA)
     path('api/auth/', include('dj_rest_auth.urls')),
     path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
@@ -29,13 +28,12 @@ urlpatterns = [
 
     # SvelteKit SPA static files
     re_path(r'^app/(?P<path>_app/.*)$', serve_spa_static),
-    re_path(r'^app/(?P<path>robots\.txt)$', serve_spa_static),
-    re_path(r'^app/(?P<path>favicon\.ico)$', serve_spa_static),
+    re_path(r'^app/(?P<path>robots\.txt|favicon\.ico|favicon-32x32\.png|icon\.svg|manifest\.webmanifest)$', serve_spa_static),
     re_path(r'^(?P<path>favicon\.ico)$', serve_spa_static),
 
     # SvelteKit SPA (new frontend)
     re_path(r'^app(?:/.*)?$', spa_view, name='spa'),
 
-    # Django templates (existing)
-    path('', include('entries.urls')),
+    # Everything lives in the SPA now
+    path('', RedirectView.as_view(url='/app/', permanent=False)),
 ]

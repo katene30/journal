@@ -8,7 +8,7 @@ A personal wellbeing tracker built around Te Whare Tapa Whā and Te Pae Mahutong
 |---------------------------------- |
 | Documentation in [`docs/`](docs/) |
 |[Live site](https://journal-452552708454.australia-southeast1.run.app/app/)|
-|[Dev site FE](http://localhost:5173/)|
+|[Dev site FE](http://localhost:5173/app/)|
 |[Dev site BE](http://localhost:8000)|
 |[Django admin](http://localhost:8000/admin)|
 
@@ -113,15 +113,14 @@ npm run dev
 ```
 
 Visit:
-- Frontend (dev): `http://localhost:5173/`
+- Frontend (dev): `http://localhost:5173/app/`, where you register or log in in the app itself (Vite proxies `/api` to Django)
 - Django admin: `http://localhost:8000/admin/`
 
-Log in via Django first (`http://localhost:8000/login/`), then use the frontend.
-
 **Production URLs:**
-- `/app` — SvelteKit entry form (requires login)
-- `/` — Django templates (legacy, gradual migration)
+- `/app/` — the SvelteKit app (home, entries, new entry, summary, login/register)
 - `/api/` — REST API
+- `/admin/` — Django admin
+- `/` — redirects to `/app/`
 
 ## Project Structure
 
@@ -130,7 +129,7 @@ journal/
 ├── frontend/           # SvelteKit app
 │   ├── src/
 │   │   ├── lib/
-│   │   │   ├── components/   # SemanticScale, PillarNav
+│   │   │   ├── components/   # SemanticScale, PillarNav, TrendChart, …
 │   │   │   ├── config/       # Pillar definitions
 │   │   │   ├── stores/       # Entry state, mauri calculation
 │   │   │   ├── api/          # API client

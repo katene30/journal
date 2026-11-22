@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.urls import reverse
 
 
 class JournalEntry(models.Model):
@@ -54,7 +53,8 @@ class JournalEntry(models.Model):
         return f"{self.date} - {self.user.username}"
 
     def get_absolute_url(self):
-        return reverse('entry_detail', kwargs={'pk': self.pk})
+        # Used by Django admin's "View on site" link
+        return f'/app/entries/{self.pk}'
 
     def generate_header(self):
         """Generate a simple header from the first few words of the log."""
@@ -68,7 +68,7 @@ class JournalEntry(models.Model):
         return self.generate_header()
 
 
-# Fields that use 1-10 slider input
+# Fields rated on a 1-5 semantic scale
 SLIDER_FIELDS = [
     # Taha Hinengaro
     'mood', 'anxiety_level', 'stress_level',
@@ -85,26 +85,3 @@ SLIDER_FIELDS = [
     # Reflection
     'overall_day_rating',
 ]
-
-METRIC_LABELS = {
-    # Hinengaro
-    'mood': 'Mood',
-    'anxiety_level': 'Anxiety Level',
-    'stress_level': 'Stress Level',
-    # Tinana
-    'sleep_quality': 'Sleep Quality',
-    'exercise_level': 'Exercise Level',
-    'diet_quality': 'Diet Quality',
-    'energy_level': 'Energy Level',
-    # Whānau
-    'social_connection': 'Social Connection',
-    'social_interactions_quality': 'Social Interactions Quality',
-    # Wairua
-    'sense_of_meaning': 'Sense of Meaning',
-    # Mauriora
-    'felt_like_myself': 'Felt Like Myself',
-    # Waiora
-    'environment_quality': 'Environment Quality',
-    # Overall
-    'overall_day_rating': 'Overall Day Rating',
-}

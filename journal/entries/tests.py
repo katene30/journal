@@ -303,3 +303,21 @@ class SpaViewTests(APITestCase):
                 response = self.client.get(url)
                 # 200 when the frontend is built, 503 when it isn't; never a redirect
                 self.assertIn(response.status_code, (200, 503))
+
+
+class LegacyTemplatesRemovedTests(APITestCase):
+    def test_root_redirects_to_spa(self):
+        response = self.client.get('/')
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], '/app/')
+
+    def test_old_template_routes_are_gone(self):
+        for url in ('/entries/', '/entries/new/', '/entries/1/', '/summary/', '/login/', '/logout/'):
+            with self.subTest(url=url):
+                self.assertEqual(self.client.get(url).status_code, 404)
+
+    def test_admin_view_on_site_points_at_spa(self):
+        entry = JournalEntry.objects.create(user=make_user('a@example.com'), date=date(2026, 1, 1))
+
+        self.assertEqual(entry.get_absolute_url(), f'/app/entries/{entry.pk}')
