@@ -26,12 +26,6 @@ CSRF_TRUSTED_ORIGINS = config(
     cast=Csv(),
 )
 
-# Render sets this automatically; keep supporting it until we've migrated off
-RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
-    CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
-
 # Hosts like Cloud Run terminate HTTPS at a proxy and forward plain HTTP
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 

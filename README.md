@@ -7,8 +7,7 @@ A personal wellbeing tracker built around Te Whare Tapa Whā and Te Pae Mahutong
 | Important links           |
 |---------------------------------- |
 | Documentation in [`docs/`](docs/) |
-|[Live site](https://journal-452552708454.australia-southeast1.run.app/app/) (Cloud Run)|
-|[Old live site](https://journal-9hww.onrender.com) (Render, legacy)|
+|[Live site](https://journal-452552708454.australia-southeast1.run.app/app/)|
 |[Dev site FE](http://localhost:5173/)|
 |[Dev site BE](http://localhost:8000)|
 |[Django admin](http://localhost:8000/admin)|
@@ -60,7 +59,8 @@ Hauora Journal helps you track daily wellbeing holistically, not just physical o
 - Vite
 
 **Deployment:**
-- Render (Django serves API + built frontend)
+- Google Cloud Run (one Docker container: Django serves API + built frontend)
+- Neon Postgres
 
 ## Local Development
 
@@ -261,22 +261,6 @@ gcloud run jobs update migrate --image $IMAGE --region $REGION
 gcloud run jobs execute migrate --region $REGION --wait
 gcloud run deploy journal --image $IMAGE --region $REGION
 ```
-
-#### Moving data from Render (optional)
-
-Do this before step 2 of the first deploy. Use a `pg_dump` with a major version at least as new as the Render database:
-
-```bash
-pg_dump --no-owner --no-acl "$RENDER_DATABASE_URL" | psql "$NEON_DATABASE_URL"
-```
-
-The migration job will then find everything already applied.
-
-### Render (legacy)
-
-- `render.yaml` — Blueprint for web service + database
-- `build.sh` — Builds frontend, collects static files, runs migrations (Render's free plan has no pre-deploy step)
-- `DATABASE_URL` is auto-set by Render; the Render hostname is added to `ALLOWED_HOSTS` automatically
 
 ## License
 
