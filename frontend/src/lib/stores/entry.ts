@@ -1,4 +1,5 @@
 import { writable, derived, get, type Readable } from 'svelte/store';
+import { localISODate } from '$lib/utils/dates';
 import type { PillarId } from '$lib/types';
 import { entriesApi, type Entry } from '$lib/api';
 
@@ -35,7 +36,7 @@ export interface EntryData {
 }
 
 function todayString(): string {
-	return new Date().toISOString().split('T')[0];
+	return localISODate();
 }
 
 function createEmptyEntry(): EntryData {
@@ -200,7 +201,8 @@ function mapApiToStore(apiEntry: Entry): EntryData {
 // API actions
 export const entryApiActions = {
 	loadToday: async () => {
-		const apiEntry = await entriesApi.today();
+		// Ask for the user's local date rather than the server's idea of "today"
+		const apiEntry = await entriesApi.byDate(localISODate());
 		currentEntry.set(mapApiToStore(apiEntry));
 		return apiEntry;
 	},

@@ -3,7 +3,8 @@
 The most important guarantee in this app: a user can only ever see and change
 their own journal entries. Everything else here supports that.
 """
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone as dt_timezone
+from unittest import mock
 
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -255,6 +256,18 @@ class EntryRangeTests(APITestCase):
             with self.subTest(params=params):
                 response = self.client.get(self.url, params)
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class TodayTests(APITestCase):
+    def test_today_uses_new_zealand_date_not_utc(self):
+        """Regression: 9am in NZ is still the previous day in UTC."""
+        self.client.force_authenticate(make_user('kia@example.com'))
+        nine_am_nzdt = datetime(2026, 11, 21, 20, 0, tzinfo=dt_timezone.utc)  # 22 Nov 09:00 NZDT
+
+        with mock.patch('django.utils.timezone.now', return_value=nine_am_nzdt):
+            response = self.client.get('/api/entries/today/')
+
+        self.assertEqual(response.data['date'], '2026-11-22')
 
 
 class CsrfTests(APITestCase):

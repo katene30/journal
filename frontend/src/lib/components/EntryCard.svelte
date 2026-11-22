@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { EntryListItem } from '$lib/api/entries';
+	import { addDays, localISODate } from '$lib/utils/dates';
 
 	interface Props {
 		entry: EntryListItem;
@@ -10,14 +11,12 @@
 
 	function formatDate(dateStr: string): string {
 		const date = new Date(dateStr + 'T00:00:00');
-		const today = new Date();
-		const yesterday = new Date(today);
-		yesterday.setDate(yesterday.getDate() - 1);
+		const today = localISODate();
 
-		if (dateStr === today.toISOString().split('T')[0]) {
+		if (dateStr === today) {
 			return 'Today';
 		}
-		if (dateStr === yesterday.toISOString().split('T')[0]) {
+		if (dateStr === addDays(today, -1)) {
 			return 'Yesterday';
 		}
 

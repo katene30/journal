@@ -33,7 +33,8 @@ class JournalEntryViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def today(self, request):
         """Get or create today's entry."""
-        today = timezone.now().date()
+        # localdate() uses settings.TIME_ZONE; now().date() would be the UTC date
+        today = timezone.localdate()
         entry, created = JournalEntry.objects.get_or_create(
             user=request.user,
             date=today,
