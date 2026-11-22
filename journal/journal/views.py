@@ -3,6 +3,9 @@ from django.conf import settings
 from django.middleware.csrf import get_token
 import os
 
+from dj_rest_auth.views import PasswordResetView
+from rest_framework.throttling import ScopedRateThrottle
+
 
 def spa_view(request):
     """Serve the SvelteKit SPA for any non-API route.
@@ -23,3 +26,9 @@ def spa_view(request):
             "Frontend not built. Run 'npm run build' in the frontend directory.",
             status=503
         )
+
+
+class ThrottledPasswordResetView(PasswordResetView):
+    """Password reset request, rate-limited per IP (see DEFAULT_THROTTLE_RATES)."""
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'password_reset'

@@ -6,7 +6,7 @@ from django.conf import settings
 import mimetypes
 import os
 
-from .views import spa_view
+from .views import ThrottledPasswordResetView, spa_view
 
 mimetypes.add_type('application/manifest+json', '.webmanifest')
 
@@ -19,7 +19,8 @@ def serve_spa_static(request, path):
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # Auth API (for SPA)
+    # Auth API (for SPA). The throttled reset view must come before the include.
+    path('api/auth/password/reset/', ThrottledPasswordResetView.as_view(), name='rest_password_reset'),
     path('api/auth/', include('dj_rest_auth.urls')),
     path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
 

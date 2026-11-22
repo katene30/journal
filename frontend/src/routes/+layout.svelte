@@ -8,7 +8,7 @@
 
 	let { children } = $props();
 
-	const publicRoutes = ['/app/login', '/app/register'];
+	const publicRoutes = ['/app/login', '/app/register', '/app/forgot-password', '/app/reset-password'];
 
 	const isPublicRoute = $derived(publicRoutes.some(route => $page.url.pathname.startsWith(route)));
 

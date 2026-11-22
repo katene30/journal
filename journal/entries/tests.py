@@ -6,7 +6,11 @@ their own journal entries. Everything else here supports that.
 from datetime import date, datetime, timedelta, timezone as dt_timezone
 from unittest import mock
 
+import re
+
 from django.contrib.auth.models import User
+from django.core import mail
+from django.core.cache import cache
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
@@ -321,3 +325,99 @@ class LegacyTemplatesRemovedTests(APITestCase):
         entry = JournalEntry.objects.create(user=make_user('a@example.com'), date=date(2026, 1, 1))
 
         self.assertEqual(entry.get_absolute_url(), f'/app/entries/{entry.pk}')
+
+
+class PasswordResetTests(APITestCase):
+    request_url = '/api/auth/password/reset/'
+    confirm_url = '/api/auth/password/reset/confirm/'
+    link_pattern = re.compile(r'http://testserver/app/reset-password/(?P<uid>[^/\s]+)/(?P<token>[^/\s]+)')
+
+    def setUp(self):
+        cache.clear()  # throttle counts live in the cache
+        self.user = make_user('kia@example.com')
+
+    def request_reset(self, email='kia@example.com'):
+        return self.client.post(self.request_url, {'email': email}, format='json')
+
+    def reset_link(self):
+        match = self.link_pattern.search(mail.outbox[-1].body)
+        self.assertIsNotNone(match, mail.outbox[-1].body)
+        return match['uid'], match['token']
+
+    def confirm(self, uid, token, password='Brand-new-pw-42'):
+        return self.client.post(self.confirm_url, {
+            'uid': uid, 'token': token, 'new_password1': password, 'new_password2': password,
+        }, format='json')
+
+    def test_sends_email_with_link_to_the_spa(self):
+        response = self.request_reset()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(mail.outbox), 1)
+        email = mail.outbox[0]
+        self.assertEqual(email.to, ['kia@example.com'])
+        self.assertEqual(email.subject, 'Reset your Hauora Journal password')
+        self.assertNotIn('example.com!', email.body)  # allauth's default "Hello from example.com!"
+        self.reset_link()
+
+    def test_unknown_email_gets_same_response_and_no_email(self):
+        """Don't reveal which emails have accounts."""
+        response = self.request_reset('nobody@example.com')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_link_sets_new_password(self):
+        self.request_reset()
+        uid, token = self.reset_link()
+
+        response = self.confirm(uid, token)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password('Brand-new-pw-42'))
+        self.assertFalse(self.user.check_password(PASSWORD))
+
+    def test_link_only_works_once(self):
+        self.request_reset()
+        uid, token = self.reset_link()
+        self.confirm(uid, token)
+
+        response = self.confirm(uid, token, password='Another-new-pw-77')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password('Brand-new-pw-42'))
+
+    def test_bad_token_rejected(self):
+        self.request_reset()
+        uid, _ = self.reset_link()
+
+        response = self.confirm(uid, 'not-a-real-token')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password(PASSWORD))
+
+    def test_weak_new_password_rejected(self):
+        self.request_reset()
+        uid, token = self.reset_link()
+
+        response = self.confirm(uid, token, password='password')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_requests_are_rate_limited(self):
+        for _ in range(5):
+            self.assertEqual(self.request_reset().status_code, status.HTTP_200_OK)
+
+        self.assertEqual(self.request_reset().status_code, status.HTTP_429_TOO_MANY_REQUESTS)
+        self.assertEqual(len(mail.outbox), 5)
+
+    def test_signup_sends_no_email(self):
+        """Verification is off until the app has a confirm-email page."""
+        self.client.post('/api/auth/registration/', {
+            'email': 'new@example.com', 'password1': PASSWORD, 'password2': PASSWORD,
+        }, format='json')
+
+        self.assertEqual(len(mail.outbox), 0)

@@ -27,4 +27,14 @@ export const authApi = {
 	register: (data: RegisterData) => api.post<void>('/auth/registration/', data),
 
 	getUser: () => api.get<User>('/auth/user/'),
+
+	/** Emails a reset link if the address has an account; responds the same either way. */
+	requestPasswordReset: (email: string) => api.post<void>('/auth/password/reset/', { email }),
+
+	confirmPasswordReset: (data: {
+		uid: string;
+		token: string;
+		new_password1: string;
+		new_password2: string;
+	}) => api.post<void>('/auth/password/reset/confirm/', data)
 };

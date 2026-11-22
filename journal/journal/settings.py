@@ -148,7 +148,9 @@ LOGOUT_REDIRECT_URL = '/app/'
 # Allauth settings
 ACCOUNT_LOGIN_METHODS = {'email'}
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
-ACCOUNT_EMAIL_VERIFICATION = 'optional'
+# 'none' until the SPA has a confirm-email page: with 'optional', every signup
+# emailed a confirmation link to an API route that has no page behind it
+ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
@@ -162,7 +164,29 @@ REST_AUTH = {
     'TOKEN_MODEL': None,
     'REGISTER_SERIALIZER': 'journal.serializers.CustomRegisterSerializer',
     'LOGIN_SERIALIZER': 'journal.serializers.CustomLoginSerializer',
+    'PASSWORD_RESET_SERIALIZER': 'journal.serializers.SpaPasswordResetSerializer',
 }
 
-# Email (dev: print to console)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Password reset links expire after an hour, and stop working once used
+# (Django's tokens include the password hash)
+PASSWORD_RESET_TIMEOUT = 60 * 60
+
+REST_FRAMEWORK['DEFAULT_THROTTLE_RATES'] = {
+    # Per IP; stops the reset form being used to flood someone's inbox
+    'password_reset': '5/hour',
+}
+
+# Email: SMTP when EMAIL_HOST is set (production), otherwise printed to the console
+EMAIL_HOST = config('EMAIL_HOST', default='')
+if EMAIL_HOST:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+    EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+    EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+    EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+    EMAIL_TIMEOUT = 10
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='Hauora Journal <noreply@localhost>')
+ACCOUNT_EMAIL_SUBJECT_PREFIX = ''

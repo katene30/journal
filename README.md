@@ -172,6 +172,11 @@ Environment variables:
 | `ALLOWED_HOSTS` | yes | `journal-abc123.a.run.app` (comma-separated) |
 | `CSRF_TRUSTED_ORIGINS` | yes | `https://journal-abc123.a.run.app` (comma-separated, with scheme) |
 | `DEBUG` | no | `false` (default) |
+| `EMAIL_HOST` | for email | `smtp.gmail.com`. If unset, emails are printed to the log instead of sent |
+| `EMAIL_HOST_USER` | for email | the Gmail address that sends |
+| `EMAIL_HOST_PASSWORD` | for email | a Gmail [app password](https://myaccount.google.com/apppasswords), stored as a secret |
+| `EMAIL_PORT` / `EMAIL_USE_TLS` | no | `587` / `true` (defaults) |
+| `DEFAULT_FROM_EMAIL` | for email | `Hauora Journal <you@gmail.com>`; with Gmail it must be the same address as `EMAIL_HOST_USER` |
 
 With `DEBUG` off, session and CSRF cookies are `Secure` (HTTPS only).
 
