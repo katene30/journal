@@ -1,0 +1,2 @@
+# Files not uploaded to Cloud Build (mirror of .dockerignore)
+#!include:.dockerignore

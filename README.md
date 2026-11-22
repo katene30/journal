@@ -7,7 +7,8 @@ A personal wellbeing tracker built around Te Whare Tapa Whā and Te Pae Mahutong
 | Important links           |
 |---------------------------------- |
 | Documentation in [`docs/`](docs/) |
-|[Live site](https://journal-9hww.onrender.com)|
+|[Live site](https://journal-452552708454.australia-southeast1.run.app/app/) (Cloud Run)|
+|[Old live site](https://journal-9hww.onrender.com) (Render, legacy)|
 |[Dev site FE](http://localhost:5173/)|
 |[Dev site BE](http://localhost:8000)|
 |[Django admin](http://localhost:8000/admin)|
@@ -219,9 +220,9 @@ done
 #### First deploy
 
 ```bash
-# 1. Build the image on Google's servers. Cloud Run needs linux/amd64; a local
+# 1. Build the image on Google's servers (`.gcloudignore` keeps .env etc. out of the upload). Cloud Run needs linux/amd64; a local
 #    build on an Apple Silicon Mac would produce arm64.
-gcloud builds submit --tag $IMAGE
+gcloud builds submit --region $REGION --tag $IMAGE
 
 # 2. Create and run the migration job
 gcloud run jobs create migrate --image $IMAGE --region $REGION \
@@ -235,11 +236,14 @@ gcloud run deploy journal --image $IMAGE --region $REGION \
   --max-instances 2 \
   --set-secrets DJANGO_SECRET_KEY=django-secret-key:latest,DATABASE_URL=database-url:latest
 
-# 4. Tell Django its public hostname (only known after the first deploy)
-URL=$(gcloud run services describe journal --region $REGION --format='value(status.url)')
+# 4. Tell Django its public hostnames. Cloud Run serves the app on two URLs (shown
+#    in the deploy output and in `describe`); allow both. The ^@^ prefix makes @
+#    the separator between variables so the values can contain commas.
+gcloud run services describe journal --region $REGION --format='value(status.url,metadata.annotations."run.googleapis.com/urls")'
+H1=journal-<project-number>.$REGION.run.app
+H2=journal-<hash>.a.run.app
 gcloud run services update journal --region $REGION \
-  --update-env-vars ALLOWED_HOSTS=${URL#https://},CSRF_TRUSTED_ORIGINS=$URL
-echo $URL
+  --update-env-vars "^@^ALLOWED_HOSTS=$H1,$H2@CSRF_TRUSTED_ORIGINS=https://$H1,https://$H2"
 ```
 
 To create an admin user, run this locally against the Neon database:
@@ -252,7 +256,7 @@ DATABASE_URL='postgresql://…neon…' DJANGO_SECRET_KEY=anything python manage.
 #### Every deploy after that
 
 ```bash
-gcloud builds submit --tag $IMAGE
+gcloud builds submit --region $REGION --tag $IMAGE
 gcloud run jobs update migrate --image $IMAGE --region $REGION
 gcloud run jobs execute migrate --region $REGION --wait
 gcloud run deploy journal --image $IMAGE --region $REGION
