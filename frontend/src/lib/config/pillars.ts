@@ -112,6 +112,7 @@ export const PILLARS: PillarConfig[] = [
 		name: 'Whānau',
 		teReo: 'Pikorua',
 		color: '#d4a03a',
+		chartColor: '#a8791f', // #d4a03a is 2.3:1 on the surface; this keeps the gold at 3.8:1
 		question: {
 			maori: 'E pēhea ana ō hononga i tēnei rā?',
 			english: 'How are your connections today?'
@@ -201,4 +202,17 @@ export const getPillarById = (id: string): PillarConfig | undefined => {
 
 export const getPillarColor = (id: string): string => {
 	return getPillarById(id)?.color ?? '#607D8B';
+};
+
+/** Describe a 1-5 scale value in the scale's own words, e.g. 4 -> "Leaning positive". */
+export const describeScaleValue = (
+	value: number,
+	scale: { leftLabel: string; rightLabel: string }
+): string => {
+	const step = Math.round(value);
+	if (step <= 1) return scale.leftLabel;
+	if (step === 2) return `Leaning ${scale.leftLabel.toLowerCase()}`;
+	if (step === 3) return 'In between';
+	if (step === 4) return `Leaning ${scale.rightLabel.toLowerCase()}`;
+	return scale.rightLabel;
 };

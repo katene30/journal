@@ -42,6 +42,22 @@ export interface Entry {
 	log: string;
 }
 
+/** The 1-5 scale fields, keyed by name. */
+export type ScaleField =
+	| 'mood' | 'anxiety_level' | 'stress_level'
+	| 'sleep_quality' | 'exercise_level' | 'diet_quality' | 'energy_level'
+	| 'social_connection' | 'social_interactions_quality'
+	| 'sense_of_meaning' | 'felt_like_myself' | 'environment_quality'
+	| 'overall_day_rating';
+
+export type EntryScales = { id: number; date: string } & Record<ScaleField, number | null>;
+
+export interface EntryRange {
+	start: string;
+	end: string;
+	entries: EntryScales[];
+}
+
 export type EntryCreate = Omit<Entry, 'id' | 'created_at' | 'updated_at'>;
 export type EntryUpdate = Partial<EntryCreate>;
 
@@ -60,5 +76,9 @@ export const entriesApi = {
 
 	byDate: (date: string) => api.get<Entry>(`/entries/by-date/${date}/`),
 
-	recent: () => api.get<EntryListItem[]>('/entries/recent/')
+	recent: () => api.get<EntryListItem[]>('/entries/recent/'),
+
+	/** Scale values for entries from start to end inclusive (YYYY-MM-DD), oldest first. */
+	range: (start: string, end: string) =>
+		api.get<EntryRange>(`/entries/range/?start=${start}&end=${end}`)
 };

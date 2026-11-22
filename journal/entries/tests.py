@@ -3,9 +3,10 @@
 The most important guarantee in this app: a user can only ever see and change
 their own journal entries. Everything else here supports that.
 """
-from datetime import date
+from datetime import date, timedelta
 
 from django.contrib.auth.models import User
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
@@ -122,6 +123,7 @@ class UnauthenticatedAccessTests(APITestCase):
             ('get', '/api/entries/today/'),
             ('get', '/api/entries/recent/'),
             ('get', '/api/entries/by-date/2026-01-01/'),
+            ('get', '/api/entries/range/'),
             ('get', detail),
             ('patch', detail),
             ('delete', detail),
@@ -193,6 +195,66 @@ class EntryIsolationTests(APITestCase):
         response = self.client.get(f'/api/entries/{self.alice_entry.pk}/')
 
         self.assertNotIn('user', response.data)
+
+
+class EntryRangeTests(APITestCase):
+    url = '/api/entries/range/'
+
+    def setUp(self):
+        self.alice = make_user('alice@example.com')
+        self.bob = make_user('bob@example.com')
+        for day, mood in [(1, 2), (5, 4), (10, 5)]:
+            JournalEntry.objects.create(user=self.alice, date=date(2026, 3, day), mood=mood)
+        JournalEntry.objects.create(user=self.bob, date=date(2026, 3, 5), mood=1)
+        self.client.force_authenticate(self.alice)
+
+    def test_returns_own_entries_in_range_oldest_first(self):
+        response = self.client.get(self.url, {'start': '2026-03-01', 'end': '2026-03-07'})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['start'], '2026-03-01')
+        self.assertEqual(response.data['end'], '2026-03-07')
+        self.assertEqual(
+            [(e['date'], e['mood']) for e in response.data['entries']],
+            [('2026-03-01', 2), ('2026-03-05', 4)],
+        )
+
+    def test_range_is_inclusive_and_includes_every_scale(self):
+        response = self.client.get(self.url, {'start': '2026-03-10', 'end': '2026-03-10'})
+
+        entry = response.data['entries'][0]
+        self.assertEqual(entry['date'], '2026-03-10')
+        for field in ('mood', 'anxiety_level', 'overall_day_rating', 'environment_quality'):
+            self.assertIn(field, entry)
+        self.assertNotIn('log', entry)
+
+    def test_defaults_to_last_30_days(self):
+        today = timezone.localdate()
+        JournalEntry.objects.create(user=self.alice, date=today)
+        JournalEntry.objects.create(user=self.alice, date=today - timedelta(days=29))
+        JournalEntry.objects.create(user=self.alice, date=today - timedelta(days=30))
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.data['end'], today.isoformat())
+        self.assertEqual(response.data['start'], (today - timedelta(days=29)).isoformat())
+        self.assertEqual(len(response.data['entries']), 2)
+
+    def test_does_not_create_entries(self):
+        self.client.get(self.url, {'start': '2026-04-01', 'end': '2026-04-30'})
+
+        self.assertFalse(JournalEntry.objects.filter(date__month=4).exists())
+
+    def test_invalid_ranges_rejected(self):
+        cases = [
+            {'start': 'not-a-date', 'end': '2026-03-07'},
+            {'start': '2026-03-07', 'end': '2026-03-01'},
+            {'start': '2025-01-01', 'end': '2026-03-01'},
+        ]
+        for params in cases:
+            with self.subTest(params=params):
+                response = self.client.get(self.url, params)
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class CsrfTests(APITestCase):

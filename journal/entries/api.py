@@ -1,10 +1,18 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from datetime import date, timedelta
+
 from django.utils import timezone
 
 from .models import JournalEntry
-from .serializers import JournalEntrySerializer, JournalEntryListSerializer
+from .serializers import (
+    JournalEntryListSerializer,
+    JournalEntryScalesSerializer,
+    JournalEntrySerializer,
+)
+
+MAX_RANGE_DAYS = 366
 
 
 class JournalEntryViewSet(viewsets.ModelViewSet):
@@ -55,3 +63,28 @@ class JournalEntryViewSet(viewsets.ModelViewSet):
         entries = self.get_queryset()[:7]
         serializer = JournalEntryListSerializer(entries, many=True)
         return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def range(self, request):
+        """Scale values for entries between ?start= and ?end= (YYYY-MM-DD, inclusive).
+
+        Defaults to the last 30 days. Read-only: unlike today/by-date it never
+        creates entries.
+        """
+        try:
+            end = date.fromisoformat(request.query_params['end']) if 'end' in request.query_params else timezone.localdate()
+            start = date.fromisoformat(request.query_params['start']) if 'start' in request.query_params else end - timedelta(days=29)
+        except ValueError:
+            return Response({'detail': 'Dates must be YYYY-MM-DD.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if start > end:
+            return Response({'detail': 'start must be on or before end.'}, status=status.HTTP_400_BAD_REQUEST)
+        if (end - start).days + 1 > MAX_RANGE_DAYS:
+            return Response({'detail': f'Range can be at most {MAX_RANGE_DAYS} days.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        entries = self.get_queryset().filter(date__range=(start, end)).order_by('date')
+        return Response({
+            'start': start.isoformat(),
+            'end': end.isoformat(),
+            'entries': JournalEntryScalesSerializer(entries, many=True).data,
+        })

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import JournalEntry
+from .models import JournalEntry, SLIDER_FIELDS
 
 
 class JournalEntrySerializer(serializers.ModelSerializer):
@@ -47,3 +47,11 @@ class JournalEntryListSerializer(serializers.ModelSerializer):
     class Meta:
         model = JournalEntry
         fields = ['id', 'date', 'header', 'overall_day_rating', 'mood', 'log']
+
+
+class JournalEntryScalesSerializer(serializers.ModelSerializer):
+    """Date plus every 1-5 scale value, for the summary charts."""
+
+    class Meta:
+        model = JournalEntry
+        fields = ['id', 'date', *SLIDER_FIELDS]

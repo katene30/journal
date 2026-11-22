@@ -40,6 +40,8 @@ export interface PillarConfig {
 	name: string;
 	teReo: string;
 	color: string;
+	/** Darker variant for chart lines when `color` is under 3:1 contrast on the surface */
+	chartColor?: string;
 	question: {
 		maori: string;
 		english: string;
