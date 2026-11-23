@@ -89,6 +89,9 @@ cp example.env .env
 cd journal
 python manage.py migrate
 python manage.py createsuperuser
+# Optional: a demo login (test@example.com / Test-pass-123!) with ~10 weeks of entries.
+# Re-run any time to refresh it. Only runs with DEBUG on, so never against production.
+python manage.py seed_demo
 cd ..
 
 # Frontend setup

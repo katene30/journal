@@ -13,6 +13,8 @@ from unittest import mock
 from django.contrib.auth.models import User
 from django.core import mail
 from django.core.cache import cache
+from django.core.management import CommandError, call_command
+from django.test import override_settings
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
@@ -566,3 +568,40 @@ class PrivacyPageTests(APITestCase):
         for url in ('/app/privacy', '/app/account'):
             with self.subTest(url=url):
                 self.assertIn(self.client.get(url).status_code, (200, 503))
+
+
+class SeedDemoCommandTests(APITestCase):
+    def seed(self, **options):
+        call_command('seed_demo', stdout=io.StringIO(), **options)
+
+    @override_settings(DEBUG=True)
+    def test_creates_a_login_and_realistic_entries(self):
+        self.seed(email='demo@example.com', password=PASSWORD, days=30)
+
+        user = User.objects.get(email='demo@example.com')
+        self.assertTrue(user.check_password(PASSWORD))
+        entries = JournalEntry.objects.filter(user=user)
+        self.assertTrue(20 <= entries.count() <= 30, entries.count())  # some days are skipped
+        self.assertTrue(entries.filter(date=timezone.localdate()).exists(), 'today always has an entry')
+        self.assertTrue(entries.exclude(log='').exists())
+        for field in ('mood', 'stress_level', 'spiritual_connection'):
+            values = set(entries.exclude(**{field: None}).values_list(field, flat=True))
+            self.assertTrue(values <= {1, 2, 3, 4, 5}, (field, values))
+
+    @override_settings(DEBUG=True)
+    def test_rerunning_replaces_entries_and_leaves_others_alone(self):
+        other = make_user('other@example.com')
+        JournalEntry.objects.create(user=other, date=date(2026, 1, 1), log='keep me')
+
+        self.seed(days=10)
+        first = JournalEntry.objects.filter(user__email='test@example.com').count()
+        self.seed(days=10)
+
+        self.assertEqual(JournalEntry.objects.filter(user__email='test@example.com').count(), first)
+        self.assertTrue(JournalEntry.objects.filter(user=other, log='keep me').exists())
+
+    @override_settings(DEBUG=False)
+    def test_refuses_to_run_without_debug(self):
+        with self.assertRaises(CommandError):
+            self.seed()
+        self.assertFalse(User.objects.filter(email='test@example.com').exists())
