@@ -1,5 +1,7 @@
 # Hauora Journal
 
+[![CI](https://github.com/katene30/journal/actions/workflows/ci.yml/badge.svg)](https://github.com/katene30/journal/actions/workflows/ci.yml)
+
 A personal wellbeing tracker built around Te Whare Tapa Whā and Te Pae Mahutonga — Māori models of health and wellbeing.
 
 ## Important links
