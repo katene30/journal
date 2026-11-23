@@ -69,6 +69,7 @@
 							href="/app/entries"
 							class="header__nav-link"
 							class:header__nav-link--active={isActive('/app/entries')}
+							aria-current={isActive('/app/entries') ? 'page' : undefined}
 							onclick={closeMenu}
 						>
 							Entries
@@ -79,6 +80,7 @@
 							href="/app/new"
 							class="header__nav-link"
 							class:header__nav-link--active={isActive('/app/new')}
+							aria-current={isActive('/app/new') ? 'page' : undefined}
 							onclick={closeMenu}
 						>
 							New Entry
@@ -89,6 +91,7 @@
 							href="/app/summary"
 							class="header__nav-link"
 							class:header__nav-link--active={isActive('/app/summary')}
+							aria-current={isActive('/app/summary') ? 'page' : undefined}
 							onclick={closeMenu}
 						>
 							Summary
@@ -122,9 +125,11 @@
 </header>
 
 <style lang="scss">
+	/* Warm paper bar, ink text; the current page is marked in plum */
 	.header {
-		background: var(--color-moana);
-		color: white;
+		background: var(--color-bg);
+		color: var(--color-text);
+		border-bottom: 1px solid var(--color-border);
 		position: relative;
 		z-index: 100;
 	}
@@ -141,11 +146,16 @@
 	.header__brand {
 		font-size: var(--font-size-lg);
 		font-weight: 600;
-		color: white;
+		color: var(--color-text);
 		text-decoration: none;
 
+		&:hover,
+		&:visited {
+			color: var(--color-text);
+		}
+
 		&:hover {
-			color: var(--color-kowhai);
+			color: var(--color-primary);
 		}
 	}
 
@@ -156,8 +166,18 @@
 		padding: var(--space-xs);
 		background: none;
 		border: none;
+		border-radius: var(--radius-sm);
 		cursor: pointer;
 		margin-left: auto;
+
+		&:hover {
+			background: var(--color-primary-tint);
+		}
+
+		&:focus-visible {
+			outline: 2px solid var(--color-focus);
+			outline-offset: 2px;
+		}
 
 		@media (min-width: 768px) {
 			display: none;
@@ -168,7 +188,7 @@
 		display: block;
 		width: 24px;
 		height: 2px;
-		background: white;
+		background: var(--color-text);
 		border-radius: 1px;
 		transition: transform var(--transition-fast), opacity var(--transition-fast);
 	}
@@ -191,9 +211,10 @@
 		top: 100%;
 		left: 0;
 		right: 0;
-		background: var(--color-moana);
+		background: var(--color-bg);
+		border-bottom: 1px solid var(--color-border);
 		padding: var(--space-md);
-		box-shadow: var(--shadow-lg);
+		box-shadow: var(--shadow-md);
 
 		@media (min-width: 768px) {
 			display: flex;
@@ -201,6 +222,7 @@
 			gap: var(--space-lg);
 			position: static;
 			padding: 0;
+			border-bottom: none;
 			box-shadow: none;
 			flex: 1;
 		}
@@ -220,64 +242,78 @@
 		padding: 0;
 		display: flex;
 		flex-direction: column;
-		gap: var(--space-xs);
+		gap: var(--space-xxs);
 
 		@media (min-width: 768px) {
 			flex-direction: row;
-			gap: var(--space-md);
+			gap: var(--space-xs);
 		}
 	}
 
-	.header__nav-link {
-		display: block;
-		padding: var(--space-sm) 0;
-		color: rgba(255, 255, 255, 0.8);
-		text-decoration: none;
+	/* Shared by the page links and the Account link */
+	.header__nav-link,
+	.header__account {
 		position: relative;
-		transition: color var(--transition-fast);
+		display: block;
+		padding: var(--space-xs) var(--space-sm);
+		border-radius: var(--radius-sm);
+		color: var(--color-text);
+		text-decoration: none;
+		transition: background-color var(--transition-fast), color var(--transition-fast);
+
+		&:visited {
+			color: var(--color-text);
+		}
 
 		&:hover {
-			color: white;
+			background: var(--color-primary-tint);
+			color: var(--color-primary);
 		}
 
-		@media (min-width: 768px) {
-			padding: var(--space-xs) 0;
+		&:focus-visible {
+			outline: 2px solid var(--color-focus);
+			outline-offset: 2px;
+		}
 
-			&::after {
-				content: '';
-				position: absolute;
-				bottom: 0;
-				left: 0;
-				right: 0;
-				height: 2px;
-				background: var(--color-kowhai);
-				transform: scaleX(0);
-				transition: transform var(--transition-fast);
-			}
-
-			&:hover::after {
-				transform: scaleX(1);
-			}
+		/* Plum underline marks the current page */
+		&::after {
+			content: '';
+			position: absolute;
+			left: var(--space-sm);
+			right: var(--space-sm);
+			bottom: 2px;
+			height: 2px;
+			border-radius: 1px;
+			background: var(--color-primary);
+			transform: scaleX(0);
+			transition: transform var(--transition-fast);
 		}
 	}
 
-	.header__nav-link--active {
-		color: white;
+	.header__account {
+		font-size: var(--font-size-sm);
+	}
 
-		@media (min-width: 768px) {
-			&::after {
-				transform: scaleX(1);
-			}
+	.header__nav-link--active,
+	.header__account--active {
+		&,
+		&:visited {
+			color: var(--color-primary);
+			font-weight: 600;
+		}
+
+		&::after {
+			transform: scaleX(1);
 		}
 	}
 
 	.header__user {
 		display: flex;
 		align-items: center;
-		gap: var(--space-sm);
-		margin-top: var(--space-md);
-		padding-top: var(--space-md);
-		border-top: 1px solid rgba(255, 255, 255, 0.2);
+		gap: var(--space-xs);
+		margin-top: var(--space-sm);
+		padding-top: var(--space-sm);
+		border-top: 1px solid var(--color-border);
 
 		@media (min-width: 768px) {
 			margin-top: 0;
@@ -287,48 +323,30 @@
 		}
 	}
 
-	.header__account {
-		padding: var(--space-xs) 0;
-		color: rgba(255, 255, 255, 0.8);
-		font-size: var(--font-size-sm);
-		text-decoration: none;
-		transition: color var(--transition-fast);
-
-		&:hover {
-			color: white;
-		}
-	}
-
-	.header__account--active {
-		color: white;
-		text-decoration: underline;
-		text-decoration-color: var(--color-kowhai);
-		text-decoration-thickness: 2px;
-		text-underline-offset: 6px;
-	}
-
 	.header__logout {
-		padding: var(--space-xs) 0;
+		padding: var(--space-xs) var(--space-sm);
 		background: transparent;
 		border: none;
-		color: rgba(255, 255, 255, 0.8);
+		border-radius: var(--radius-sm);
+		color: var(--color-text-muted);
+		font: inherit;
 		font-size: var(--font-size-sm);
 		cursor: pointer;
-		transition: color var(--transition-fast);
+		transition: background-color var(--transition-fast), color var(--transition-fast);
 
 		&:hover {
-			color: white;
+			background: var(--color-primary-tint);
+			color: var(--color-primary);
+		}
+
+		&:focus-visible {
+			outline: 2px solid var(--color-focus);
+			outline-offset: 2px;
 		}
 	}
 
 	.header__login {
 		margin-left: auto;
-		color: rgba(255, 255, 255, 0.8);
-		text-decoration: none;
-		transition: color var(--transition-fast);
-
-		&:hover {
-			color: white;
-		}
+		color: var(--color-link);
 	}
 </style>

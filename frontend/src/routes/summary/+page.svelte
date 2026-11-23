@@ -421,8 +421,8 @@
 
 	.presets__option--active,
 	.presets__option--active:hover {
-		background: var(--color-moana);
-		color: white;
+		background: var(--color-primary);
+		color: var(--color-on-primary);
 		font-weight: 600;
 	}
 
@@ -736,7 +736,7 @@
 
 		summary {
 			cursor: pointer;
-			color: var(--color-moana);
+			color: var(--color-link);
 			font-weight: 500;
 			min-height: 44px;
 			display: flex;
@@ -785,7 +785,7 @@
 		font-weight: 400;
 
 		a {
-			color: var(--color-moana);
+			color: var(--color-link);
 		}
 	}
 

@@ -69,12 +69,12 @@
 			box-shadow var(--transition-fast);
 
 		&:hover {
-			border-color: var(--color-hinengaro);
+			border-color: var(--color-primary);
 			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 		}
 
 		&:focus-visible {
-			outline: 2px solid var(--color-hinengaro);
+			outline: 2px solid var(--color-primary);
 			outline-offset: 2px;
 		}
 	}

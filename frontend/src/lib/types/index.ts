@@ -43,7 +43,10 @@ export interface PillarConfig {
 	teReo: string;
 	/** Short English description, e.g. "Mind & emotions" */
 	theme: string;
+	/** Accent: icon, selected-tab marker, chart lines */
 	color: string;
+	/** Light background for the selected tab and small details */
+	tint: string;
 	/** Darker variant for chart lines when `color` is under 3:1 contrast on the surface */
 	chartColor?: string;
 	question: {

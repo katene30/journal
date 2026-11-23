@@ -193,7 +193,7 @@
 	<div class="loading">Loading...</div>
 {:else}
 	<div class="entry-page">
-	<StitchCorners color={currentPillarConfig?.color} />
+	<StitchCorners />
 	<div class="container">
 		{#if showSavedToast}
 			<div class="toast toast--success" transition:fly={{ y: -20, duration: 300 }}>&#10003; Saved</div>
@@ -325,7 +325,7 @@
 
 		<!-- Actions -->
 		<footer class="entry-actions">
-			<button type="button" class="btn btn--secondary" onclick={handleClearClick}>
+			<button type="button" class="btn btn--quiet" onclick={handleClearClick}>
 				Clear
 			</button>
 			<div class="entry-actions__right">
@@ -356,7 +356,7 @@
 				<h2 id="clear-dialog-title" class="dialog__title">Clear entry?</h2>
 				<p class="dialog__body">This will remove all unsaved changes for today's entry.</p>
 				<div class="dialog__actions">
-					<button type="button" class="btn btn--secondary" onclick={cancelClear}>
+					<button type="button" class="btn btn--quiet" onclick={cancelClear}>
 						Cancel
 					</button>
 					<button type="button" class="btn btn--danger" onclick={confirmClear}>
@@ -402,7 +402,7 @@
 	}
 
 	.error {
-		background: #fee;
+		background: var(--color-error-bg);
 		border: 1px solid var(--color-error);
 		color: var(--color-error);
 		padding: var(--space-sm);
@@ -425,13 +425,15 @@
 		font-family: var(--font-family);
 		font-size: var(--font-size-sm);
 		padding: var(--space-xs) var(--space-sm);
-		border: 1px solid var(--color-border);
+		background: var(--color-input);
+		color: var(--color-text);
+		border: 1px solid var(--color-control-border);
 		border-radius: var(--radius-sm);
 		cursor: pointer;
 
-		&:focus {
-			outline: none;
-			border-color: var(--color-focus);
+		&:focus-visible {
+			outline: 2px solid var(--color-focus);
+			outline-offset: 2px;
 		}
 	}
 
@@ -535,16 +537,17 @@
 		textarea {
 			width: 100%;
 			padding: var(--space-sm);
-			border: 1px solid var(--color-border);
+			background: var(--color-input);
+			color: var(--color-text);
+			border: 1px solid var(--color-control-border);
 			border-radius: var(--radius-md);
 			font-family: var(--font-family);
 			font-size: var(--font-size-base);
 			line-height: var(--line-height-base);
 
-			&:focus {
-				outline: none;
-				border-color: var(--color-focus);
-				box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+			&:focus-visible {
+				outline: 2px solid var(--color-focus);
+				outline-offset: 2px;
 			}
 
 			&::placeholder {

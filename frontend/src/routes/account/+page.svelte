@@ -109,7 +109,7 @@
 					<button type="submit" class="btn btn--danger" disabled={deleting || !password}>
 						{deleting ? 'Deleting…' : 'Permanently delete my account'}
 					</button>
-					<button type="button" class="btn btn--secondary" onclick={cancelDelete} disabled={deleting}>
+					<button type="button" class="btn btn--quiet" onclick={cancelDelete} disabled={deleting}>
 						Cancel
 					</button>
 				</div>

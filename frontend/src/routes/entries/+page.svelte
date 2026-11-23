@@ -90,7 +90,7 @@
 	}
 
 	.start-link {
-		color: var(--color-moana);
+		color: var(--color-link);
 		text-decoration: none;
 		font-weight: 500;
 

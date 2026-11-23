@@ -173,7 +173,7 @@
 		}
 
 		a {
-			color: var(--color-hinengaro);
+			color: var(--color-link);
 		}
 	}
 
@@ -195,7 +195,7 @@
 		padding: var(--space-sm) var(--space-md);
 		background: var(--color-surface);
 		border: 1px solid var(--color-border);
-		border-left: 4px solid var(--color-pounamu);
+		border-left: 4px solid var(--color-success);
 		border-radius: var(--radius-md);
 
 		p {

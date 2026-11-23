@@ -7,7 +7,8 @@ export const PILLARS: PillarConfig[] = [
 		name: 'Reflection',
 		teReo: 'Koiri',
 		theme: 'Your day',
-		color: '#5a6b73',
+		color: '#52636d',
+		tint: '#edf0f1',
 		question: {
 			maori: 'He pēhea tō rā i tēnei rā?',
 			english: 'How was your day today?'
@@ -34,7 +35,8 @@ export const PILLARS: PillarConfig[] = [
 		name: 'Hinengaro',
 		teReo: 'Koru',
 		theme: 'Mind & emotions',
-		color: '#1a4a5e',
+		color: '#20566d',
+		tint: '#e8f0f4',
 		question: {
 			maori: 'E pēhea ana tō hinengaro i tēnei rā?',
 			english: 'How is your mind today?'
@@ -71,7 +73,8 @@ export const PILLARS: PillarConfig[] = [
 		name: 'Tinana',
 		teReo: 'Mangopare',
 		theme: 'Physical wellbeing',
-		color: '#2d6a5a',
+		color: '#276757',
+		tint: '#e8f2ed',
 		question: {
 			maori: 'E pēhea ana tō tinana i tēnei rā?',
 			english: 'How is your body today?'
@@ -117,8 +120,8 @@ export const PILLARS: PillarConfig[] = [
 		name: 'Whānau',
 		teReo: 'Pikorua',
 		theme: 'Connection & belonging',
-		color: '#d4a03a',
-		chartColor: '#a8791f', // #d4a03a is 2.3:1 on the surface; this keeps the gold at 3.8:1
+		color: '#94600e',
+		tint: '#faefd8',
 		question: {
 			maori: 'E pēhea ana ō hononga i tēnei rā?',
 			english: 'How are your connections today?'
@@ -146,7 +149,8 @@ export const PILLARS: PillarConfig[] = [
 		name: 'Wairua',
 		teReo: 'Manaia',
 		theme: 'Spirit & meaning',
-		color: '#6b4a6e',
+		color: '#69466f',
+		tint: '#f1eaf2',
 		question: {
 			maori: 'E pēhea ana tō wairua i tēnei rā?',
 			english: 'How is your spirit today?'
@@ -174,7 +178,8 @@ export const PILLARS: PillarConfig[] = [
 		name: 'Mauriora',
 		teReo: 'Hei Tiki',
 		theme: 'Identity',
-		color: '#8b5a3c',
+		color: '#84523d',
+		tint: '#f5ebe5',
 		question: {
 			maori: 'I rongo koe i a koe anō i tēnei rā?',
 			english: 'Did you feel like yourself today?'
@@ -195,7 +200,8 @@ export const PILLARS: PillarConfig[] = [
 		name: 'Waiora',
 		teReo: 'Ngutukākā',
 		theme: 'Environment',
-		color: '#4a5d23',
+		color: '#52652b',
+		tint: '#eef2e4',
 		question: {
 			maori: 'E pēhea ana tō taiao i tēnei rā?',
 			english: 'How is your environment today?'

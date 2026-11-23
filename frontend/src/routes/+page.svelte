@@ -134,8 +134,9 @@
 	.hero {
 		text-align: center;
 		padding: var(--space-xxl) var(--space-md);
-		background: linear-gradient(135deg, var(--color-moana) 0%, var(--color-pounamu) 100%);
-		color: white;
+		background: var(--color-surface);
+		border-bottom: 1px solid var(--color-border);
+		color: var(--color-text);
 	}
 
 	:global(.main) {
@@ -149,7 +150,7 @@
 
 	.hero__subtitle {
 		font-size: var(--font-size-lg);
-		opacity: 0.9;
+		color: var(--color-text-muted);
 		margin-bottom: var(--space-xl);
 	}
 
@@ -158,24 +159,6 @@
 		justify-content: center;
 		gap: var(--space-sm);
 		flex-wrap: wrap;
-	}
-
-	.hero .btn--primary {
-		background: white;
-		color: var(--color-moana);
-
-		&:hover {
-			background: var(--color-kakahu);
-		}
-	}
-
-	.hero .btn--secondary {
-		border-color: white;
-		color: white;
-
-		&:hover {
-			background: rgba(255, 255, 255, 0.1);
-		}
 	}
 
 	.section {
@@ -222,12 +205,7 @@
 		display: block;
 		text-align: center;
 		margin-top: var(--space-md);
-		color: var(--color-moana);
-		text-decoration: none;
-
-		&:hover {
-			text-decoration: underline;
-		}
+		color: var(--color-link);
 	}
 
 	.features-grid {
@@ -248,7 +226,7 @@
 
 		h3 {
 			font-size: var(--font-size-base);
-			color: var(--color-moana);
+			color: var(--color-text);
 			margin-bottom: var(--space-sm);
 		}
 
@@ -288,7 +266,7 @@
 			color: var(--color-text);
 
 			strong {
-				color: var(--color-moana);
+				color: var(--color-text);
 			}
 		}
 	}

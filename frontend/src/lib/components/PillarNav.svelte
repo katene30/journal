@@ -31,13 +31,13 @@
 <nav class="pillar-nav" aria-label="Journal pillars">
 	<ul class="pillar-nav__list">
 		{#each PILLARS as pillar}
-			{@const iconColor = activePillar === pillar.id ? 'white' : pillar.color}
+			{@const iconColor = pillar.color}
 			<li class="pillar-nav__item">
 				<button
 					type="button"
 					class="pillar-nav__button"
 					class:pillar-nav__button--active={activePillar === pillar.id}
-					style="--pillar-color: {pillar.color}"
+					style="--pillar-color: {pillar.color}; --pillar-tint: {pillar.tint}"
 					aria-current={activePillar === pillar.id ? 'true' : undefined}
 					aria-label="{pillar.name} - {mauriStates?.[pillar.id] ?? 'untouched'}"
 					title={pillar.name}
@@ -106,6 +106,7 @@
 	}
 
 	.pillar-nav__button {
+		position: relative;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -113,20 +114,35 @@
 		gap: 2px;
 		padding: var(--space-sm);
 		background: var(--color-surface);
-		border: 2px solid transparent;
+		border: 1px solid var(--color-border);
 		border-radius: var(--radius-md);
+		overflow: hidden;
 		cursor: pointer;
-		transition: all var(--transition-fast);
+		transition: background-color var(--transition-fast), border-color var(--transition-fast);
 		width: 100%;
 		white-space: nowrap;
 
 		@media (min-width: 768px) {
 			width: 88px;
 		}
+
+		/* Selection marker: the same 3px accent underline on every tab */
+		&::after {
+			content: '';
+			position: absolute;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			height: 3px;
+			background: var(--pillar-color);
+			transform: scaleY(0);
+			transform-origin: bottom;
+			transition: transform var(--transition-fast);
+		}
 	}
 
 	.pillar-nav__button:hover {
-		border-color: var(--pillar-color);
+		background: var(--color-hover);
 	}
 
 	.pillar-nav__button:focus-visible {
@@ -134,15 +150,19 @@
 		outline-offset: 2px;
 	}
 
-	.pillar-nav__button--active {
-		background: var(--pillar-color);
-		border-color: var(--pillar-color);
+	.pillar-nav__button--active,
+	.pillar-nav__button--active:hover {
+		background: var(--pillar-tint);
+		border-color: color-mix(in srgb, var(--pillar-color) 35%, var(--color-border));
+
+		&::after {
+			transform: scaleY(1);
+		}
 	}
 
-	.pillar-nav__button--active .pillar-nav__icon,
-	.pillar-nav__button--active .pillar-nav__name,
-	.pillar-nav__button--active .pillar-nav__mauri {
-		color: white;
+	.pillar-nav__button--active .pillar-nav__name {
+		color: var(--color-text);
+		font-weight: 600;
 	}
 
 	.pillar-nav__icon {
@@ -161,7 +181,7 @@
 
 	.pillar-nav__name {
 		font-size: var(--font-size-xs);
-		color: var(--color-text-muted);
+		color: var(--color-text);
 	}
 
 	.pillar-nav__mauri {

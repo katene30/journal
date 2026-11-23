@@ -16,34 +16,57 @@
 	--content-max-width: 800px;
 	--page-gutter: 16px;
 
-	// Ngāpuhi palette - Te Tai Tokerau inspired
-	--color-moana: #1a4a5e;        // Deep harbour blue
-	--color-pounamu: #2d6a5a;      // Greenstone teal
-	--color-whenua: #3d2b1f;       // Rich earth brown
-	--color-kakahu: #f5f0e6;       // Warm cream (woven cloth)
-	--color-harakeke: #4a5d23;     // Flax green
-	--color-kowhai: #d4a03a;       // Kowhai gold
+	// Foundations: warm paper and ivory tie the pages together
+	--color-bg: #f7f1e7;               // Warm paper (page background, nav bar)
+	--color-surface: #fffdf8;          // Ivory (cards, panels, tiles)
+	--color-input: #ffffff;            // Text fields, journal area, date picker
+	--color-text: #302824;             // Ink: headings, labels, journal text
+	--color-text-muted: #5a504b;       // Dates, hints, supporting copy
+	--color-border: #ddd2c7;           // Dividers between groups
+	--color-control-border: #88796d;   // Field outlines, rating circles, outlined buttons
 
-	// Pillar colors (Ngāpuhi-inspired)
-	--color-reflection: #5a6b73;   // Koiri - muted stone grey
-	--color-hinengaro: #1a4a5e;    // Koru - deep moana blue
-	--color-tinana: #2d6a5a;       // Mangopare - pounamu green
-	--color-whanau: #d4a03a;       // Pikorua - kowhai gold
-	--color-wairua: #6b4a6e;       // Manaia - twilight purple
-	--color-mauriora: #8b5a3c;     // Hei Tiki - carved wood brown
-	--color-waiora: #4a5d23;       // Ngutukākā - harakeke green
+	// Primary: muted plum for app-wide actions and links
+	--color-primary: #613d4a;
+	--color-primary-hover: #52313e;
+	--color-primary-pressed: #432632;
+	--color-primary-tint: #f1e6ea;     // Nav hover
+	--color-on-primary: #fffdf8;       // Ivory text on plum
+	--color-link: var(--color-primary);
+	--color-link-hover: var(--color-primary-pressed);
 
-	// Neutral palette - warm, natural tones
-	--color-bg: #f7f4ef;           // Warm off-white
-	--color-surface: #fffefa;      // Soft cream white
-	--color-text: #2a2520;         // Warm black (not pure)
-	--color-text-muted: #6b635a;   // Warm grey
-	--color-border: #d9d4cb;       // Warm border
+	// Neutral button states (secondary and quiet buttons, tab hover)
+	--color-hover: #f2e9df;
+	--color-pressed: #e9dcd0;
+	--color-disabled-bg: #ece5de;
+	--color-disabled-text: #746a62;
 
-	// Interactive states
-	--color-focus: var(--color-moana);
-	--color-error: #a63d2f;        // Warmer red
-	--color-success: #3d6b4a;      // Warmer green
+	// Keyboard focus: a 2px ring with a 2px offset
+	--color-focus: var(--color-primary);
+	--color-focus-on-dark: #fffdf8;
+
+	// Feedback: text/icon colour, then its background
+	--color-error: #9c332c;
+	--color-error-bg: #fceeeb;
+	--color-error-hover: #842720;
+	--color-error-pressed: #6f211c;
+	--color-success: #28604b;
+	--color-success-bg: #e8f2ed;
+	--color-warning: #79500d;
+	--color-warning-bg: #faefd8;
+	--color-info: #20566d;
+	--color-info-bg: #e8f0f4;
+
+	// Decorative stitches on New Entry
+	--color-stitch: #84523d;
+
+	// Seven section accents (icon, selected-tab marker, charts) and tints
+	--color-reflection: #52636d;   --tint-reflection: #edf0f1;   // Slate
+	--color-hinengaro: #20566d;    --tint-hinengaro: #e8f0f4;    // Blue
+	--color-tinana: #276757;       --tint-tinana: #e8f2ed;       // Teal
+	--color-whanau: #94600e;       --tint-whanau: #faefd8;       // Ochre
+	--color-wairua: #69466f;       --tint-wairua: #f1eaf2;       // Purple
+	--color-mauriora: #84523d;     --tint-mauriora: #f5ebe5;     // Clay
+	--color-waiora: #52652b;       --tint-waiora: #eef2e4;       // Olive
 
 	// Typography
 	--font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;

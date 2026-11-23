@@ -112,8 +112,8 @@
 			height: 0;
 
 			&:checked + .semantic-scale__radio {
-				background: var(--pillar-color, var(--color-hinengaro));
-				border-color: var(--pillar-color, var(--color-hinengaro));
+				background: var(--pillar-color, var(--color-primary));
+				border-color: var(--pillar-color, var(--color-primary));
 			}
 
 			&:focus-visible + .semantic-scale__radio {
@@ -127,9 +127,9 @@
 		display: block;
 		width: 24px;
 		height: 24px;
-		border: 2px solid var(--color-border);
+		border: 2px solid var(--color-control-border);
 		border-radius: 50%;
-		background: var(--color-surface);
+		background: var(--color-input);
 		transition: all var(--transition-fast);
 
 		@media (min-width: 500px) {
@@ -138,8 +138,8 @@
 		}
 
 		&:hover {
-			border-color: var(--pillar-color, var(--color-hinengaro));
-			background: color-mix(in srgb, var(--pillar-color, var(--color-hinengaro)) 10%, white);
+			border-color: var(--pillar-color, var(--color-primary));
+			background: color-mix(in srgb, var(--pillar-color, var(--color-primary)) 12%, var(--color-input));
 		}
 	}
 

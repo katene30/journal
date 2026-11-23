@@ -220,7 +220,7 @@
 
 	.back-link {
 		display: inline-block;
-		color: var(--color-moana);
+		color: var(--color-link);
 		text-decoration: none;
 		margin-bottom: var(--space-md);
 

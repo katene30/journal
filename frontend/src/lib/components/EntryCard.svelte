@@ -107,7 +107,7 @@
 	}
 
 	.entry-card__link {
-		color: var(--color-moana);
+		color: var(--color-link);
 		text-decoration: none;
 		font-size: var(--font-size-sm);
 		font-weight: 500;
@@ -117,7 +117,7 @@
 		transition: color var(--transition-fast);
 
 		&:hover {
-			color: var(--color-pounamu);
+			color: var(--color-link-hover);
 		}
 	}
 </style>

@@ -1,13 +1,9 @@
 <!--
 	Decorative stitched corners behind the entry form.
 	Artwork: upper-left-stitch.svg and lower-right-stitch.svg, inlined so the
-	stroke can follow the active pillar's colour (currentColor).
+	stroke colour comes from CSS (currentColor).
 -->
-<script lang="ts">
-	let { color = 'var(--color-text)' }: { color?: string } = $props();
-</script>
-
-<div class="stitches" style="color: {color}" aria-hidden="true">
+<div class="stitches" aria-hidden="true">
 	<svg class="stitches__tl" viewBox="0 0 288 507" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<line x1="7.07107" y1="448" x2="59" y2="499.929" stroke-width="10" stroke-linecap="round" stroke="currentColor"/>
 		<line x1="59" y1="448.071" x2="7.07107" y2="500" stroke-width="10" stroke-linecap="round" stroke="currentColor"/>
@@ -66,8 +62,8 @@
 		z-index: 0;
 		overflow: hidden;
 		pointer-events: none;
-		opacity: 0.14;
-		transition: color 400ms ease;
+		color: var(--color-stitch);
+		opacity: 0.15;
 	}
 
 	svg {
@@ -92,12 +88,6 @@
 	@media (min-width: 768px) {
 		.stitches {
 			display: block;
-		}
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		.stitches {
-			transition: none;
 		}
 	}
 </style>
