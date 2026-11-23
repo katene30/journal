@@ -120,10 +120,19 @@
 	line-height: var(--line-height-base);
 }
 
+.auth-footer--small {
+	margin-top: var(--space-xs);
+	font-size: var(--font-size-xs);
+}
+
 .auth-hint {
 	margin: 0;
 	font-size: var(--font-size-xs);
 	color: var(--color-text-muted);
+
+	a {
+		color: var(--color-hinengaro);
+	}
 }
 
 .form-group__label-row {

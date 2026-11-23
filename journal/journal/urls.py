@@ -6,6 +6,7 @@ from django.conf import settings
 import mimetypes
 import os
 
+from .account_views import AccountDeleteView, AccountExportView
 from .views import ThrottledPasswordResetView, spa_view
 
 mimetypes.add_type('application/manifest+json', '.webmanifest')
@@ -23,6 +24,10 @@ urlpatterns = [
     path('api/auth/password/reset/', ThrottledPasswordResetView.as_view(), name='rest_password_reset'),
     path('api/auth/', include('dj_rest_auth.urls')),
     path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
+
+    # Account: data export and deletion
+    path('api/account/export/', AccountExportView.as_view(), name='account_export'),
+    path('api/account/delete/', AccountDeleteView.as_view(), name='account_delete'),
 
     # API
     path('api/', include('entries.api_urls')),

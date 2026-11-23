@@ -96,6 +96,11 @@
 				/>
 			</div>
 
+			<p class="auth-hint">
+				Your journal is private to you. Read how it's stored and protected in the
+				<a href="/app/privacy">privacy policy</a>.
+			</p>
+
 			<button type="submit" class="auth-button" disabled={loading}>
 				{loading ? 'Creating account...' : 'Create Account'}
 			</button>

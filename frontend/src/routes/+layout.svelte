@@ -8,9 +8,14 @@
 
 	let { children } = $props();
 
-	const publicRoutes = ['/app/login', '/app/register', '/app/forgot-password', '/app/reset-password'];
+	// Signed-in users are sent home from these
+	const authRoutes = ['/app/login', '/app/register', '/app/forgot-password', '/app/reset-password'];
+	// Anyone can view these, signed in or not
+	const openRoutes = ['/app/privacy'];
 
-	const isPublicRoute = $derived(publicRoutes.some(route => $page.url.pathname.startsWith(route)));
+	const matches = (routes: string[], path: string) => routes.some((route) => path.startsWith(route));
+
+	const isAuthRoute = $derived(matches(authRoutes, $page.url.pathname));
 
 	onMount(() => {
 		authActions.checkAuth();
@@ -18,14 +23,13 @@
 
 	$effect(() => {
 		const path = $page.url.pathname;
-		const isPublicRoute = publicRoutes.some(route => path.startsWith(route));
+		if ($authLoading || matches(openRoutes, path)) return;
 
-		if (!$authLoading) {
-			if (!$isAuthenticated && !isPublicRoute) {
-				goto('/app/login');
-			} else if ($isAuthenticated && isPublicRoute) {
-				goto('/app');
-			}
+		const isAuthRoute = matches(authRoutes, path);
+		if (!$isAuthenticated && !isAuthRoute) {
+			goto('/app/login');
+		} else if ($isAuthenticated && isAuthRoute) {
+			goto('/app');
 		}
 	});
 </script>
@@ -41,7 +45,7 @@
 	<a href="#main-content" class="skip-link">Skip to main content</a>
 
 	<div class="page">
-		{#if !isPublicRoute && $isAuthenticated}
+		{#if !isAuthRoute && $isAuthenticated}
 			<Header />
 		{/if}
 		<main id="main-content" class="main">

@@ -3,10 +3,12 @@
 The most important guarantee in this app: a user can only ever see and change
 their own journal entries. Everything else here supports that.
 """
+import csv
+import io
+import json
+import re
 from datetime import date, datetime, timedelta, timezone as dt_timezone
 from unittest import mock
-
-import re
 
 from django.contrib.auth.models import User
 from django.core import mail
@@ -421,3 +423,118 @@ class PasswordResetTests(APITestCase):
         }, format='json')
 
         self.assertEqual(len(mail.outbox), 0)
+
+
+class AccountExportTests(APITestCase):
+    url = '/api/account/export/'
+
+    def setUp(self):
+        self.user = make_user('kia@example.com')
+        JournalEntry.objects.create(
+            user=self.user, date=date(2026, 3, 2), mood=4,
+            log='Haere mai, whānau.\nSecond line, with "quotes"',
+        )
+        JournalEntry.objects.create(user=self.user, date=date(2026, 3, 1), mood=2)
+        JournalEntry.objects.create(user=make_user('other@example.com'), date=date(2026, 3, 1), log='not yours')
+        self.client.force_authenticate(self.user)
+
+    def test_requires_login(self):
+        self.client.force_authenticate(None)
+
+        self.assertEqual(self.client.get(self.url).status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_json_contains_account_and_only_own_entries_oldest_first(self):
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('attachment; filename="hauora-journal-', response['Content-Disposition'])
+        self.assertTrue(response['Content-Disposition'].endswith('.json"'))
+        self.assertEqual(response['Cache-Control'], 'no-store')
+        data = json.loads(response.content)
+        self.assertEqual(data['account']['email'], 'kia@example.com')
+        self.assertEqual([e['date'] for e in data['entries']], ['2026-03-01', '2026-03-02'])
+        self.assertEqual(data['entries'][1]['log'], 'Haere mai, whānau.\nSecond line, with "quotes"')
+        self.assertNotIn('not yours', response.content.decode())
+
+    def test_csv_has_one_row_per_entry_and_survives_newlines(self):
+        response = self.client.get(self.url, {'file': 'csv'})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response['Content-Type'].startswith('text/csv'))
+        text = response.content.decode('utf-8')
+        self.assertTrue(text.startswith('﻿'), 'BOM so Excel shows macrons')
+        rows = list(csv.DictReader(io.StringIO(text.lstrip('﻿'))))
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(rows[0]['date'], '2026-03-01')
+        self.assertEqual(rows[1]['log'], 'Haere mai, whānau.\nSecond line, with "quotes"')
+        self.assertNotIn('id', rows[0])
+
+    def test_unknown_format_rejected(self):
+        self.assertEqual(self.client.get(self.url, {'file': 'xml'}).status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class AccountDeleteTests(APITestCase):
+    url = '/api/account/delete/'
+
+    def setUp(self):
+        cache.clear()  # throttle counts live in the cache
+        self.user = make_user('kia@example.com')
+        JournalEntry.objects.create(user=self.user, date=date(2026, 3, 1), log='mine')
+        self.other = make_user('other@example.com')
+        JournalEntry.objects.create(user=self.other, date=date(2026, 3, 1), log='theirs')
+        self.client.login(username='kia@example.com', password=PASSWORD)
+
+    def delete_account(self, password=PASSWORD):
+        return self.client.post(self.url, {'password': password}, format='json')
+
+    def test_deletes_user_and_their_entries_only(self):
+        response = self.delete_account()
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(User.objects.filter(email='kia@example.com').exists())
+        self.assertEqual(list(JournalEntry.objects.values_list('log', flat=True)), ['theirs'])
+        self.assertTrue(User.objects.filter(pk=self.other.pk).exists())
+
+    def test_session_is_logged_out(self):
+        self.delete_account()
+
+        self.assertEqual(self.client.get('/api/auth/user/').status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_wrong_or_missing_password_keeps_account(self):
+        for password in ('wrong-password', ''):
+            with self.subTest(password=password):
+                response = self.delete_account(password)
+
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertIn('password', response.json())
+        self.assertTrue(User.objects.filter(pk=self.user.pk).exists())
+        self.assertEqual(JournalEntry.objects.count(), 2)
+
+    def test_requires_login(self):
+        self.client.logout()
+
+        self.assertEqual(self.delete_account().status_code, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(User.objects.filter(pk=self.user.pk).exists())
+
+    def test_requires_csrf_token(self):
+        csrf_client = APIClient(enforce_csrf_checks=True)
+        csrf_client.login(username='kia@example.com', password=PASSWORD)
+
+        response = csrf_client.post(self.url, {'password': PASSWORD}, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(User.objects.filter(pk=self.user.pk).exists())
+
+    def test_password_guessing_is_throttled(self):
+        for _ in range(5):
+            self.delete_account('wrong-password')
+
+        self.assertEqual(self.delete_account().status_code, status.HTTP_429_TOO_MANY_REQUESTS)
+        self.assertTrue(User.objects.filter(pk=self.user.pk).exists())
+
+
+class PrivacyPageTests(APITestCase):
+    def test_privacy_and_account_pages_are_spa_routes(self):
+        for url in ('/app/privacy', '/app/account'):
+            with self.subTest(url=url):
+                self.assertIn(self.client.get(url).status_code, (200, 503))

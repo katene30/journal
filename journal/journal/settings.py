@@ -174,6 +174,8 @@ PASSWORD_RESET_TIMEOUT = 60 * 60
 REST_FRAMEWORK['DEFAULT_THROTTLE_RATES'] = {
     # Per IP; stops the reset form being used to flood someone's inbox
     'password_reset': '5/hour',
+    # Per user; limits password guessing from a logged-in session
+    'account_delete': '5/hour',
 }
 
 # Email: SMTP when EMAIL_HOST is set (production), otherwise printed to the console

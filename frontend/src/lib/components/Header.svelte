@@ -97,6 +97,15 @@
 				</ul>
 
 				<div class="header__user">
+					<a
+						href="/app/account"
+						class="header__account"
+						class:header__account--active={isActive('/app/account')}
+						aria-current={isActive('/app/account') ? 'page' : undefined}
+						onclick={closeMenu}
+					>
+						Account
+					</a>
 					<button
 						type="button"
 						class="header__logout"
@@ -276,6 +285,26 @@
 			border-top: none;
 			margin-left: auto;
 		}
+	}
+
+	.header__account {
+		padding: var(--space-xs) 0;
+		color: rgba(255, 255, 255, 0.8);
+		font-size: var(--font-size-sm);
+		text-decoration: none;
+		transition: color var(--transition-fast);
+
+		&:hover {
+			color: white;
+		}
+	}
+
+	.header__account--active {
+		color: white;
+		text-decoration: underline;
+		text-decoration-color: var(--color-kowhai);
+		text-decoration-thickness: 2px;
+		text-underline-offset: 6px;
 	}
 
 	.header__logout {
