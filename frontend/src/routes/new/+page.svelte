@@ -3,6 +3,7 @@
 	import { fly } from 'svelte/transition';
 	import BackToTop from '$lib/components/BackToTop.svelte';
 	import PillarNav from '$lib/components/PillarNav.svelte';
+	import StitchCorners from '$lib/components/StitchCorners.svelte';
 	import SemanticScale from '$lib/components/SemanticScale.svelte';
 	import { PILLARS } from '$lib/config/pillars';
 	import type { PillarId } from '$lib/types';
@@ -191,6 +192,8 @@
 {#if loading}
 	<div class="loading">Loading...</div>
 {:else}
+	<div class="entry-page">
+	<StitchCorners color={currentPillarConfig?.color} />
 	<div class="container">
 		{#if showSavedToast}
 			<div class="toast toast--success" transition:fly={{ y: -20, duration: 300 }}>&#10003; Saved</div>
@@ -364,11 +367,33 @@
 		</div>
 	{/if}
 
+	</div>
+
 	<BackToTop />
 {/if}
 
 <style lang="scss">
 	@use '$lib/scss/mixins' as mx;
+
+	/* Let the page fill the space under the header so the lower-right
+	   stitches sit at the bottom of the screen, even on short pillars */
+	:global(.main:has(> .entry-page)) {
+		display: flex;
+		flex-direction: column;
+		padding-block: 0;
+	}
+
+	.entry-page {
+		position: relative;
+		isolation: isolate;
+		flex: 1;
+		padding-block: var(--space-lg);
+
+		> .container {
+			position: relative;
+			z-index: 1;
+		}
+	}
 
 	.loading {
 		text-align: center;
