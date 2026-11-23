@@ -58,7 +58,8 @@
 						<a
 							href="/app"
 							class="header__nav-link"
-							class:header__nav-link--active={isActive('/app') && !isActive('/app/entries') && !isActive('/app/new') && !isActive('/app/summary')}
+							class:header__nav-link--active={isActive('/app')}
+							aria-current={isActive('/app') ? 'page' : undefined}
 							onclick={closeMenu}
 						>
 							Home
@@ -179,7 +180,7 @@
 			outline-offset: 2px;
 		}
 
-		@media (min-width: 768px) {
+		@media (min-width: 900px) {
 			display: none;
 		}
 	}
@@ -216,7 +217,7 @@
 		padding: var(--space-md);
 		box-shadow: var(--shadow-md);
 
-		@media (min-width: 768px) {
+		@media (min-width: 900px) {
 			display: flex;
 			align-items: center;
 			gap: var(--space-lg);
@@ -231,7 +232,7 @@
 	.header__nav--open {
 		display: block;
 
-		@media (min-width: 768px) {
+		@media (min-width: 900px) {
 			display: flex;
 		}
 	}
@@ -244,7 +245,7 @@
 		flex-direction: column;
 		gap: var(--space-xxs);
 
-		@media (min-width: 768px) {
+		@media (min-width: 900px) {
 			flex-direction: row;
 			gap: var(--space-xs);
 		}
@@ -315,7 +316,7 @@
 		padding-top: var(--space-sm);
 		border-top: 1px solid var(--color-border);
 
-		@media (min-width: 768px) {
+		@media (min-width: 900px) {
 			margin-top: 0;
 			padding-top: 0;
 			border-top: none;
