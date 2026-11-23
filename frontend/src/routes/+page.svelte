@@ -3,6 +3,7 @@
 	import { isAuthenticated } from '$lib/stores/auth';
 	import { entriesApi, type EntryListItem } from '$lib/api/entries';
 	import EntryCard from '$lib/components/EntryCard.svelte';
+	import NihoTaniwha from '$lib/components/NihoTaniwha.svelte';
 	import ArrowRightIcon from '$lib/icons/ArrowRightIcon.svelte';
 
 	let recentEntries = $state<EntryListItem[]>([]);
@@ -24,25 +25,33 @@
 <div class="home">
 	<!-- Hero Section -->
 	<section class="hero reading-column">
-		<h1>Hauora Journal</h1>
-		<p class="hero__subtitle">Holistic wellbeing tracking, rooted in te ao Māori</p>
+		<!-- Title, summary and buttons read as one block; the motif spans its height -->
+		<div class="hero__content">
+			<h1>Hauora Journal</h1>
+			<p class="hero__subtitle">Holistic wellbeing tracking, rooted in te ao Māori</p>
 
-		<div class="hero__actions">
-			{#if $isAuthenticated}
-				<a href="/app/new" class="btn btn--primary">
-					New Entry <ArrowRightIcon />
-				</a>
-				<a href="/app/summary" class="btn btn--secondary">
-					View Summary
-				</a>
-			{:else}
-				<a href="/app/login" class="btn btn--primary">
-					Login <ArrowRightIcon />
-				</a>
-				<a href="/app/register" class="btn btn--secondary">
-					Sign Up
-				</a>
-			{/if}
+			<div class="hero__actions">
+				{#if $isAuthenticated}
+					<a href="/app/new" class="btn btn--primary">
+						New Entry <ArrowRightIcon />
+					</a>
+					<a href="/app/summary" class="btn btn--secondary">
+						View Summary
+					</a>
+				{:else}
+					<a href="/app/login" class="btn btn--primary">
+						Login <ArrowRightIcon />
+					</a>
+					<a href="/app/register" class="btn btn--secondary">
+						Sign Up
+					</a>
+				{/if}
+			</div>
+		</div>
+		<div class="hero__motif">
+			<div class="hero__motif-art">
+				<NihoTaniwha />
+			</div>
 		</div>
 	</section>
 
@@ -132,7 +141,10 @@
 	}
 
 	.hero {
-		--reading-max: 900px;
+		--reading-max: 1000px;
+		display: flex;
+		align-items: stretch;
+		gap: var(--space-xl);
 		padding-block: var(--space-xxl) var(--space-lg);
 		color: var(--color-text);
 	}
@@ -142,9 +154,39 @@
 		padding: 0;
 	}
 
+	.hero__content {
+		flex: 0 1 auto;
+		min-width: 0;
+	}
+
 	.hero h1 {
 		font-size: clamp(2rem, 5vw, 3rem);
-		margin-bottom: var(--space-sm);
+		margin: 0 0 var(--space-sm);
+	}
+
+	/* Takes the remaining width and stretches to the text block's height */
+	.hero__motif {
+		position: relative;
+		flex: 1 1 0;
+		min-width: 0;
+		opacity: 0.6;
+
+		/* No room beside the text on phones */
+		@media (max-width: 767px) {
+			display: none;
+		}
+	}
+
+	/* Pinned to the block's top and bottom, less padding, and centred in the
+	   space beside the text so it neither crowds nor drifts; width follows the artwork */
+	.hero__motif-art {
+		position: absolute;
+		top: var(--space-sm);
+		bottom: var(--space-sm);
+		left: 50%;
+		transform: translateX(-50%);
+		aspect-ratio: 1825 / 944;
+		max-width: 100%;
 	}
 
 	.hero__subtitle {
