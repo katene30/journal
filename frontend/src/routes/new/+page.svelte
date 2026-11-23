@@ -430,7 +430,6 @@
 
 	.entry-date {
 		font-size: var(--font-size-xl);
-		font-weight: 400;
 		margin: 0 0 var(--space-sm);
 	}
 
@@ -506,22 +505,25 @@
 		}
 	}
 
+	/* Flat selectors: Svelte styles aren't run through Sass, so &__maori wouldn't apply */
 	.pillar-question {
 		text-align: center;
 		margin-bottom: var(--space-md);
+	}
 
-		&__maori {
-			font-size: var(--font-size-lg);
-			font-style: italic;
-			color: var(--pillar-color);
-			margin-bottom: var(--space-xs);
-		}
+	.pillar-question__maori {
+		font-family: var(--font-family-display);
+		font-size: var(--font-size-xl);
+		font-weight: 500;
+		line-height: var(--line-height-tight);
+		color: var(--pillar-color);
+		margin-bottom: var(--space-xs);
+	}
 
-		&__english {
-			font-size: var(--font-size-base);
-			color: var(--color-text-muted);
-			margin: 0;
-		}
+	.pillar-question__english {
+		font-size: var(--font-size-base);
+		color: var(--color-text-muted);
+		margin: 0;
 	}
 
 	.pillar-scales {

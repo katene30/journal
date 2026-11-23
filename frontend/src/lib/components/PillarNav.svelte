@@ -180,7 +180,8 @@
 	}
 
 	.pillar-nav__name {
-		font-size: var(--font-size-xs);
+		font-size: var(--font-size-sm);
+		font-weight: 500;
 		color: var(--color-text);
 	}
 

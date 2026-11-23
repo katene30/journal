@@ -1,4 +1,6 @@
 <script lang="ts">
+	import '@fontsource-variable/dm-sans/opsz.css';
+	import '@fontsource-variable/newsreader/opsz.css';
 	import '$lib/scss/main.scss';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';

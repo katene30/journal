@@ -160,7 +160,7 @@
 	}
 
 	.hero h1 {
-		font-size: clamp(2rem, 5vw, 3rem);
+		font-size: clamp(2.25rem, 5vw, 3rem);
 		margin: 0 0 var(--space-sm);
 	}
 
@@ -207,7 +207,7 @@
 		padding-block: var(--space-xl);
 
 		h2 {
-			font-size: var(--font-size-xl);
+			font-size: var(--font-size-heading);
 			color: var(--color-text);
 			margin-bottom: var(--space-lg);
 		}
