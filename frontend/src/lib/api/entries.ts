@@ -30,6 +30,7 @@ export interface Entry {
 	social_interactions_quality: number | null;
 	// Wairua
 	sense_of_meaning: number | null;
+	spiritual_connection: number | null;
 	// Mauriora
 	felt_like_myself: number | null;
 	// Waiora
@@ -47,7 +48,7 @@ export type ScaleField =
 	| 'mood' | 'anxiety_level' | 'stress_level'
 	| 'sleep_quality' | 'exercise_level' | 'diet_quality' | 'energy_level'
 	| 'social_connection' | 'social_interactions_quality'
-	| 'sense_of_meaning' | 'felt_like_myself' | 'environment_quality'
+	| 'sense_of_meaning' | 'spiritual_connection' | 'felt_like_myself' | 'environment_quality'
 	| 'overall_day_rating';
 
 export type EntryScales = { id: number; date: string } & Record<ScaleField, number | null>;

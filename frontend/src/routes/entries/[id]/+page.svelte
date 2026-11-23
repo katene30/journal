@@ -3,7 +3,12 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { entriesApi, type Entry } from '$lib/api/entries';
+	import { PILLARS, describeScaleValue, getPillarById } from '$lib/config/pillars';
+	import { SCALE_MAX, formatScore, pillarScore } from '$lib/utils/hauora';
 	import ArrowRightIcon from '$lib/icons/ArrowRightIcon.svelte';
+
+	const OVERVIEW_PILLARS = PILLARS.filter((p) => p.id !== 'reflection');
+	const overallScale = getPillarById('reflection')!.scales[0];
 
 	let entry = $state<Entry | null>(null);
 	let loading = $state(true);
@@ -32,10 +37,20 @@
 		});
 	}
 
-	function getRatingLabel(value: number | null): string {
-		if (value === null) return '—';
-		return `${value}/10`;
-	}
+	const scaleValue = (field: string) => (entry as Record<string, unknown> | null)?.[field] as number | null;
+
+	// Extra Tinana details that aren't 1-5 ratings
+	const tinanaExtras = $derived(
+		entry
+			? [
+					entry.sleep_hours !== null && { label: 'Hours of sleep', value: `${entry.sleep_hours}h` },
+					entry.alcohol_caffeine_consumption && {
+						label: 'Alcohol/caffeine',
+						value: entry.alcohol_caffeine_consumption
+					}
+				].filter((x): x is { label: string; value: string } => Boolean(x))
+			: []
+	);
 
 	async function handleDelete() {
 		if (!entry) return;
@@ -63,7 +78,10 @@
 		<header class="entry-header">
 			<h1>{formatDate(entry.date)}</h1>
 			{#if entry.overall_day_rating !== null}
-				<span class="overall-rating">Overall: {entry.overall_day_rating}/10</span>
+				<p class="overall-rating">
+					Overall day <strong>{entry.overall_day_rating}</strong><span class="out-of">/ {SCALE_MAX}</span>
+					· {describeScaleValue(entry.overall_day_rating, overallScale)}
+				</p>
 			{/if}
 		</header>
 
@@ -102,59 +120,72 @@
 			</section>
 		{/if}
 
-		<!-- Hauora Overview -->
-		<section class="section">
-			<h2>Hauora Overview</h2>
+		<!-- Hauora Overview: one indicator per pillar, details on request -->
+		<section class="section" aria-labelledby="overview-heading">
+			<h2 id="overview-heading">Hauora overview</h2>
+			<p class="section__intro">Select a pillar to see what went into it.</p>
+
 			<div class="pillars-grid">
-				<div class="pillar-card" style="--pillar-color: var(--color-hinengaro)">
-					<h3>Hinengaro</h3>
-					<dl>
-						<div><dt>Mood</dt><dd>{getRatingLabel(entry.mood)}</dd></div>
-						<div><dt>Anxiety</dt><dd>{getRatingLabel(entry.anxiety_level)}</dd></div>
-						<div><dt>Stress</dt><dd>{getRatingLabel(entry.stress_level)}</dd></div>
-					</dl>
-				</div>
+				{#each OVERVIEW_PILLARS as pillar (pillar.id)}
+					{@const result = pillarScore(pillar, entry)}
+					<details
+						class="pillar"
+						style="--pillar-color: {pillar.color}; --pillar-ink: {pillar.chartColor ?? pillar.color}"
+					>
+						<summary>
+							<span class="pillar__heading">
+								<span class="pillar__name">{pillar.name}</span>
+								<span class="pillar__theme">{pillar.theme}</span>
+							</span>
+							{#if result.score !== null}
+								<span class="pillar__score">
+									<strong>{formatScore(result.score)}</strong><span class="out-of">/ {SCALE_MAX}</span>
+								</span>
+								<span class="pillar__meter" aria-hidden="true">
+									<span style="width: {(result.score / SCALE_MAX) * 100}%"></span>
+								</span>
+								{#if result.rated < result.total}
+									<span class="pillar__note">{result.rated} of {result.total} rated</span>
+								{/if}
+							{:else}
+								<span class="pillar__score pillar__score--empty">Not rated</span>
+							{/if}
+						</summary>
 
-				<div class="pillar-card" style="--pillar-color: var(--color-tinana)">
-					<h3>Tinana</h3>
-					<dl>
-						<div><dt>Sleep</dt><dd>{entry.sleep_hours ? `${entry.sleep_hours}h` : '—'}</dd></div>
-						<div><dt>Sleep quality</dt><dd>{getRatingLabel(entry.sleep_quality)}</dd></div>
-						<div><dt>Exercise</dt><dd>{getRatingLabel(entry.exercise_level)}</dd></div>
-						<div><dt>Diet</dt><dd>{getRatingLabel(entry.diet_quality)}</dd></div>
-						<div><dt>Energy</dt><dd>{getRatingLabel(entry.energy_level)}</dd></div>
-					</dl>
-				</div>
-
-				<div class="pillar-card" style="--pillar-color: var(--color-whanau)">
-					<h3>Whānau</h3>
-					<dl>
-						<div><dt>Connection</dt><dd>{getRatingLabel(entry.social_connection)}</dd></div>
-						<div><dt>Quality</dt><dd>{getRatingLabel(entry.social_interactions_quality)}</dd></div>
-					</dl>
-				</div>
-
-				<div class="pillar-card" style="--pillar-color: var(--color-wairua)">
-					<h3>Wairua</h3>
-					<dl>
-						<div><dt>Sense of meaning</dt><dd>{getRatingLabel(entry.sense_of_meaning)}</dd></div>
-					</dl>
-				</div>
-
-				<div class="pillar-card" style="--pillar-color: var(--color-mauriora)">
-					<h3>Mauriora</h3>
-					<dl>
-						<div><dt>Felt like myself</dt><dd>{getRatingLabel(entry.felt_like_myself)}</dd></div>
-					</dl>
-				</div>
-
-				<div class="pillar-card" style="--pillar-color: var(--color-waiora)">
-					<h3>Waiora</h3>
-					<dl>
-						<div><dt>Environment</dt><dd>{getRatingLabel(entry.environment_quality)}</dd></div>
-					</dl>
-				</div>
+						<dl class="pillar__details">
+							{#each pillar.scales as scale (scale.id)}
+								{@const value = scaleValue(scale.id)}
+								<div>
+									<dt>{scale.title}</dt>
+									<dd>
+										{#if value !== null}
+											<strong>{value}</strong> {describeScaleValue(value, scale)}
+										{:else}
+											<span class="muted">Not rated</span>
+										{/if}
+									</dd>
+								</div>
+							{/each}
+							{#if pillar.id === 'tinana'}
+								{#each tinanaExtras as extra (extra.label)}
+									<div>
+										<dt>{extra.label}</dt>
+										<dd>{extra.value}</dd>
+									</div>
+								{/each}
+							{/if}
+						</dl>
+						{#if pillar.scales.some((s) => s.reversed)}
+							<p class="pillar__hint">Calmer and more relaxed raise this score.</p>
+						{/if}
+					</details>
+				{/each}
 			</div>
+
+			<p class="overview-note">
+				Each score is the average of that pillar's ratings for the day, from 1 to 5. It's a personal
+				snapshot of how the day felt, not a measure of your hauora.
+			</p>
 		</section>
 
 		<!-- Actions -->
@@ -209,11 +240,22 @@
 	}
 
 	.overall-rating {
-		display: inline-block;
-		padding: var(--space-xs) var(--space-sm);
-		background: var(--color-bg);
-		border-radius: var(--radius-md);
+		margin: 0;
+		color: var(--color-text-muted);
+
+		strong {
+			color: var(--color-text);
+			font-size: var(--font-size-lg);
+		}
+	}
+
+	.out-of {
+		margin-left: 2px;
 		font-size: var(--font-size-sm);
+		color: var(--color-text-muted);
+	}
+
+	.muted {
 		color: var(--color-text-muted);
 	}
 
@@ -227,6 +269,12 @@
 			padding-bottom: var(--space-xs);
 			border-bottom: 1px solid var(--color-border);
 		}
+	}
+
+	.section__intro {
+		margin: calc(var(--space-xs) - var(--space-md)) 0 var(--space-sm);
+		font-size: var(--font-size-sm);
+		color: var(--color-text-muted);
 	}
 
 	.field {
@@ -251,8 +299,9 @@
 
 	.pillars-grid {
 		display: grid;
-		gap: var(--space-md);
+		gap: var(--space-sm);
 		grid-template-columns: 1fr;
+		align-items: start;
 
 		@media (min-width: 500px) {
 			grid-template-columns: repeat(2, 1fr);
@@ -263,27 +312,121 @@
 		}
 	}
 
-	.pillar-card {
+	.pillar {
 		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-left: 4px solid var(--pillar-color);
 		border-radius: var(--radius-md);
-		padding: var(--space-md);
-		border-left: 3px solid var(--pillar-color);
 
-		h3 {
-			font-size: var(--font-size-base);
-			color: var(--pillar-color);
-			margin-bottom: var(--space-sm);
+		&[open] summary::after {
+			transform: translateY(4px) rotate(-135deg);
+		}
+	}
+
+	summary {
+		position: relative;
+		display: grid;
+		grid-template-columns: 1fr auto;
+		align-items: baseline;
+		gap: var(--space-xs) var(--space-sm);
+		padding: var(--space-sm) calc(var(--space-sm) + 20px) var(--space-sm) var(--space-sm);
+		cursor: pointer;
+		list-style: none;
+		border-radius: var(--radius-md);
+
+		&::-webkit-details-marker {
+			display: none;
 		}
 
-		dl {
-			display: flex;
-			flex-direction: column;
-			gap: var(--space-xs);
+		/* Chevron */
+		&::after {
+			content: '';
+			position: absolute;
+			top: calc(var(--space-sm) + 6px);
+			right: var(--space-sm);
+			width: 8px;
+			height: 8px;
+			border-right: 2px solid var(--color-text-muted);
+			border-bottom: 2px solid var(--color-text-muted);
+			transform: rotate(45deg);
+			transform-origin: 60% 60%;
+			transition: transform var(--transition-fast);
 		}
 
-		dl > div {
+		&:hover::after {
+			border-color: var(--color-text);
+		}
+
+		&:focus-visible {
+			outline: 2px solid var(--color-focus);
+			outline-offset: 2px;
+		}
+	}
+
+	.pillar__heading {
+		display: flex;
+		flex-direction: column;
+		min-width: 0;
+	}
+
+	.pillar__name {
+		font-weight: 600;
+		color: var(--pillar-ink);
+	}
+
+	.pillar__theme {
+		font-size: var(--font-size-xs);
+		color: var(--color-text-muted);
+	}
+
+	.pillar__score {
+		white-space: nowrap;
+
+		strong {
+			font-size: var(--font-size-xl);
+			font-variant-numeric: tabular-nums;
+			color: var(--color-text);
+		}
+	}
+
+	.pillar__score--empty {
+		font-size: var(--font-size-sm);
+		color: var(--color-text-muted);
+	}
+
+	.pillar__meter {
+		grid-column: 1 / -1;
+		height: 6px;
+		border-radius: var(--radius-full);
+		background: color-mix(in srgb, var(--pillar-color) 15%, var(--color-surface));
+		overflow: hidden;
+
+		span {
+			display: block;
+			height: 100%;
+			border-radius: var(--radius-full);
+			background: var(--pillar-ink);
+		}
+	}
+
+	.pillar__note {
+		grid-column: 1 / -1;
+		font-size: var(--font-size-xs);
+		color: var(--color-text-muted);
+	}
+
+	.pillar__details {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-xs);
+		margin: 0;
+		padding: var(--space-sm);
+		border-top: 1px solid var(--color-border);
+
+		> div {
 			display: flex;
 			justify-content: space-between;
+			gap: var(--space-sm);
 			font-size: var(--font-size-sm);
 		}
 
@@ -292,9 +435,23 @@
 		}
 
 		dd {
+			margin: 0;
+			text-align: right;
 			color: var(--color-text);
-			font-weight: 500;
 		}
+	}
+
+	.pillar__hint {
+		margin: 0;
+		padding: 0 var(--space-sm) var(--space-sm);
+		font-size: var(--font-size-xs);
+		color: var(--color-text-muted);
+	}
+
+	.overview-note {
+		margin: var(--space-sm) 0 0;
+		font-size: var(--font-size-xs);
+		color: var(--color-text-muted);
 	}
 
 	.actions {

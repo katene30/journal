@@ -23,6 +23,7 @@ export interface EntryData {
 	social_interactions_quality: number | null;
 	// Wairua
 	sense_of_meaning: number | null;
+	spiritual_connection: number | null;
 	// Mauriora
 	felt_like_myself: number | null;
 	// Waiora
@@ -54,6 +55,7 @@ function createEmptyEntry(): EntryData {
 		social_connection: null,
 		social_interactions_quality: null,
 		sense_of_meaning: null,
+		spiritual_connection: null,
 		felt_like_myself: null,
 		environment_quality: null,
 		overall_day_rating: null,
@@ -118,8 +120,8 @@ export const pillarMauriStates = derived(currentEntry, ($entry) => {
 			2
 		),
 		wairua: getMauri(
-			countFilled(['sense_of_meaning']),
-			1
+			countFilled(['sense_of_meaning', 'spiritual_connection']),
+			2
 		),
 		mauriora: getMauri(
 			countFilled(['felt_like_myself']),
@@ -188,6 +190,7 @@ function mapApiToStore(apiEntry: Entry): EntryData {
 		social_connection: apiEntry.social_connection,
 		social_interactions_quality: apiEntry.social_interactions_quality,
 		sense_of_meaning: apiEntry.sense_of_meaning,
+		spiritual_connection: apiEntry.spiritual_connection,
 		felt_like_myself: apiEntry.felt_like_myself,
 		environment_quality: apiEntry.environment_quality,
 		overall_day_rating: apiEntry.overall_day_rating,

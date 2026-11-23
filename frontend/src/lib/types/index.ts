@@ -5,6 +5,8 @@ export interface SemanticScale {
 	leftLabel: string;
 	rightLabel: string;
 	helpText?: string;
+	/** Higher means less well (e.g. anxiety), so pillar scores count it as 6 - value */
+	reversed?: boolean;
 	value: number | null;
 }
 
@@ -39,6 +41,8 @@ export interface PillarConfig {
 	icon: string;
 	name: string;
 	teReo: string;
+	/** Short English description, e.g. "Mind & emotions" */
+	theme: string;
 	color: string;
 	/** Darker variant for chart lines when `color` is under 3:1 contrast on the surface */
 	chartColor?: string;

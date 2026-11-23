@@ -204,6 +204,34 @@ class EntryIsolationTests(APITestCase):
         self.assertNotIn('user', response.data)
 
 
+class EntryValuesTests(APITestCase):
+    def setUp(self):
+        self.client.force_authenticate(make_user('kia@example.com'))
+
+    def test_spiritual_connection_saves_and_reads_back(self):
+        created = self.client.post('/api/entries/', {'date': '2026-03-01', 'spiritual_connection': 4}, format='json')
+
+        self.assertEqual(created.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(self.client.get(f"/api/entries/{created.data['id']}/").data['spiritual_connection'], 4)
+        scales = self.client.get('/api/entries/range/', {'start': '2026-03-01', 'end': '2026-03-01'})
+        self.assertEqual(scales.data['entries'][0]['spiritual_connection'], 4)
+
+    def test_sliders_must_be_1_to_5(self):
+        for value in (0, 6, 99):
+            with self.subTest(value=value):
+                response = self.client.post('/api/entries/', {'date': '2026-03-02', 'mood': value}, format='json')
+
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertIn('mood', response.data)
+
+    def test_sliders_accept_1_to_5_and_blank(self):
+        response = self.client.post('/api/entries/', {
+            'date': '2026-03-03', 'mood': 1, 'stress_level': 5, 'spiritual_connection': None,
+        }, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+
 class EntryRangeTests(APITestCase):
     url = '/api/entries/range/'
 

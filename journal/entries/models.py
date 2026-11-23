@@ -30,6 +30,8 @@ class JournalEntry(models.Model):
 
     # Taha Wairua - Meaning, purpose, spirituality
     sense_of_meaning = models.IntegerField(null=True, blank=True)
+    # Optional: faith, karakia, nature, whakapapa, whatever feeds the spirit
+    spiritual_connection = models.IntegerField(null=True, blank=True)
 
     # Mauriora - Identity (Te Pae Mahutonga)
     felt_like_myself = models.IntegerField(null=True, blank=True)
@@ -77,7 +79,7 @@ SLIDER_FIELDS = [
     # Taha Whānau
     'social_connection', 'social_interactions_quality',
     # Taha Wairua
-    'sense_of_meaning',
+    'sense_of_meaning', 'spiritual_connection',
     # Mauriora
     'felt_like_myself',
     # Waiora

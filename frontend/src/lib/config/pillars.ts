@@ -6,6 +6,7 @@ export const PILLARS: PillarConfig[] = [
 		icon: '📝',
 		name: 'Reflection',
 		teReo: 'Koiri',
+		theme: 'Your day',
 		color: '#5a6b73',
 		question: {
 			maori: 'He pēhea tō rā i tēnei rā?',
@@ -32,6 +33,7 @@ export const PILLARS: PillarConfig[] = [
 		icon: '🧠',
 		name: 'Hinengaro',
 		teReo: 'Koru',
+		theme: 'Mind & emotions',
 		color: '#1a4a5e',
 		question: {
 			maori: 'E pēhea ana tō hinengaro i tēnei rā?',
@@ -50,14 +52,16 @@ export const PILLARS: PillarConfig[] = [
 				title: 'Anxiety',
 				leftLabel: 'Calm',
 				rightLabel: 'Anxious',
-				helpText: 'How worried or on-edge do you feel?'
+				helpText: 'How worried or on-edge do you feel?',
+				reversed: true
 			},
 			{
 				id: 'stress_level',
 				title: 'Stress',
 				leftLabel: 'Relaxed',
 				rightLabel: 'Stressed',
-				helpText: 'How much pressure are you feeling?'
+				helpText: 'How much pressure are you feeling?',
+				reversed: true
 			}
 		]
 	},
@@ -66,6 +70,7 @@ export const PILLARS: PillarConfig[] = [
 		icon: '💪',
 		name: 'Tinana',
 		teReo: 'Mangopare',
+		theme: 'Physical wellbeing',
 		color: '#2d6a5a',
 		question: {
 			maori: 'E pēhea ana tō tinana i tēnei rā?',
@@ -111,6 +116,7 @@ export const PILLARS: PillarConfig[] = [
 		icon: '💛',
 		name: 'Whānau',
 		teReo: 'Pikorua',
+		theme: 'Connection & belonging',
 		color: '#d4a03a',
 		chartColor: '#a8791f', // #d4a03a is 2.3:1 on the surface; this keeps the gold at 3.8:1
 		question: {
@@ -139,6 +145,7 @@ export const PILLARS: PillarConfig[] = [
 		icon: '🌿',
 		name: 'Wairua',
 		teReo: 'Manaia',
+		theme: 'Spirit & meaning',
 		color: '#6b4a6e',
 		question: {
 			maori: 'E pēhea ana tō wairua i tēnei rā?',
@@ -151,6 +158,13 @@ export const PILLARS: PillarConfig[] = [
 				leftLabel: 'Lacking',
 				rightLabel: 'Purposeful',
 				helpText: 'Do you feel a sense of purpose?'
+			},
+			{
+				id: 'spiritual_connection',
+				title: 'Spiritual Connection',
+				leftLabel: 'Disconnected',
+				rightLabel: 'Connected',
+				helpText: 'Through faith, karakia, nature, whakapapa, or whatever feeds your spirit'
 			}
 		]
 	},
@@ -159,6 +173,7 @@ export const PILLARS: PillarConfig[] = [
 		icon: '🪞',
 		name: 'Mauriora',
 		teReo: 'Hei Tiki',
+		theme: 'Identity',
 		color: '#8b5a3c',
 		question: {
 			maori: 'I rongo koe i a koe anō i tēnei rā?',
@@ -179,6 +194,7 @@ export const PILLARS: PillarConfig[] = [
 		icon: '🏡',
 		name: 'Waiora',
 		teReo: 'Ngutukākā',
+		theme: 'Environment',
 		color: '#4a5d23',
 		question: {
 			maori: 'E pēhea ana tō taiao i tēnei rā?',

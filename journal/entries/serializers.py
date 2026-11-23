@@ -26,6 +26,7 @@ class JournalEntrySerializer(serializers.ModelSerializer):
             'social_interactions_quality',
             # Wairua
             'sense_of_meaning',
+            'spiritual_connection',
             # Mauriora
             'felt_like_myself',
             # Waiora
@@ -38,6 +39,8 @@ class JournalEntrySerializer(serializers.ModelSerializer):
             'log',
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
+        # Pillar scores and charts assume every slider is 1-5
+        extra_kwargs = {field: {'min_value': 1, 'max_value': 5} for field in SLIDER_FIELDS}
 
 
 class JournalEntryListSerializer(serializers.ModelSerializer):
