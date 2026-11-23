@@ -47,7 +47,7 @@
 	<title>Account · Hauora Journal</title>
 </svelte:head>
 
-<div class="account-page">
+<div class="account-page reading-column">
 	<h1>Account</h1>
 
 	<section class="panel" aria-labelledby="details-heading">
@@ -122,9 +122,8 @@
 
 <style lang="scss">
 	.account-page {
-		padding: var(--space-lg) var(--space-md);
-		max-width: 640px;
-		margin: 0 auto;
+		--reading-max: 640px;
+		padding-block: var(--space-lg);
 
 		h1 {
 			font-size: var(--font-size-xl);
@@ -225,6 +224,5 @@
 
 	.footer-link {
 		font-size: var(--font-size-sm);
-		text-align: center;
 	}
 </style>

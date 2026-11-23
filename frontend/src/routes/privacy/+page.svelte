@@ -9,7 +9,7 @@
 	<title>Privacy policy · Hauora Journal</title>
 </svelte:head>
 
-<article class="privacy">
+<article class="privacy reading-column">
 	<p class="privacy__back">
 		{#if $isAuthenticated}
 			<a href="/app/account">← Back to your account</a>
@@ -144,9 +144,8 @@
 
 <style lang="scss">
 	.privacy {
-		max-width: 680px;
-		margin: 0 auto;
-		padding: var(--space-lg) var(--space-md);
+		--reading-max: 680px;
+		padding-block: var(--space-lg);
 		line-height: 1.6;
 
 		h1 {

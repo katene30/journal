@@ -66,7 +66,7 @@
 	}
 </script>
 
-<div class="entry-detail">
+<div class="entry-detail reading-column">
 	{#if loading}
 		<p class="loading">Loading...</p>
 	{:else if error || !entry}
@@ -202,9 +202,8 @@
 
 <style lang="scss">
 	.entry-detail {
-		padding: var(--space-lg) var(--space-md);
-		max-width: 800px;
-		margin: 0 auto;
+		--reading-max: 800px;
+		padding-block: var(--space-lg);
 	}
 
 	.loading,

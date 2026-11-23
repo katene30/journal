@@ -23,7 +23,7 @@
 
 <div class="home">
 	<!-- Hero Section -->
-	<section class="hero">
+	<section class="hero reading-column">
 		<h1>Hauora Journal</h1>
 		<p class="hero__subtitle">Holistic wellbeing tracking, rooted in te ao Māori</p>
 
@@ -48,7 +48,7 @@
 
 	<!-- Recent Entries (logged in only) -->
 	{#if $isAuthenticated}
-		<section class="section">
+		<section class="section reading-column">
 			<h2>Recent Entries</h2>
 			{#if loadingEntries}
 				<p class="loading">Loading...</p>
@@ -66,7 +66,7 @@
 	{/if}
 
 	<!-- Features Section -->
-	<section class="section">
+	<section class="section reading-column">
 		<h2>Features</h2>
 		<div class="features-grid">
 			<div class="feature-card">
@@ -89,7 +89,7 @@
 	</section>
 
 	<!-- About Section -->
-	<section class="section section--alt">
+	<section class="section reading-column">
 		<h2>About</h2>
 
 		<div class="about-content">
@@ -121,7 +121,7 @@
 	</section>
 
 	<!-- Footer -->
-	<footer class="footer">
+	<footer class="footer reading-column">
 		<p>Built with aroha in Aotearoa</p>
 	</footer>
 </div>
@@ -132,14 +132,13 @@
 	}
 
 	.hero {
-		text-align: center;
-		padding: var(--space-xxl) var(--space-md);
-		background: var(--color-surface);
-		border-bottom: 1px solid var(--color-border);
+		--reading-max: 900px;
+		padding-block: var(--space-xxl) var(--space-lg);
 		color: var(--color-text);
 	}
 
-	:global(.main) {
+	/* Home handles its own spacing. Scoped with :has so it doesn't leak to other pages */
+	:global(.main:has(> .home)) {
 		padding: 0;
 	}
 
@@ -156,31 +155,19 @@
 
 	.hero__actions {
 		display: flex;
-		justify-content: center;
+		justify-content: flex-start;
 		gap: var(--space-sm);
 		flex-wrap: wrap;
 	}
 
 	.section {
-		padding: var(--space-xl) var(--space-md);
-		max-width: 900px;
-		margin: 0 auto;
+		--reading-max: 900px;
+		padding-block: var(--space-xl);
 
 		h2 {
 			font-size: var(--font-size-xl);
 			color: var(--color-text);
 			margin-bottom: var(--space-lg);
-			text-align: center;
-		}
-	}
-
-	.section--alt {
-		background: var(--color-bg);
-		max-width: none;
-
-		.about-content {
-			max-width: 900px;
-			margin: 0 auto;
 		}
 	}
 
@@ -202,8 +189,7 @@
 	}
 
 	.view-all {
-		display: block;
-		text-align: center;
+		display: inline-block;
 		margin-top: var(--space-md);
 		color: var(--color-link);
 	}
@@ -272,8 +258,8 @@
 	}
 
 	.footer {
-		text-align: center;
-		padding: var(--space-xl) var(--space-md);
+		--reading-max: 900px;
+		padding-block: var(--space-xl);
 		color: var(--color-text-muted);
 		font-size: var(--font-size-sm);
 	}

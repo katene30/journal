@@ -105,6 +105,17 @@ p {
 	padding-block: var(--space-lg);
 }
 
+// Reading pages (Home, Entries, an entry, Account, Privacy): a column that
+// starts on the header brand's left edge instead of being centred. Each page
+// sets --reading-max for its line length. Summary and New Entry stay centred.
+.reading-column {
+	width: 100%;
+	max-width: calc(var(--reading-max, 800px) + 2 * var(--space-md));
+	margin-left: max(0px, calc((100% - var(--header-max-width)) / 2));
+	margin-right: auto;
+	padding-inline: var(--space-md);
+}
+
 // ==========================================================================
 // Skip Link (A11y)
 // ==========================================================================

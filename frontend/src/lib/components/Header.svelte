@@ -139,7 +139,7 @@
 		align-items: center;
 		gap: var(--space-lg);
 		padding: var(--space-sm) var(--space-md);
-		max-width: 1200px;
+		max-width: var(--header-max-width);
 		margin: 0 auto;
 	}
 

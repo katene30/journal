@@ -20,7 +20,7 @@
 	});
 </script>
 
-<div class="entries-page">
+<div class="entries-page reading-column">
 	<header class="page-header">
 		<h1>All Entries</h1>
 		<a href="/app/new" class="btn btn--primary">New Entry <ArrowRightIcon /></a>
@@ -46,9 +46,8 @@
 
 <style lang="scss">
 	.entries-page {
-		padding: var(--space-lg) var(--space-md);
-		max-width: 1000px;
-		margin: 0 auto;
+		--reading-max: 1000px;
+		padding-block: var(--space-lg);
 	}
 
 	.page-header {
