@@ -2,9 +2,11 @@
 	import { entriesApi, type EntryRange, type ScaleField } from '$lib/api/entries';
 	import { PILLARS, getPillarById, describeScaleValue } from '$lib/config/pillars';
 	import PillarNav from '$lib/components/PillarNav.svelte';
+	import Sparkline from '$lib/components/Sparkline.svelte';
 	import TrendChart from '$lib/components/TrendChart.svelte';
 	import ArrowRightIcon from '$lib/icons/ArrowRightIcon.svelte';
-	import type { PillarId } from '$lib/types';
+	import type { PillarConfig, PillarId } from '$lib/types';
+	import { SCALE_MAX, formatScore, pillarScore } from '$lib/utils/hauora';
 	import { addDays, daysBetween, formatLongDate, formatShortDate, localISODate } from '$lib/utils/dates';
 
 	type Preset = 7 | 30 | 90 | 'custom';
@@ -86,6 +88,39 @@
 	const moodScale = PILLARS.find((p) => p.id === 'hinengaro')!.scales[0];
 	const avgDay = $derived(average('overall_day_rating'));
 	const avgMood = $derived(average('mood'));
+
+	// Pillar scores: the same per-day calculation as the entry page
+	const OVERVIEW_PILLARS = PILLARS.filter((p) => p.id !== 'reflection');
+	const SCORE_LABELS = { leftLabel: 'Low', rightLabel: 'High' };
+
+	const scoreSeries = (p: PillarConfig) =>
+		entries.map((e) => ({ date: e.date, value: pillarScore(p, e).score }));
+
+	const pillarSummaries = $derived(
+		OVERVIEW_PILLARS.map((p) => {
+			const series = scoreSeries(p);
+			const values = series.map((d) => d.value).filter((v): v is number => v !== null);
+			return {
+				pillar: p,
+				series,
+				days: values.length,
+				average: values.length ? values.reduce((a, b) => a + b, 0) / values.length : null
+			};
+		})
+	);
+
+	// A combined score only adds anything when a pillar has more than one scale
+	const showScore = $derived(pillar.id !== 'reflection' && pillar.scales.length > 1);
+	const hasReversed = $derived(pillar.scales.some((s) => s.reversed));
+
+	let pillarHeading = $state<HTMLElement>();
+
+	function openPillar(id: PillarId) {
+		pillarId = id;
+		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		pillarHeading?.focus({ preventScroll: true });
+		pillarHeading?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+	}
 </script>
 
 <svelte:head>
@@ -171,13 +206,78 @@
 					</div>
 				</section>
 
+				<section class="glance" aria-labelledby="glance-heading">
+					<h2 id="glance-heading" class="section-heading">Pillars at a glance</h2>
+					<p class="section-intro">Each pillar's average score on the days you rated it. Select one to see its charts.</p>
+
+					<ul class="glance__grid">
+						{#each pillarSummaries as item (item.pillar.id)}
+							{@const ink = item.pillar.chartColor ?? item.pillar.color}
+							<li>
+								<button
+									type="button"
+									class="glance-card"
+									class:glance-card--active={pillarId === item.pillar.id}
+									style="--pillar-color: {item.pillar.color}; --pillar-ink: {ink}"
+									aria-label={item.average === null
+										? `${item.pillar.name}: not rated in this range. Show charts.`
+										: `${item.pillar.name}: average ${formatScore(Number(item.average.toFixed(1)))} out of ${SCALE_MAX} over ${item.days} days. Show charts.`}
+									onclick={() => openPillar(item.pillar.id)}
+								>
+									<span class="glance-card__top">
+										<span class="glance-card__heading">
+											<span class="glance-card__name">{item.pillar.name}</span>
+											<span class="glance-card__theme">{item.pillar.theme}</span>
+										</span>
+										{#if item.average !== null}
+											<span class="glance-card__value">
+												{item.average.toFixed(1)}<span class="glance-card__out-of">/ {SCALE_MAX}</span>
+											</span>
+										{/if}
+									</span>
+									{#if item.average !== null}
+										<Sparkline color={ink} start={data.start} end={data.end} points={item.series} />
+										<span class="glance-card__days">{item.days} {item.days === 1 ? 'day' : 'days'} rated</span>
+									{:else}
+										<span class="glance-card__days">Not rated in this range</span>
+									{/if}
+								</button>
+							</li>
+						{/each}
+					</ul>
+
+					<p class="glance__note">
+						A pillar's score is the average of its ratings that day, with anxiety and stress reversed so
+						higher always means more settled. It's a personal snapshot, not a measure of your hauora.
+					</p>
+				</section>
+
 				<section class="pillar-section" aria-labelledby="pillar-heading">
 					<PillarNav activePillar={pillarId} onselect={(id) => (pillarId = id)} />
 
-					<h2 id="pillar-heading" class="pillar-heading">
+					<h2 id="pillar-heading" class="pillar-heading" tabindex="-1" bind:this={pillarHeading}>
 						{pillar.name}
 						<span class="pillar-heading__en">{pillar.question.english}</span>
 					</h2>
+
+					{#if showScore}
+						<div class="score-chart">
+							<TrendChart
+								title="{pillar.name} score"
+								leftLabel={SCORE_LABELS.leftLabel}
+								rightLabel={SCORE_LABELS.rightLabel}
+								color={pillar.chartColor ?? pillar.color}
+								start={data.start}
+								end={data.end}
+								points={scoreSeries(pillar)}
+							/>
+							<p class="score-chart__note">
+								The average of the {pillar.scales.length} ratings below{hasReversed
+									? ', with anxiety and stress reversed'
+									: ''}.
+							</p>
+						</div>
+					{/if}
 
 					<div class="charts" class:charts--single={pillar.scales.length === 1}>
 						{#each pillar.scales as scale (scale.id)}
@@ -201,6 +301,9 @@
 								<thead>
 									<tr>
 										<th scope="col">Date</th>
+										{#if showScore}
+											<th scope="col">{pillar.name} score</th>
+										{/if}
 										{#each pillar.scales as scale}
 											<th scope="col">{scale.title}</th>
 										{/each}
@@ -210,6 +313,16 @@
 									{#each [...entries].reverse() as entry (entry.id)}
 										<tr>
 											<th scope="row"><a href="/app/entries/{entry.id}">{formatLongDate(entry.date)}</a></th>
+											{#if showScore}
+												{@const score = pillarScore(pillar, entry).score}
+												<td>
+													{#if score === null}
+														<span class="muted">–</span>
+													{:else}
+														<strong>{formatScore(Number(score.toFixed(1)))}</strong>
+													{/if}
+												</td>
+											{/if}
 											{#each pillar.scales as scale}
 												{@const v = entry[scale.id as ScaleField]}
 												<td>
@@ -451,6 +564,134 @@
 		color: var(--color-text-muted);
 	}
 
+	/* Pillars at a glance */
+	.section-heading {
+		margin: 0 0 var(--space-xxs);
+		font-size: var(--font-size-lg);
+		color: var(--color-text);
+	}
+
+	.section-intro {
+		margin: 0 0 var(--space-sm);
+		font-size: var(--font-size-sm);
+		color: var(--color-text-muted);
+	}
+
+	.glance {
+		margin-bottom: var(--space-lg);
+	}
+
+	.glance__grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: var(--space-xs);
+		margin: 0;
+		padding: 0;
+		list-style: none;
+
+		@media (min-width: 700px) {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			gap: var(--space-sm);
+		}
+	}
+
+	.glance-card {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-xs);
+		width: 100%;
+		height: 100%;
+		padding: var(--space-sm);
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-left: 4px solid var(--pillar-color);
+		border-radius: var(--radius-md);
+		color: var(--color-text);
+		font: inherit;
+		text-align: left;
+		cursor: pointer;
+		transition: border-color var(--transition-fast), background-color var(--transition-fast);
+
+		&:hover {
+			border-color: var(--pillar-ink);
+			border-left-color: var(--pillar-color);
+		}
+
+		&:focus-visible {
+			outline: 2px solid var(--color-focus);
+			outline-offset: 2px;
+		}
+	}
+
+	.glance-card--active {
+		background: color-mix(in srgb, var(--pillar-color) 8%, var(--color-surface));
+		border-color: var(--pillar-ink);
+		border-left-color: var(--pillar-color);
+	}
+
+	.glance-card__top {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		gap: var(--space-xs);
+	}
+
+	.glance-card__heading {
+		display: flex;
+		flex-direction: column;
+		min-width: 0;
+	}
+
+	.glance-card__name {
+		font-weight: 600;
+		color: var(--pillar-ink);
+	}
+
+	.glance-card__theme {
+		font-size: var(--font-size-xs);
+		color: var(--color-text-muted);
+	}
+
+	.glance-card__value {
+		font-size: var(--font-size-lg);
+		font-weight: 600;
+		font-variant-numeric: tabular-nums;
+		white-space: nowrap;
+
+		@media (min-width: 500px) {
+			font-size: var(--font-size-xl);
+		}
+	}
+
+	.glance-card__out-of {
+		margin-left: 2px;
+		font-size: var(--font-size-xs);
+		font-weight: 400;
+		color: var(--color-text-muted);
+	}
+
+	.glance-card__days {
+		margin-top: auto;
+		font-size: var(--font-size-xs);
+		color: var(--color-text-muted);
+	}
+
+	.glance__note {
+		margin: var(--space-sm) 0 0;
+		font-size: var(--font-size-xs);
+		color: var(--color-text-muted);
+	}
+
+	.score-chart {
+		margin-bottom: var(--space-sm);
+	}
+
+	.score-chart__note {
+		margin: var(--space-xxs) 0 0;
+		font-size: var(--font-size-xs);
+		color: var(--color-text-muted);
+	}
+
 	/* Pillar charts */
 	.pillar-heading {
 		display: flex;
@@ -460,6 +701,11 @@
 		margin: var(--space-md) 0 var(--space-sm);
 		font-size: var(--font-size-lg);
 		color: var(--color-text);
+		scroll-margin-top: var(--space-md);
+
+		&:focus {
+			outline: none;
+		}
 	}
 
 	.pillar-heading__en {

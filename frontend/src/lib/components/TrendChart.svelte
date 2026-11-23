@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { describeScaleValue } from '$lib/config/pillars';
 	import { daysBetween, formatLongDate, formatShortDate, addDays } from '$lib/utils/dates';
+	import { formatScore } from '$lib/utils/hauora';
 
 	interface Point {
 		date: string;
@@ -97,7 +98,7 @@
 	// What a screen reader announces as the user arrows through the days
 	const valueText = $derived.by(() => {
 		const p = active ?? last;
-		return p ? `${formatLongDate(p.date)}: ${p.value}, ${describe(p.value)}` : '';
+		return p ? `${formatLongDate(p.date)}: ${formatScore(p.value)}, ${describe(p.value)}` : '';
 	});
 
 	const summary = $derived(
@@ -169,7 +170,7 @@
 
 				<!-- End label: the latest value -->
 				{#if last}
-					<text class="end-label" x={x(last.day) + 10} y={y(last.value)} dy="0.35em">{last.value}</text>
+					<text class="end-label" x={x(last.day) + 10} y={y(last.value)} dy="0.35em">{formatScore(last.value)}</text>
 				{/if}
 			</svg>
 
@@ -177,7 +178,7 @@
 				<div class="trend-chart__tooltip" style="left: {tooltipLeft}px" aria-hidden="true">
 					<span class="trend-chart__tooltip-value">
 						<span class="trend-chart__key" style="background: {color}"></span>
-						<strong>{active.value}</strong>
+						<strong>{formatScore(active.value)}</strong>
 						{describe(active.value)}
 					</span>
 					<span class="trend-chart__tooltip-date">{formatLongDate(active.date)}</span>
