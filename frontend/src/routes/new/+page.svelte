@@ -1,12 +1,15 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { untrack } from 'svelte';
 	import { fly } from 'svelte/transition';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 	import BackToTop from '$lib/components/BackToTop.svelte';
 	import PillarNav from '$lib/components/PillarNav.svelte';
 	import StitchCorners from '$lib/components/StitchCorners.svelte';
 	import SemanticScale from '$lib/components/SemanticScale.svelte';
 	import { PILLARS } from '$lib/config/pillars';
 	import type { PillarId } from '$lib/types';
+	import { isISODate } from '$lib/utils/dates';
 	import {
 		activePillar,
 		currentEntry,
@@ -99,10 +102,38 @@
 		}
 	}
 
-	// Load today's entry on mount
-	onMount(async () => {
+	// The URL decides which day is open: /app/new?date=YYYY-MM-DD (Edit Entry
+	// links here), or today when there's no date. Following the URL means the
+	// header's New Entry link also returns to today from an older entry.
+	const requestedDate = $derived.by(() => {
+		const date = $page.url.searchParams.get('date');
+		return isISODate(date) ? date : null;
+	});
+
+	let hasLoaded = false;
+
+	$effect(() => {
+		const date = requestedDate;
+		untrack(() => loadEntryFor(date));
+	});
+
+	async function loadEntryFor(date: string | null) {
+		loading = true;
+		error = null;
 		try {
-			await entryApiActions.loadToday();
+			if (date) {
+				await entryApiActions.loadByDate(date);
+			} else {
+				await entryApiActions.loadToday();
+			}
+			// Flash the card when switching days, not on the first load
+			if (hasLoaded) {
+				entryLoaded = true;
+				setTimeout(() => {
+					entryLoaded = false;
+				}, 600);
+			}
+			hasLoaded = true;
 		} catch (e: unknown) {
 			console.error('Load error:', e);
 			if (e && typeof e === 'object' && 'detail' in e) {
@@ -115,7 +146,7 @@
 		} finally {
 			loading = false;
 		}
-	});
+	}
 
 	// Save handler
 	async function handleSave() {
@@ -164,28 +195,10 @@
 		showClearConfirm = false;
 	}
 
-	// Handle date change - load entry for that date
-	async function handleDateChange(newDate: string) {
-		loading = true;
-		error = null;
-		try {
-			await entryApiActions.loadByDate(newDate);
-			entryLoaded = true;
-			setTimeout(() => {
-				entryLoaded = false;
-			}, 600);
-		} catch (e: unknown) {
-			console.error('Load error:', e);
-			if (e && typeof e === 'object' && 'detail' in e) {
-				error = String((e as { detail: string }).detail);
-			} else if (e instanceof Error) {
-				error = e.message;
-			} else {
-				error = 'Failed to load entry';
-			}
-		} finally {
-			loading = false;
-		}
+	// Picking a date updates the URL (so a refresh keeps the day); the effect loads it
+	function handleDateChange(newDate: string) {
+		if (!isISODate(newDate) || newDate === requestedDate) return;
+		goto(`/app/new?date=${newDate}`, { replaceState: true, keepFocus: true, noScroll: true });
 	}
 </script>
 
