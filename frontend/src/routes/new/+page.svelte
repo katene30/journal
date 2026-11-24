@@ -306,7 +306,7 @@
 									id={field.id}
 									value={$currentEntry[field.id as keyof EntryData] ?? ''}
 									placeholder={field.placeholder}
-									rows={field.id === 'log' ? 6 : 2}
+									rows={field.id === 'log' ? 6 : field.id === 'gratitude' ? 3 : 2}
 									onchange={(e) => setField(field.id as keyof EntryData, e.currentTarget.value)}
 								></textarea>
 							</div>

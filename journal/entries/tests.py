@@ -218,6 +218,19 @@ class EntryValuesTests(APITestCase):
         scales = self.client.get('/api/entries/range/', {'start': '2026-03-01', 'end': '2026-03-01'})
         self.assertEqual(scales.data['entries'][0]['spiritual_connection'], 4)
 
+    def test_gratitude_saves_and_is_optional(self):
+        created = self.client.post('/api/entries/', {
+            'date': '2026-03-04', 'gratitude': 'Kai with Nan.\nA sunny walk.',
+        }, format='json')
+        blank = self.client.post('/api/entries/', {'date': '2026-03-05'}, format='json')
+
+        self.assertEqual(created.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(
+            self.client.get(f"/api/entries/{created.data['id']}/").data['gratitude'],
+            'Kai with Nan.\nA sunny walk.',
+        )
+        self.assertEqual(blank.data['gratitude'], '')
+
     def test_sliders_must_be_1_to_5(self):
         for value in (0, 6, 99):
             with self.subTest(value=value):

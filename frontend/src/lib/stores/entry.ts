@@ -30,10 +30,11 @@ export interface EntryData {
 	environment_quality: number | null;
 	// Reflection
 	overall_day_rating: number | null;
+	log: string;
+	gratitude: string;
 	best_thing_today: string;
 	hardest_thing_today: string;
 	significant_events: string;
-	log: string;
 }
 
 function todayString(): string {
@@ -59,10 +60,11 @@ function createEmptyEntry(): EntryData {
 		felt_like_myself: null,
 		environment_quality: null,
 		overall_day_rating: null,
+		log: '',
+		gratitude: '',
 		best_thing_today: '',
 		hardest_thing_today: '',
-		significant_events: '',
-		log: ''
+		significant_events: ''
 	};
 }
 
@@ -104,8 +106,8 @@ export const pillarMauriStates = derived(currentEntry, ($entry) => {
 
 	return {
 		reflection: getMauri(
-			countFilled(['overall_day_rating', 'best_thing_today', 'hardest_thing_today', 'significant_events', 'log']),
-			5
+			countFilled(['overall_day_rating', 'log', 'gratitude', 'best_thing_today', 'hardest_thing_today', 'significant_events']),
+			6
 		),
 		hinengaro: getMauri(
 			countFilled(['mood', 'anxiety_level', 'stress_level']),
@@ -194,10 +196,11 @@ function mapApiToStore(apiEntry: Entry): EntryData {
 		felt_like_myself: apiEntry.felt_like_myself,
 		environment_quality: apiEntry.environment_quality,
 		overall_day_rating: apiEntry.overall_day_rating,
+		log: apiEntry.log || '',
+		gratitude: apiEntry.gratitude || '',
 		best_thing_today: apiEntry.best_thing_today || '',
 		hardest_thing_today: apiEntry.hardest_thing_today || '',
-		significant_events: apiEntry.significant_events || '',
-		log: apiEntry.log || ''
+		significant_events: apiEntry.significant_events || ''
 	};
 }
 

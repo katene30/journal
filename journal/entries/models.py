@@ -41,10 +41,12 @@ class JournalEntry(models.Model):
 
     # Reflection
     overall_day_rating = models.IntegerField(null=True, blank=True)
+    log = models.TextField(blank=True)
+    # A gratitude practice: what you're thankful for today
+    gratitude = models.TextField(blank=True)
     best_thing_today = models.TextField(blank=True)
     hardest_thing_today = models.TextField(blank=True)
     significant_events = models.TextField(blank=True)
-    log = models.TextField(blank=True)
 
     class Meta:
         verbose_name_plural = 'journal entries'

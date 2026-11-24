@@ -73,6 +73,17 @@ JOURNAL = [
     'Low energy, not much to say. Tomorrow is another day.',
     'Felt connected at church this morning. Carried that calm through the day.',
 ]
+GRATITUDE = [
+    'My bed. Hot shower. Mum checking in.',
+    'Sunshine on the walk to work.',
+    'A good laugh with my cousins.',
+    'Leftovers so I did not have to cook.',
+    'My health, even on a slow day.',
+    'Karakia this morning, it settled me.',
+    'A friend who listened without fixing.',
+    'Fresh kai from the garden.',
+    'Getting through a hard day.',
+]
 CAFFEINE = ['1 coffee', '2 coffees', '3 coffees', '1 coffee, 1 wine', 'tea only', '2 coffees, 2 beers', '']
 CHURCH_BEST, CHURCH_JOURNAL = BEST[0], JOURNAL[-1]
 
@@ -154,6 +165,7 @@ class Command(BaseCommand):
             environment_quality=maybe(rate(3.5 + 0.3 * weekend), 0.8),
         )
         if not light:
+            entry.gratitude = maybe(rng.choice(GRATITUDE), 0.7) or ''
             entry.best_thing_today = CHURCH_BEST if sunday and rng.random() < 0.5 else rng.choice(BEST)
             entry.hardest_thing_today = maybe(rng.choice(HARD), 0.8) or ''
             entry.significant_events = maybe(rng.choice(EVENTS), 0.25) or ''

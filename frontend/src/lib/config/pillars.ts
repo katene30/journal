@@ -22,11 +22,17 @@ export const PILLARS: PillarConfig[] = [
 				helpText: 'How would you rate your day overall?'
 			}
 		],
+		// Journal comes first so a busy day can still be a score and a quick note
 		textFields: [
+			{ id: 'log', label: 'Journal', placeholder: "What's on your mind?" },
+			{
+				id: 'gratitude',
+				label: "Things I'm grateful for",
+				placeholder: 'Big or small, what are you thankful for today?'
+			},
 			{ id: 'best_thing_today', label: 'Best thing today', placeholder: 'What went well?' },
 			{ id: 'hardest_thing_today', label: 'Hardest thing today', placeholder: 'What was challenging?' },
-			{ id: 'significant_events', label: 'Significant events', placeholder: 'Anything notable?' },
-			{ id: 'log', label: 'Journal', placeholder: "What's on your mind?" }
+			{ id: 'significant_events', label: 'Significant events', placeholder: 'Anything notable?' }
 		]
 	},
 	{

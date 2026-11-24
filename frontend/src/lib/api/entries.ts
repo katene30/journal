@@ -37,10 +37,11 @@ export interface Entry {
 	environment_quality: number | null;
 	// Reflection
 	overall_day_rating: number | null;
+	log: string;
+	gratitude: string;
 	best_thing_today: string;
 	hardest_thing_today: string;
 	significant_events: string;
-	log: string;
 }
 
 /** The 1-5 scale fields, keyed by name. */

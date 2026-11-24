@@ -9,12 +9,20 @@
 
 	const OVERVIEW_PILLARS = PILLARS.filter((p) => p.id !== 'reflection');
 	const overallScale = getPillarById('reflection')!.scales[0];
+	const REFLECTION_FIELDS = getPillarById('reflection')!.textFields ?? [];
 
 	let entry = $state<Entry | null>(null);
 	let loading = $state(true);
 	let error = $state<string | null>(null);
 
 	const id = $derived(Number($page.params.id));
+	const reflectionText = $derived(
+		entry
+			? REFLECTION_FIELDS.map((f) => ({ ...f, value: String(entry![f.id as keyof Entry] ?? '').trim() })).filter(
+					(f) => f.value
+				)
+			: []
+	);
 
 	onMount(async () => {
 		try {
@@ -85,38 +93,17 @@
 			{/if}
 		</header>
 
-		<!-- Reflection Section -->
-		{#if entry.log || entry.best_thing_today || entry.hardest_thing_today || entry.significant_events}
+		<!-- Reflection Section: same fields, same order as the New Entry form -->
+		{#if reflectionText.length}
 			<section class="section">
 				<h2>Reflection</h2>
 
-				{#if entry.best_thing_today}
+				{#each reflectionText as field (field.id)}
 					<div class="field">
-						<h3>Best thing today</h3>
-						<p>{entry.best_thing_today}</p>
+						<h3>{field.label}</h3>
+						<p class="field__text">{field.value}</p>
 					</div>
-				{/if}
-
-				{#if entry.hardest_thing_today}
-					<div class="field">
-						<h3>Hardest thing today</h3>
-						<p>{entry.hardest_thing_today}</p>
-					</div>
-				{/if}
-
-				{#if entry.significant_events}
-					<div class="field">
-						<h3>Significant events</h3>
-						<p>{entry.significant_events}</p>
-					</div>
-				{/if}
-
-				{#if entry.log}
-					<div class="field">
-						<h3>Journal</h3>
-						<p class="log">{entry.log}</p>
-					</div>
-				{/if}
+				{/each}
 			</section>
 		{/if}
 
@@ -292,7 +279,7 @@
 		}
 	}
 
-	.log {
+	.field__text {
 		white-space: pre-wrap;
 	}
 

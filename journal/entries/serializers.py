@@ -33,10 +33,11 @@ class JournalEntrySerializer(serializers.ModelSerializer):
             'environment_quality',
             # Reflection
             'overall_day_rating',
+            'log',
+            'gratitude',
             'best_thing_today',
             'hardest_thing_today',
             'significant_events',
-            'log',
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
         # Pillar scores and charts assume every slider is 1-5
