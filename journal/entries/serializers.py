@@ -44,13 +44,42 @@ class JournalEntrySerializer(serializers.ModelSerializer):
         extra_kwargs = {field: {'min_value': 1, 'max_value': 5} for field in SLIDER_FIELDS}
 
 
+# Free-text fields: the private part of an entry
+REFLECTION_TEXT_FIELDS = ['log', 'gratitude', 'best_thing_today', 'hardest_thing_today', 'significant_events']
+PREVIEW_LENGTH = 120
+
+
 class JournalEntryListSerializer(serializers.ModelSerializer):
-    """Lighter serializer for list views."""
-    header = serializers.ReadOnlyField()
+    """Entry tiles: the date and the ratings, never the journal text.
+
+    Lists are glanceable, so they leave out what someone wrote. `preview`
+    (the start of the first Reflection box written in) is only filled in when the request asks for
+    it with ?preview=1, which the app sends when the person has turned
+    journal previews on.
+    """
+    has_reflection = serializers.SerializerMethodField()
+    preview = serializers.SerializerMethodField()
 
     class Meta:
         model = JournalEntry
-        fields = ['id', 'date', 'header', 'overall_day_rating', 'mood', 'log']
+        fields = ['id', 'date', 'overall_day_rating', *SLIDER_FIELDS, 'has_reflection', 'preview']
+
+    def get_has_reflection(self, entry):
+        return any(getattr(entry, field).strip() for field in REFLECTION_TEXT_FIELDS)
+
+    def get_preview(self, entry):
+        request = self.context.get('request')
+        if not request or request.query_params.get('preview') != '1':
+            return None
+        return preview_text(entry)
+
+
+def preview_text(entry):
+    """The start of the first Reflection box that has something in it."""
+    text = next((getattr(entry, f).strip() for f in REFLECTION_TEXT_FIELDS if getattr(entry, f).strip()), '')
+    if len(text) <= PREVIEW_LENGTH:
+        return text
+    return text[:PREVIEW_LENGTH].rstrip() + '…'
 
 
 class JournalEntryScalesSerializer(serializers.ModelSerializer):

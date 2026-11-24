@@ -247,6 +247,57 @@ class EntryValuesTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
+class EntryListPrivacyTests(APITestCase):
+    """Entry lists are glanceable: ratings yes, journal text only on request."""
+
+    def setUp(self):
+        self.client.force_authenticate(make_user('kia@example.com'))
+        self.user_entry = JournalEntry.objects.create(
+            user=User.objects.get(username='kia@example.com'), date=date(2026, 4, 1),
+            mood=4, overall_day_rating=3, log='Something very private ' * 10,
+            hardest_thing_today='Also private',
+        )
+        JournalEntry.objects.create(user=self.user_entry.user, date=date(2026, 4, 2), mood=2)
+
+    def test_lists_leave_out_all_reflection_text(self):
+        for url in ('/api/entries/', '/api/entries/recent/'):
+            with self.subTest(url=url):
+                response = self.client.get(url)
+
+                self.assertNotIn('private', str(response.content))
+                for field in ('log', 'header', 'gratitude', 'best_thing_today', 'hardest_thing_today'):
+                    self.assertNotIn(field, response.data[0])
+                written = next(e for e in response.data if e['id'] == self.user_entry.pk)
+                self.assertTrue(written['has_reflection'])
+                self.assertIsNone(written['preview'])
+                self.assertEqual((written['mood'], written['overall_day_rating']), (4, 3))
+                blank = next(e for e in response.data if e['id'] != self.user_entry.pk)
+                self.assertFalse(blank['has_reflection'])
+
+    def test_preview_is_opt_in_and_only_the_start_of_the_journal(self):
+        for url in ('/api/entries/?preview=1', '/api/entries/recent/?preview=1'):
+            with self.subTest(url=url):
+                written = next(e for e in self.client.get(url).data if e['id'] == self.user_entry.pk)
+
+                self.assertTrue(written['preview'].startswith('Something very private'))
+                self.assertLessEqual(len(written['preview']), 121)
+                self.assertNotIn('Also private', str(self.client.get(url).content))
+
+    def test_preview_falls_back_to_the_first_box_written_in(self):
+        only_gratitude = JournalEntry.objects.create(
+            user=self.user_entry.user, date=date(2026, 4, 3), gratitude='Grateful for the sun',
+        )
+        listed = next(e for e in self.client.get('/api/entries/?preview=1').data if e['id'] == only_gratitude.pk)
+
+        self.assertTrue(listed['has_reflection'])
+        self.assertEqual(listed['preview'], 'Grateful for the sun')
+
+    def test_full_entry_still_has_the_text(self):
+        response = self.client.get(f'/api/entries/{self.user_entry.pk}/')
+
+        self.assertEqual(response.data['hardest_thing_today'], 'Also private')
+
+
 class EntryRangeTests(APITestCase):
     url = '/api/entries/range/'
 

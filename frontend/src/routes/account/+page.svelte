@@ -2,6 +2,7 @@
 	import { tick } from 'svelte';
 	import { accountApi } from '$lib/api/account';
 	import { currentUser } from '$lib/stores/auth';
+	import { privacyPrefs } from '$lib/stores/privacy';
 
 	let confirming = $state(false);
 	let password = $state('');
@@ -59,6 +60,31 @@
 		<p class="muted">
 			To change your password, sign out and use <strong>Forgot password?</strong> on the sign-in page.
 		</p>
+	</section>
+
+	<section class="panel" aria-labelledby="visibility-heading">
+		<h2 id="visibility-heading">What your entry tiles show</h2>
+		<p>
+			Your wellbeing is glanceable; your reflections open when you choose. These settings are saved
+			on this device only.
+		</p>
+		<label class="toggle">
+			<input type="checkbox" bind:checked={$privacyPrefs.showPreviews} />
+			<span>
+				<strong>Show journal previews by default</strong>
+				<span class="muted">
+					Open every tile's preview on Home and All Entries. When this is off, use the eye on a tile
+					to show just that one.
+				</span>
+			</span>
+		</label>
+		<label class="toggle">
+			<input type="checkbox" bind:checked={$privacyPrefs.showIndicators} />
+			<span>
+				<strong>Show hauora indicators</strong>
+				<span class="muted">The six pillar meters on each tile.</span>
+			</span>
+		</label>
 	</section>
 
 	<section class="panel" aria-labelledby="export-heading">
@@ -149,6 +175,28 @@
 
 		> :last-child {
 			margin-bottom: 0;
+		}
+	}
+
+	.toggle {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--space-sm);
+		padding-block: var(--space-xs);
+		cursor: pointer;
+
+		input {
+			flex: none;
+			width: 1.25rem;
+			height: 1.25rem;
+			margin: 2px 0 0;
+			accent-color: var(--color-primary);
+			cursor: pointer;
+		}
+
+		> span {
+			display: flex;
+			flex-direction: column;
 		}
 	}
 

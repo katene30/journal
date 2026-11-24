@@ -1,13 +1,17 @@
 import { api } from './client';
 
-export interface EntryListItem {
+/**
+ * An entry tile: date and ratings only. The list API never sends journal
+ * text, except `preview` (the start of the journal) when asked for.
+ */
+export type EntryListItem = {
 	id: number;
 	date: string;
-	header: string;
-	overall_day_rating: number | null;
-	mood: number | null;
-	log: string;
-}
+	/** Something was written in any Reflection box */
+	has_reflection: boolean;
+	/** Start of the journal, only when requested with preview=true; otherwise null */
+	preview: string | null;
+} & Record<ScaleField, number | null>;
 
 export interface Entry {
 	id: number;
@@ -64,7 +68,7 @@ export type EntryCreate = Omit<Entry, 'id' | 'created_at' | 'updated_at'>;
 export type EntryUpdate = Partial<EntryCreate>;
 
 export const entriesApi = {
-	list: () => api.get<EntryListItem[]>('/entries/'),
+	list: (preview = false) => api.get<EntryListItem[]>(`/entries/${preview ? '?preview=1' : ''}`),
 
 	get: (id: number) => api.get<Entry>(`/entries/${id}/`),
 
@@ -78,7 +82,8 @@ export const entriesApi = {
 
 	byDate: (date: string) => api.get<Entry>(`/entries/by-date/${date}/`),
 
-	recent: () => api.get<EntryListItem[]>('/entries/recent/'),
+	recent: (preview = false) =>
+		api.get<EntryListItem[]>(`/entries/recent/${preview ? '?preview=1' : ''}`),
 
 	/** Scale values for entries from start to end inclusive (YYYY-MM-DD), oldest first. */
 	range: (start: string, end: string) =>

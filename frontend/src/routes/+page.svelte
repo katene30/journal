@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { isAuthenticated } from '$lib/stores/auth';
+	import { privacyPrefs } from '$lib/stores/privacy';
 	import { entriesApi, type EntryListItem } from '$lib/api/entries';
 	import EntryCard from '$lib/components/EntryCard.svelte';
 	import NihoTaniwha from '$lib/components/NihoTaniwha.svelte';
@@ -12,7 +13,7 @@
 	onMount(async () => {
 		if ($isAuthenticated) {
 			try {
-				recentEntries = await entriesApi.recent();
+				recentEntries = await entriesApi.recent($privacyPrefs.showPreviews);
 			} catch (e) {
 				console.error('Failed to load recent entries:', e);
 			} finally {
@@ -66,7 +67,7 @@
 			{:else}
 				<div class="entries-grid">
 					{#each recentEntries.slice(0, 3) as entry}
-						<EntryCard {entry} />
+						<EntryCard {entry} showIndicators={$privacyPrefs.showIndicators} />
 					{/each}
 				</div>
 				<a href="/app/entries" class="view-all">View all entries →</a>
@@ -216,11 +217,8 @@
 	.entries-grid {
 		display: grid;
 		gap: var(--space-md);
-		grid-template-columns: 1fr;
-
-		@media (min-width: 600px) {
-			grid-template-columns: repeat(3, 1fr);
-		}
+		/* As many columns as fit with the six pillar names readable */
+		grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr));
 	}
 
 	.loading,

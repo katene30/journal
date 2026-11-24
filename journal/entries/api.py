@@ -62,7 +62,7 @@ class JournalEntryViewSet(viewsets.ModelViewSet):
     def recent(self, request):
         """Get recent entries (last 7 days)."""
         entries = self.get_queryset()[:7]
-        serializer = JournalEntryListSerializer(entries, many=True)
+        serializer = JournalEntryListSerializer(entries, many=True, context=self.get_serializer_context())
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'])

@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { entriesApi, type EntryListItem } from '$lib/api/entries';
+	import { privacyPrefs } from '$lib/stores/privacy';
 	import EntryCard from '$lib/components/EntryCard.svelte';
 	import ArrowRightIcon from '$lib/icons/ArrowRightIcon.svelte';
 
@@ -8,22 +8,36 @@
 	let loading = $state(true);
 	let error = $state<string | null>(null);
 
-	onMount(async () => {
-		try {
-			entries = await entriesApi.list();
-		} catch (e) {
-			console.error('Failed to load entries:', e);
-			error = 'Failed to load entries';
-		} finally {
-			loading = false;
-		}
+	const showPreviews = $derived($privacyPrefs.showPreviews);
+
+	// Previews only come from the server when "show by default" is on in Account
+	$effect(() => {
+		const preview = showPreviews;
+		let stale = false;
+		entriesApi
+			.list(preview)
+			.then((list) => {
+				if (!stale) entries = list;
+			})
+			.catch((e) => {
+				console.error('Failed to load entries:', e);
+				if (!stale) error = 'Failed to load entries';
+			})
+			.finally(() => {
+				if (!stale) loading = false;
+			});
+		return () => {
+			stale = true;
+		};
 	});
 </script>
 
 <div class="entries-page reading-column">
 	<header class="page-header">
 		<h1>All Entries</h1>
-		<a href="/app/new" class="btn btn--primary">New Entry <ArrowRightIcon /></a>
+		<div class="page-header__actions">
+			<a href="/app/new" class="btn btn--primary">New Entry <ArrowRightIcon /></a>
+		</div>
 	</header>
 
 	{#if loading}
@@ -37,8 +51,8 @@
 		</div>
 	{:else}
 		<div class="entries-grid">
-			{#each entries as entry}
-				<EntryCard {entry} />
+			{#each entries as entry (entry.id)}
+				<EntryCard {entry} showIndicators={$privacyPrefs.showIndicators} />
 			{/each}
 		</div>
 	{/if}
@@ -56,6 +70,13 @@
 		justify-content: space-between;
 		margin-bottom: var(--space-lg);
 		gap: var(--space-md);
+		flex-wrap: wrap;
+	}
+
+	.page-header__actions {
+		display: flex;
+		align-items: center;
+		gap: var(--space-xs);
 		flex-wrap: wrap;
 	}
 
@@ -101,14 +122,7 @@
 	.entries-grid {
 		display: grid;
 		gap: var(--space-md);
-		grid-template-columns: 1fr;
-
-		@media (min-width: 640px) {
-			grid-template-columns: repeat(2, 1fr);
-		}
-
-		@media (min-width: 900px) {
-			grid-template-columns: repeat(3, 1fr);
-		}
+		/* As many columns as fit with the six pillar names readable */
+		grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr));
 	}
 </style>

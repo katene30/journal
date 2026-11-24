@@ -6,6 +6,8 @@
 	import { PILLARS, describeScaleValue, getPillarById } from '$lib/config/pillars';
 	import { SCALE_MAX, formatScore, pillarScore } from '$lib/utils/hauora';
 	import ArrowRightIcon from '$lib/icons/ArrowRightIcon.svelte';
+	import EyeIcon from '$lib/icons/EyeIcon.svelte';
+	import LockIcon from '$lib/icons/LockIcon.svelte';
 
 	const OVERVIEW_PILLARS = PILLARS.filter((p) => p.id !== 'reflection');
 	const overallScale = getPillarById('reflection')!.scales[0];
@@ -14,6 +16,9 @@
 	let entry = $state<Entry | null>(null);
 	let loading = $state(true);
 	let error = $state<string | null>(null);
+	// Reflections open on purpose and close again when you leave the page.
+	// Hidden means not rendered at all, not blurred.
+	let revealed = $state(false);
 
 	const id = $derived(Number($page.params.id));
 	const reflectionText = $derived(
@@ -93,17 +98,46 @@
 			{/if}
 		</header>
 
-		<!-- Reflection Section: same fields, same order as the New Entry form -->
+		<!-- Reflection: same fields, same order as the New Entry form; hidden until asked for -->
 		{#if reflectionText.length}
-			<section class="section">
-				<h2>Reflection</h2>
+			<section class="section" aria-labelledby="reflection-heading">
+				<h2 id="reflection-heading">Reflection</h2>
 
-				{#each reflectionText as field (field.id)}
-					<div class="field">
-						<h3>{field.label}</h3>
-						<p class="field__text">{field.value}</p>
+				{#if revealed}
+					<div id="reflection-text">
+						{#each reflectionText as field (field.id)}
+							<div class="field">
+								<h3>{field.label}</h3>
+								<p class="field__text">{field.value}</p>
+							</div>
+						{/each}
 					</div>
-				{/each}
+					<button
+						type="button"
+						class="btn btn--quiet"
+						aria-expanded="true"
+						aria-controls="reflection-text"
+						onclick={() => (revealed = false)}
+					>
+						<EyeIcon off /> Hide reflection
+					</button>
+				{:else}
+					<div class="concealed">
+						<p class="concealed__note">
+							<LockIcon />
+							{reflectionText.length === 1 ? 'One box' : `${reflectionText.length} boxes`} written, hidden
+							for privacy.
+						</p>
+						<button
+							type="button"
+							class="btn btn--secondary"
+							aria-expanded="false"
+							onclick={() => (revealed = true)}
+						>
+							<EyeIcon /> Show reflection
+						</button>
+					</div>
+				{/if}
 			</section>
 		{/if}
 
@@ -255,6 +289,26 @@
 			padding-bottom: var(--space-xs);
 			border-bottom: 1px solid var(--color-border);
 		}
+	}
+
+	.concealed {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		flex-wrap: wrap;
+		gap: var(--space-sm);
+		padding: var(--space-sm) var(--space-md);
+		background: var(--color-surface);
+		border: 1px dashed var(--color-border);
+		border-radius: var(--radius-md);
+	}
+
+	.concealed__note {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-xs);
+		margin: 0;
+		color: var(--color-text-muted);
 	}
 
 	.section__intro {
